@@ -7,7 +7,7 @@ test.describe('Test', () => {
   test.before(() => {
     const chromeCapabilities = webdriver.Capabilities.chrome();
     chromeCapabilities.set('chromeOptions', {
-      'args': ['--headless']
+      'args': ['--headless', '--disable-gpu']
     });
     driver = new webdriver.Builder()
       .usingServer('http://localhost:4444/wd/hub')
