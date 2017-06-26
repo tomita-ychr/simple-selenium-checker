@@ -25,21 +25,6 @@ export default class Page
       promise = this.waitElement(this.data.link).then(elem => elem.click())
     }
 
-    //https://github.com/seleniumhq/selenium-google-code-issue-archive/issues/141
-    //Selenium can not check the status code, because it can not access the response header.
-    //I wrote the code to get only the header separately, but unnecessary access occurs, so I commented it out.
-    // promise = promise.then(() => {
-    //   return this.driver.getCurrentUrl().then(url => {
-    //     return request(url, {method: 'HEAD'}, function (err, res, body){
-    //       const code = parseInt(res.statusCode, 10)
-    //       if(code < 100 || code > 399){
-    //         throw new Error('Response code is ' + res.statusCode)
-    //       }
-    //     })
-    //   })
-    // })
-
-
     //Process checkes
     if(this.data.checks) {
       this.data.checks.forEach(check => {
