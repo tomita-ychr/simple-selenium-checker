@@ -88,7 +88,7 @@ export default class Page
               }
 
               //response
-              if(log.message.indexOf(url) >= 0){
+              if(log.message.indexOf(url + " - ") === 0){
                 const msg = log.message.split(url).join("")
                 for(let i = 400;i <= 599; i++){
                   if(msg.indexOf(" " + i + " ") >= 0){

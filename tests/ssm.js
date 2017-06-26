@@ -216,4 +216,19 @@ test.describe('SSM', () => {
     const page = new Page(driver, pageData)
     page.run()
   })
+
+  test.it('should fail when a URL different from the actual URL is specified.', () => {
+    const pageData = {
+      url: "http://127.0.0.1:8080/",
+      checks: [
+        {url: "http://127.0.0.1:8080/hoge.html"},
+      ]
+    }
+
+    const page = new Page(driver, pageData)
+    page.run().catch(err => err).then(err => {
+      assert(err != undefined)
+      assert(err.message.indexOf("The specified URL was not included in the actual URL") >= 0)
+    })
+  })
 })
