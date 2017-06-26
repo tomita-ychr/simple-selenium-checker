@@ -67,13 +67,29 @@ export default class Page
       })
     }
 
-    //Check javascript errors
+    //Check javascript and response errors using browser logs.
     promise = promise.then(() => {
-      return this.driver.manage().logs().get('browser').then(logs => {
-        logs.forEach(log => {
-          if(Page.JsErrorStrings.some(err => log.message.indexOf(err) >= 0)){
-            throw new Error("Javascript error was detected: " + log.message)
-          }
+      return this.driver.getCurrentUrl().then(url => {
+        return new Promise(resolve => {
+          this.driver.manage().logs().get('browser').then(logs => {
+            logs.forEach(log => {
+              //javascript
+              if(Page.JsErrorStrings.some(err => log.message.indexOf(err) >= 0)){
+                throw new Error("Javascript error was detected: " + log.message)
+              }
+
+              //response
+              if(log.message.indexOf(url) >= 0){
+                const msg = log.message.split(url).join("")
+                for(let i = 400;i <= 599; i++){
+                  if(msg.indexOf(" " + i + " ") >= 0){
+                    throw new Error("The response error was detected: " + log.message)
+                  }
+                }
+              }
+            })
+            resolve()
+          })
         })
       })
     })

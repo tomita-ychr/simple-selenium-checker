@@ -11,7 +11,7 @@ test.describe('SSM', () => {
     Page.WaitElementTimeout = 1000
     const chromeCapabilities = webdriver.Capabilities.chrome();
     chromeCapabilities.set('chromeOptions', {
-      // 'args': ['--headless', '--disable-gpu']
+      'args': ['--headless', '--disable-gpu']
     });
     driver = new webdriver.Builder()
       .usingServer('http://localhost:4444/wd/hub')
@@ -20,7 +20,7 @@ test.describe('SSM', () => {
   });
 
   test.after(() => {
-    // driver.quit();
+    driver.quit();
   });
 
   test.it('should succeed when giving correct page data.', () => {
@@ -180,6 +180,18 @@ test.describe('SSM', () => {
     page.run().catch(err => err).then(err => {
       assert(err != undefined)
       assert(err.message.indexOf("Uncaught ReferenceError: foobar is not defined") >= 0)
+    })
+  })
+
+  test.it('should fail when the server return a status code 400 to 599.', () => {
+    const pageData = {
+      url: "http://127.0.0.1:8080/not-exists.html",
+    }
+
+    const page = new Page(driver, pageData)
+    page.run().catch(err => err).then(err => {
+      assert(err != undefined)
+      assert(err.message.indexOf("the server responded with a status of 404 (Not Found)") >= 0)
     })
   })
 })
