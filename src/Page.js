@@ -1,5 +1,4 @@
 import webdriver from 'selenium-webdriver';
-import request from 'request'
 const until = webdriver.until;
 const By = webdriver.By;
 
