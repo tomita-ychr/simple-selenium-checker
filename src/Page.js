@@ -40,6 +40,7 @@ export default class Page
     // })
 
 
+    //Process checkes
     if(this.data.checks) {
       this.data.checks.forEach(check => {
         promise = promise.then(() => {
@@ -66,6 +67,7 @@ export default class Page
       })
     }
 
+    //Check javascript errors
     promise = promise.then(() => {
       return this.driver.manage().logs().get('browser').then(logs => {
         logs.forEach(log => {
@@ -76,6 +78,7 @@ export default class Page
       })
     })
 
+    //Format the error.
     promise = promise.catch(err => {
       return this.driver.findElement(By.css('html'))
         .then(elem => elem.getAttribute('outerHTML'))
@@ -93,7 +96,7 @@ export default class Page
         })
     })
 
-
+    //Process next
     if(this.data.next){
       var child = new Page(this.driver, this.data.next)
       promise = promise.then(() => child.run())
