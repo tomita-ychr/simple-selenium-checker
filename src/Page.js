@@ -25,6 +25,24 @@ export default class Page
       promise = this.waitElement(this.data.link).then(elem => elem.click())
     }
 
+    //actions
+    if(this.data.actions) {
+      this.data.actions.forEach(action => {
+        promise = promise.then(() => {
+          return this.waitElement(action.loc).then(elem => {
+            switch (action.type) {
+              case Page.ActionType.Click:
+                return elem.click()
+              case Page.ActionType.SendKeys:
+                return elem.sendKeys(action.value)
+              default:
+                throw new Error("Unknown action type " + action.type + " is specified.")
+            }
+          })
+        })
+      })
+    }
+
     //Process checkes
     if(this.data.checks) {
       this.data.checks.forEach(check => {
@@ -47,6 +65,12 @@ export default class Page
               .then(html => {
                 if(html.indexOf(check.text) === -1) throw new Error("Missing text `" + check.text + "`")
               })
+          } else if(check.url){
+            return this.driver.getCurrentUrl().then(url => {
+              if(url.indexOf(check.url) === -1){
+                throw new Error('The specified URL was not included in the actual URL')
+              }
+            })
           }
         })
       })
@@ -117,3 +141,8 @@ Page.JsErrorStrings = [
   "TypeError",
   "URIError"
 ]
+
+Page.ActionType = {
+  Click: 'Click',
+  SendKeys: 'SendKeys'
+}

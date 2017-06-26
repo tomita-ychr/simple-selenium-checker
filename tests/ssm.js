@@ -11,7 +11,7 @@ test.describe('SSM', () => {
     Page.WaitElementTimeout = 1000
     const chromeCapabilities = webdriver.Capabilities.chrome();
     chromeCapabilities.set('chromeOptions', {
-      'args': ['--headless', '--disable-gpu']
+      // 'args': ['--headless', '--disable-gpu']
     });
     driver = new webdriver.Builder()
       .usingServer('http://localhost:4444/wd/hub')
@@ -20,7 +20,7 @@ test.describe('SSM', () => {
   });
 
   test.after(() => {
-    driver.quit();
+    // driver.quit();
   });
 
   test.it('should succeed when giving correct page data.', () => {
@@ -193,5 +193,27 @@ test.describe('SSM', () => {
       assert(err != undefined)
       assert(err.message.indexOf("the server responded with a status of 404 (Not Found)") >= 0)
     })
+  })
+
+  test.it('should be able to perform actions such as click and sendKyes with the actions option.', () => {
+    const pageData = {
+      url: "http://127.0.0.1:8080/form.html",
+      checks: [
+        {loc: By.css(".input")},
+      ],
+      next: {
+        actions: [
+          {loc: By.css(".input"), type: Page.ActionType.SendKeys,  value: "fooBarTest"},
+          {loc: By.css(".submit"), type: Page.ActionType.Click},
+        ],
+        checks: [
+          {loc: By.css(".main .col-sm-6:nth-child(1) h3")},
+          {url: "http://127.0.0.1:8080/index.html?name=fooBarTest&send=send"},
+        ],
+      }
+    }
+
+    const page = new Page(driver, pageData)
+    page.run()
   })
 })
