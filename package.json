@@ -14,5 +14,8 @@
     "babel-preset-power-assert": "^1.0.0",
     "power-assert": "^1.4.4",
     "selenium-webdriver": "^3.4.0"
+  },
+  "dependencies": {
+    "request": "^2.81.0"
   }
 }
