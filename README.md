@@ -75,7 +75,7 @@ const scenario = [
 checker.run(scenario, 'https://www.google.com')
 ```
 
-The `checks` option is implemented to wait until the specified element is valid. So you can use it without worrying about elements added to the page with javascript.
+The `checks` option is implemented to wait until the specified element is visibled. So you can use it without worrying about elements added to the page with javascript.
 
 You can change the timeout in ms by `Checker.WaitElementTimeout` static property (globaly) or `waitElementTimeout` instance property (locally). Default is 4000ms.
 
