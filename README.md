@@ -1,6 +1,6 @@
 ## Simple selenium checker
 
-It is a package to make it easy to write tests of web applications without knowledge of Selenium and difficult Promise.
+It is a tool to make it easy to write tests of web applications without knowledge of Selenium and difficult Promise.
 
 ## Installation
 
