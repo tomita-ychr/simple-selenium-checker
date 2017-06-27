@@ -10,7 +10,7 @@ test.describe('SSM', () => {
     Checker.WaitElementTimeout = 1000
     const chromeCapabilities = webdriver.Capabilities.chrome();
     chromeCapabilities.set('chromeOptions', {
-      // 'args': ['--headless', '--disable-gpu']
+      'args': ['--headless', '--disable-gpu']
     });
     driver = new webdriver.Builder()
       .usingServer('http://localhost:4444/wd/hub')
@@ -19,7 +19,7 @@ test.describe('SSM', () => {
   });
 
   test.after(() => {
-    // driver.quit();
+    driver.quit();
   });
 
   test.it('should succeed when giving correct page data.', () => {
