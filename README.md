@@ -84,7 +84,7 @@ const checker = new Checker(driver)
 checker.waitElementTimeout = 1000
 ```
 
-When Checker fails the test, it displays all sources of HTML in the message. The debug property is set to true, only the original message is displayed.
+When Checker fails the test, it displays all sources of HTML in the message. If you set to true the debug property, only the original message is displayed.
 
 
 ```js
