@@ -1,3 +1,4 @@
-import Page from './Page.js';
+import Checker from './Checker.js';
 
-export {Page}
+export default Checker
+export {Checker}

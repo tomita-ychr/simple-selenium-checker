@@ -1,14 +1,13 @@
 import webdriver from 'selenium-webdriver'
 import test from 'selenium-webdriver/testing'
 import assert from 'power-assert'
-import Page from '../src/Page'
-
+import Checker from '../src/Checker'
 const By = webdriver.By;
 
 let driver;
 test.describe('SSM', () => {
   test.before(() => {
-    Page.WaitElementTimeout = 1000
+    Checker.WaitElementTimeout = 1000
     const chromeCapabilities = webdriver.Capabilities.chrome();
     chromeCapabilities.set('chromeOptions', {
       // 'args': ['--headless', '--disable-gpu']
@@ -43,8 +42,8 @@ test.describe('SSM', () => {
       }
     }
 
-    const page = new Page(driver, pageData)
-    page.run()
+    const checker = new Checker(driver, pageData)
+    checker.run()
   })
 
   test.it('should fail when you specify an element that is not on the page.', () => {
@@ -55,8 +54,8 @@ test.describe('SSM', () => {
       ]
     }
 
-    let page = new Page(driver, pageData)
-    page.run().catch(err => err).then(err => {
+    let checker = new Checker(driver, pageData)
+    checker.run().catch(err => err).then(err => {
       assert(err != undefined)
       assert(err.message.indexOf("Waiting for element to be located By(css selector, .not-exists-element)") >= 0)
     })
@@ -71,8 +70,8 @@ test.describe('SSM', () => {
       }
     }
 
-    page = new Page(driver, pageData)
-    page.run().catch(err => err).then(err => {
+    checker = new Checker(driver, pageData)
+    checker.run().catch(err => err).then(err => {
       assert(err != undefined)
       assert(err.message.indexOf("Waiting for element to be located By(css selector, .not-exists-element-next)") >= 0)
     })
@@ -86,8 +85,8 @@ test.describe('SSM', () => {
       ]
     }
 
-    let page = new Page(driver, pageData)
-    page.run().catch(err => err).then(err => {
+    let checker = new Checker(driver, pageData)
+    checker.run().catch(err => err).then(err => {
       assert(err != undefined)
       assert(err.message.indexOf("Text in By(css selector, .main .col-sm-6:nth-child(2) h3) is not `Hoge 002` but `Home 002`") >= 0)
     })
@@ -102,8 +101,8 @@ test.describe('SSM', () => {
       }
     }
 
-    page = new Page(driver, pageData)
-    page.run().catch(err => err).then(err => {
+    checker = new Checker(driver, pageData)
+    checker.run().catch(err => err).then(err => {
       assert(err != undefined)
       assert(err.message.indexOf("Text in By(css selector, .main .col-sm-6:nth-child(3) h3) is not `Bar 003` but `Foo 003") >= 0)
     })
@@ -117,8 +116,8 @@ test.describe('SSM', () => {
       ]
     }
 
-    let page = new Page(driver, pageData)
-    page.run().catch(err => err).then(err => {
+    let checker = new Checker(driver, pageData)
+    checker.run().catch(err => err).then(err => {
       assert(err != undefined)
       assert(err.message.indexOf(" is failed") >= 0)
     })
@@ -133,8 +132,8 @@ test.describe('SSM', () => {
       }
     }
 
-    page = new Page(driver, pageData)
-    page.run().catch(err => err).then(err => {
+    checker = new Checker(driver, pageData)
+    checker.run().catch(err => err).then(err => {
       assert(err != undefined)
       assert(err.message.indexOf(" is failed") >= 0)
     })
@@ -148,8 +147,8 @@ test.describe('SSM', () => {
       ]
     }
 
-    let page = new Page(driver, pageData)
-    page.run().catch(err => err).then(err => {
+    let checker = new Checker(driver, pageData)
+    checker.run().catch(err => err).then(err => {
       assert(err != undefined)
       assert(err.message.indexOf("Missing text `<title>Simple selenium checker - Hoge</title>`") >= 0)
     })
@@ -164,8 +163,8 @@ test.describe('SSM', () => {
       }
     }
 
-    page = new Page(driver, pageData)
-    page.run().catch(err => err).then(err => {
+    checker = new Checker(driver, pageData)
+    checker.run().catch(err => err).then(err => {
       assert(err != undefined)
       assert(err.message.indexOf("Missing text `<title>Simple selenium checker - Bar</title>`") >= 0)
     })
@@ -176,8 +175,8 @@ test.describe('SSM', () => {
       url: "http://127.0.0.1:8080/javascript-error.html",
     }
 
-    const page = new Page(driver, pageData)
-    page.run().catch(err => err).then(err => {
+    const checker = new Checker(driver, pageData)
+    checker.run().catch(err => err).then(err => {
       assert(err != undefined)
       assert(err.message.indexOf("Uncaught ReferenceError: foobar is not defined") >= 0)
     })
@@ -188,8 +187,8 @@ test.describe('SSM', () => {
       url: "http://127.0.0.1:8080/not-exists.html",
     }
 
-    const page = new Page(driver, pageData)
-    page.run().catch(err => err).then(err => {
+    const checker = new Checker(driver, pageData)
+    checker.run().catch(err => err).then(err => {
       assert(err != undefined)
       assert(err.message.indexOf("the server responded with a status of 404 (Not Found)") >= 0)
     })
@@ -203,8 +202,8 @@ test.describe('SSM', () => {
       ],
       next: {
         actions: [
-          {loc: By.css(".input"), type: Page.ActionType.SendKeys,  value: "fooBarTest"},
-          {loc: By.css(".submit"), type: Page.ActionType.Click},
+          {loc: By.css(".input"), type: Checker.ActionType.SendKeys,  value: "fooBarTest"},
+          {loc: By.css(".submit"), type: Checker.ActionType.Click},
         ],
         checks: [
           {loc: By.css(".main .col-sm-6:nth-child(1) h3")},
@@ -213,8 +212,8 @@ test.describe('SSM', () => {
       }
     }
 
-    const page = new Page(driver, pageData)
-    page.run()
+    const checker = new Checker(driver, pageData)
+    checker.run()
   })
 
   test.it('should fail when a URL different from the actual URL is specified.', () => {
@@ -225,8 +224,8 @@ test.describe('SSM', () => {
       ]
     }
 
-    const page = new Page(driver, pageData)
-    page.run().catch(err => err).then(err => {
+    const checker = new Checker(driver, pageData)
+    checker.run().catch(err => err).then(err => {
       assert(err != undefined)
       assert(err.message.indexOf("The specified URL was not included in the actual URL") >= 0)
     })

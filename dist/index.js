@@ -83,18 +83,26 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Page = undefined;
+exports.Checker = undefined;
 
-var _Page = __webpack_require__(1);
+var _Checker = __webpack_require__(3);
 
-var _Page2 = _interopRequireDefault(_Page);
+var _Checker2 = _interopRequireDefault(_Checker);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.Page = _Page2.default;
+exports.default = _Checker2.default;
+exports.Checker = _Checker2.default;
 
 /***/ }),
-/* 1 */
+/* 1 */,
+/* 2 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
+
+/***/ }),
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -117,23 +125,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var until = _seleniumWebdriver2.default.until;
 var By = _seleniumWebdriver2.default.By;
 
-var Page = function () {
-  function Page(driver, data) {
-    _classCallCheck(this, Page);
+var Checker = function () {
+  function Checker(driver, data, host) {
+    _classCallCheck(this, Checker);
 
     this.driver = driver;
     this.data = data;
-    this.waitElementTimeout = Page.WaitElementTimeout;
+    this.host = host;
+    this.waitElementTimeout = Checker.WaitElementTimeout;
   }
 
-  _createClass(Page, [{
+  _createClass(Checker, [{
     key: "waitElement",
     value: function waitElement(locator) {
       var _this = this;
 
       return this.driver.wait(until.elementLocated(locator), this.waitElementTimeout).then(function (elem) {
-        return _this.driver.wait(until.elementIsVisible(elem));
-      }, this.waitElementTimeout);
+        return _this.driver.wait(until.elementIsVisible(elem), _this.waitElementTimeout);
+      });
     }
   }, {
     key: "run",
@@ -142,7 +151,7 @@ var Page = function () {
 
       var promise = Promise.resolve();
       if (this.data.url) {
-        promise = this.driver.get(this.data.url);
+        promise = this.driver.get(this.host ? this.host + this.data.url : this.data.url);
       } else if (this.data.link) {
         promise = this.waitElement(this.data.link).then(function (elem) {
           return elem.click();
@@ -155,9 +164,9 @@ var Page = function () {
           promise = promise.then(function () {
             return _this2.waitElement(action.loc).then(function (elem) {
               switch (action.type) {
-                case Page.ActionType.Click:
+                case Checker.ActionType.Click:
                   return elem.click();
-                case Page.ActionType.SendKeys:
+                case Checker.ActionType.SendKeys:
                   return elem.sendKeys(action.value);
                 default:
                   throw new Error("Unknown action type " + action.type + " is specified.");
@@ -207,7 +216,7 @@ var Page = function () {
             _this2.driver.manage().logs().get('browser').then(function (logs) {
               logs.forEach(function (log) {
                 //javascript
-                if (Page.JsErrorStrings.some(function (err) {
+                if (Checker.JsErrorStrings.some(function (err) {
                   return log.message.indexOf(err) >= 0;
                 })) {
                   throw new Error("Javascript error was detected: " + log.message);
@@ -244,7 +253,7 @@ var Page = function () {
 
       //Process next
       if (this.data.next) {
-        var child = new Page(this.driver, this.data.next);
+        var child = new Checker(this.driver, this.data.next);
         promise = promise.then(function () {
           return child.run();
         });
@@ -254,26 +263,20 @@ var Page = function () {
     }
   }]);
 
-  return Page;
+  return Checker;
 }();
 
-exports.default = Page;
+exports.default = Checker;
 
 
-Page.WaitElementTimeout = 4000;
+Checker.WaitElementTimeout = 4000;
 
-Page.JsErrorStrings = ["SyntaxError", "EvalError", "ReferenceError", "RangeError", "TypeError", "URIError"];
+Checker.JsErrorStrings = ["SyntaxError", "EvalError", "ReferenceError", "RangeError", "TypeError", "URIError"];
 
-Page.ActionType = {
+Checker.ActionType = {
   Click: 'Click',
   SendKeys: 'SendKeys'
 };
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
 
 /***/ })
 /******/ ]);

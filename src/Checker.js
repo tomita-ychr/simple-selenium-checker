@@ -2,24 +2,25 @@ import webdriver from 'selenium-webdriver';
 const until = webdriver.until;
 const By = webdriver.By;
 
-export default class Page
+export default class Checker
 {
-  constructor(driver, data){
+  constructor(driver, data, host){
     this.driver = driver
     this.data = data;
-    this.waitElementTimeout = Page.WaitElementTimeout
+    this.host = host;
+    this.waitElementTimeout = Checker.WaitElementTimeout
   }
 
   waitElement(locator){
     return this.driver
       .wait(until.elementLocated(locator), this.waitElementTimeout)
-      .then(elem => this.driver.wait(until.elementIsVisible(elem)), this.waitElementTimeout);
+      .then(elem => this.driver.wait(until.elementIsVisible(elem), this.waitElementTimeout));
   }
 
   run(){
     let promise = Promise.resolve()
     if(this.data.url) {
-      promise = this.driver.get(this.data.url)
+      promise = this.driver.get(this.host ? this.host + this.data.url : this.data.url)
     } else if(this.data.link) {
       promise = this.waitElement(this.data.link).then(elem => elem.click())
     }
@@ -30,9 +31,9 @@ export default class Page
         promise = promise.then(() => {
           return this.waitElement(action.loc).then(elem => {
             switch (action.type) {
-              case Page.ActionType.Click:
+              case Checker.ActionType.Click:
                 return elem.click()
-              case Page.ActionType.SendKeys:
+              case Checker.ActionType.SendKeys:
                 return elem.sendKeys(action.value)
               default:
                 throw new Error("Unknown action type " + action.type + " is specified.")
@@ -82,7 +83,7 @@ export default class Page
           this.driver.manage().logs().get('browser').then(logs => {
             logs.forEach(log => {
               //javascript
-              if(Page.JsErrorStrings.some(err => log.message.indexOf(err) >= 0)){
+              if(Checker.JsErrorStrings.some(err => log.message.indexOf(err) >= 0)){
                 throw new Error("Javascript error was detected: " + log.message)
               }
 
@@ -122,7 +123,7 @@ export default class Page
 
     //Process next
     if(this.data.next){
-      var child = new Page(this.driver, this.data.next)
+      var child = new Checker(this.driver, this.data.next)
       promise = promise.then(() => child.run())
     }
 
@@ -130,9 +131,9 @@ export default class Page
   }
 }
 
-Page.WaitElementTimeout = 4000
+Checker.WaitElementTimeout = 4000
 
-Page.JsErrorStrings = [
+Checker.JsErrorStrings = [
   "SyntaxError",
   "EvalError",
   "ReferenceError",
@@ -141,7 +142,7 @@ Page.JsErrorStrings = [
   "URIError"
 ]
 
-Page.ActionType = {
+Checker.ActionType = {
   Click: 'Click',
   SendKeys: 'SendKeys'
 }
