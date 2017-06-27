@@ -89,7 +89,7 @@ test.describe('SSM', () => {
     let checker = new Checker(driver, pageData)
     checker.run().catch(err => err).then(err => {
       assert(err != undefined)
-      assert(err.message.indexOf("Text in By(css selector, .main .col-sm-6:nth-child(2) h3) is not `Hoge 002` but `Home 002`") >= 0)
+      assert(err.message.indexOf("Text in By(css selector, .main .col-sm-6:nth-child(2) h3) is not `Hoge 002` actual `Home 002`") >= 0)
     })
 
     pageData = {
@@ -105,7 +105,7 @@ test.describe('SSM', () => {
     checker = new Checker(driver, pageData)
     checker.run().catch(err => err).then(err => {
       assert(err != undefined)
-      assert(err.message.indexOf("Text in By(css selector, .main .col-sm-6:nth-child(3) h3) is not `Bar 003` but `Foo 003") >= 0)
+      assert(err.message.indexOf("Text in By(css selector, .main .col-sm-6:nth-child(3) h3) is not `Bar 003` actual `Foo 003") >= 0)
     })
   })
 
@@ -246,6 +246,33 @@ test.describe('SSM', () => {
       assert(err != undefined)
       assert(err.message.indexOf("The specified URL was not included in the actual URL") >= 0)
       assert(err.message.indexOf('<html lang="en">') === -1)
+    })
+  })
+
+  test.it('should check partial match with the like keyword of checks option.', () => {
+    let pageData = {
+      url: "http://127.0.0.1:8080/",
+      checks: [
+        {loc: By.css(".main .col-sm-6:nth-child(1) h3"), like: "ome 00"},
+        {loc: By.css(".main .col-sm-6:nth-child(2) h3"), like: "ome 00"},
+        {loc: By.css(".main .col-sm-6:nth-child(3) h3"), like: "ome 00"}
+      ]
+    }
+
+    let checker = new Checker(driver, pageData)
+    checker.run()
+
+    pageData = {
+      url: "http://127.0.0.1:8080/",
+      checks: [
+        {loc: By.css(".main .col-sm-6:nth-child(1) h3"), like: "bar"},
+      ]
+    }
+
+    checker = new Checker(driver, pageData)
+    checker.run().catch(err => err).then(err => {
+      assert(err != undefined)
+      assert(err.message.indexOf("Text in By(css selector, .main .col-sm-6:nth-child(1) h3) dose not like `bar` actual `Home 001`") >= 0)
     })
   })
 })

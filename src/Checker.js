@@ -52,7 +52,11 @@ export default class Checker
             return this.waitElement(check.loc).then(elem => {
               if(check.text){
                 return elem.getText().then(text => {
-                  if(text !== check.text) throw new Error('Text in ' + check.loc.toString() + ' is not `' + check.text + '` but `' + text + "`")
+                  if(text !== check.text) throw new Error('Text in ' + check.loc.toString() + ' is not `' + check.text + '` actual `' + text + "`")
+                })
+              } else if(check.like){
+                return elem.getText().then(text => {
+                  if(text.indexOf(check.like) === -1) throw new Error('Text in ' + check.loc.toString() + ' dose not like `' + check.like + '` actual `' + text + '`')
                 })
               } else if(check.callback) {
                 return check.callback(elem).then(res => {

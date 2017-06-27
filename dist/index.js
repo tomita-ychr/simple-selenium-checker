@@ -185,7 +185,11 @@ var Checker = function () {
               return _this2.waitElement(check.loc).then(function (elem) {
                 if (check.text) {
                   return elem.getText().then(function (text) {
-                    if (text !== check.text) throw new Error('Text in ' + check.loc.toString() + ' is not `' + check.text + '` but `' + text + "`");
+                    if (text !== check.text) throw new Error('Text in ' + check.loc.toString() + ' is not `' + check.text + '` actual `' + text + "`");
+                  });
+                } else if (check.like) {
+                  return elem.getText().then(function (text) {
+                    if (text.indexOf(check.like) === -1) throw new Error('Text in ' + check.loc.toString() + ' dose not like `' + check.like + '` actual `' + text + '`');
                   });
                 } else if (check.callback) {
                   return check.callback(elem).then(function (res) {
