@@ -1,6 +1,6 @@
 {
   "name": "simple-selenium-checker",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -22,6 +22,7 @@
     "webpack": "^3.0.0"
   },
   "dependencies": {
+    "selenium-pauser": "0.0.2",
     "selenium-webdriver": "^3.4.0"
   }
 }

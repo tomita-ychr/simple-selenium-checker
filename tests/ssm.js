@@ -1,6 +1,7 @@
 import webdriver from 'selenium-webdriver'
 import test from 'selenium-webdriver/testing'
 import assert from 'power-assert'
+import pauser from 'selenium-pauser';
 import Checker from '../src/Checker'
 const By = webdriver.By;
 
@@ -19,7 +20,7 @@ test.describe('SSM', () => {
   });
 
   test.after(() => {
-    driver.quit();
+    return pauser.pause().then(() => driver.quit())
   });
 
   test.it('should succeed when giving correct page data.', () => {
@@ -228,6 +229,23 @@ test.describe('SSM', () => {
     checker.run().catch(err => err).then(err => {
       assert(err != undefined)
       assert(err.message.indexOf("The specified URL was not included in the actual URL") >= 0)
+    })
+  })
+
+  test.it('should stop formatting the error when the debug property is true.', () => {
+    const pageData = {
+      url: "http://127.0.0.1:8080/",
+      checks: [
+        {url: "http://127.0.0.1:8080/hoge.html"},
+      ]
+    }
+
+    const checker = new Checker(driver, pageData)
+    checker.debug = true;
+    checker.run().catch(err => err).then(err => {
+      assert(err != undefined)
+      assert(err.message.indexOf("The specified URL was not included in the actual URL") >= 0)
+      assert(err.message.indexOf('<html lang="en">') === -1)
     })
   })
 })

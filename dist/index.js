@@ -133,6 +133,7 @@ var Checker = function () {
     this.data = data;
     this.host = host;
     this.waitElementTimeout = Checker.WaitElementTimeout;
+    this.debug = Checker.Debug;
   }
 
   _createClass(Checker, [{
@@ -239,17 +240,19 @@ var Checker = function () {
       });
 
       //Format the error.
-      promise = promise.catch(function (err) {
-        return _this2.driver.findElement(By.css('html')).then(function (elem) {
-          return elem.getAttribute('outerHTML');
-        }).then(function (html) {
-          return _this2.driver.getCurrentUrl().then(function (url) {
-            var data = Object.assign({}, _this2.data);
-            delete data.next;
-            throw new Error(url + "\n" + "JSON: " + JSON.stringify(data) + "\n" + "Message: " + err.message + "\n" + html);
+      if (this.debug === false) {
+        promise = promise.catch(function (err) {
+          return _this2.driver.findElement(By.css('html')).then(function (elem) {
+            return elem.getAttribute('outerHTML');
+          }).then(function (html) {
+            return _this2.driver.getCurrentUrl().then(function (url) {
+              var data = Object.assign({}, _this2.data);
+              delete data.next;
+              throw new Error(url + "\n" + "JSON: " + JSON.stringify(data) + "\n" + "Message: " + err.message + "\n" + html);
+            });
           });
         });
-      });
+      }
 
       //Process next
       if (this.data.next) {
@@ -277,6 +280,8 @@ Checker.ActionType = {
   Click: 'Click',
   SendKeys: 'SendKeys'
 };
+
+Checker.Debug = false;
 
 /***/ })
 /******/ ]);

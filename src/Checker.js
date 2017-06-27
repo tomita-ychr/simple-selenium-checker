@@ -9,6 +9,7 @@ export default class Checker
     this.data = data;
     this.host = host;
     this.waitElementTimeout = Checker.WaitElementTimeout
+    this.debug = Checker.Debug;
   }
 
   waitElement(locator){
@@ -104,22 +105,24 @@ export default class Checker
     })
 
     //Format the error.
-    promise = promise.catch(err => {
-      return this.driver.findElement(By.css('html'))
-        .then(elem => elem.getAttribute('outerHTML'))
-        .then(html => {
-          return this.driver.getCurrentUrl().then(url => {
-            const data = Object.assign({}, this.data)
-            delete data.next
-            throw new Error(
-              url + "\n" +
-              "JSON: " + JSON.stringify(data) + "\n" +
-              "Message: " + err.message + "\n" +
-              html
-            )
+    if(this.debug === false){
+      promise = promise.catch(err => {
+        return this.driver.findElement(By.css('html'))
+          .then(elem => elem.getAttribute('outerHTML'))
+          .then(html => {
+            return this.driver.getCurrentUrl().then(url => {
+              const data = Object.assign({}, this.data)
+              delete data.next
+              throw new Error(
+                url + "\n" +
+                "JSON: " + JSON.stringify(data) + "\n" +
+                "Message: " + err.message + "\n" +
+                html
+              )
+            })
           })
-        })
-    })
+      })
+    }
 
     //Process next
     if(this.data.next){
@@ -146,3 +149,5 @@ Checker.ActionType = {
   Click: 'Click',
   SendKeys: 'SendKeys'
 }
+
+Checker.Debug = false
