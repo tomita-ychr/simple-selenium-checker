@@ -126,11 +126,10 @@ var until = _seleniumWebdriver2.default.until;
 var By = _seleniumWebdriver2.default.By;
 
 var Checker = function () {
-  function Checker(driver, data, host) {
+  function Checker(driver, host) {
     _classCallCheck(this, Checker);
 
     this.driver = driver;
-    this.data = data;
     this.host = host;
     this.waitElementTimeout = Checker.WaitElementTimeout;
     this.debug = Checker.Debug;
@@ -147,124 +146,115 @@ var Checker = function () {
     }
   }, {
     key: "run",
-    value: function run() {
+    value: function run(scenario) {
       var _this2 = this;
 
       var promise = Promise.resolve();
-      if (this.data.url) {
-        promise = this.driver.get(this.host ? this.host + this.data.url : this.data.url);
-      } else if (this.data.link) {
-        promise = this.waitElement(this.data.link).then(function (elem) {
-          return elem.click();
-        });
-      }
+      scenario.forEach(function (item) {
+        //url
+        if (item.url) {
+          promise = _this2.driver.get(_this2.host ? _this2.host + item.url : item.url);
+        }
 
-      //actions
-      if (this.data.actions) {
-        this.data.actions.forEach(function (action) {
-          promise = promise.then(function () {
-            return _this2.waitElement(action.loc).then(function (elem) {
-              switch (action.type) {
-                case Checker.ActionType.Click:
-                  return elem.click();
-                case Checker.ActionType.SendKeys:
-                  return elem.sendKeys(action.value);
-                default:
-                  throw new Error("Unknown action type " + action.type + " is specified.");
+        //actions
+        if (item.actions) {
+          item.actions.forEach(function (action) {
+            promise = promise.then(function () {
+              return _this2.waitElement(action.loc).then(function (elem) {
+                switch (action.type) {
+                  case Checker.ActionType.Click:
+                    return elem.click();
+                  case Checker.ActionType.SendKeys:
+                    return elem.sendKeys(action.value);
+                  default:
+                    throw new Error("Unknown action type " + action.type + " is specified.");
+                }
+              });
+            });
+          });
+        }
+
+        //Process checkes
+        if (item.checks) {
+          item.checks.forEach(function (check) {
+            promise = promise.then(function () {
+              if (check.loc) {
+                return _this2.waitElement(check.loc).then(function (elem) {
+                  if (check.text) {
+                    return elem.getText().then(function (text) {
+                      if (text !== check.text) throw new Error('Text in ' + check.loc.toString() + ' is not `' + check.text + '` actual `' + text + "`");
+                    });
+                  } else if (check.like) {
+                    return elem.getText().then(function (text) {
+                      if (text.indexOf(check.like) === -1) throw new Error('Text in ' + check.loc.toString() + ' dose not like `' + check.like + '` actual `' + text + '`');
+                    });
+                  } else if (check.callback) {
+                    return check.callback(elem).then(function (res) {
+                      if (!res) throw new Error(check.callback.toString() + ' is failed');
+                    });
+                  }
+                });
+              } else if (check.text) {
+                return _this2.driver.findElement(By.css('html')).then(function (elem) {
+                  return elem.getAttribute('outerHTML');
+                }).then(function (html) {
+                  if (html.indexOf(check.text) === -1) throw new Error("Missing text `" + check.text + "`");
+                });
+              } else if (check.url) {
+                return _this2.driver.getCurrentUrl().then(function (url) {
+                  if (url.indexOf(check.url) === -1) {
+                    throw new Error('The specified URL was not included in the actual URL');
+                  }
+                });
               }
             });
           });
-        });
-      }
+        }
 
-      //Process checkes
-      if (this.data.checks) {
-        this.data.checks.forEach(function (check) {
-          promise = promise.then(function () {
-            if (check.loc) {
-              return _this2.waitElement(check.loc).then(function (elem) {
-                if (check.text) {
-                  return elem.getText().then(function (text) {
-                    if (text !== check.text) throw new Error('Text in ' + check.loc.toString() + ' is not `' + check.text + '` actual `' + text + "`");
-                  });
-                } else if (check.like) {
-                  return elem.getText().then(function (text) {
-                    if (text.indexOf(check.like) === -1) throw new Error('Text in ' + check.loc.toString() + ' dose not like `' + check.like + '` actual `' + text + '`');
-                  });
-                } else if (check.callback) {
-                  return check.callback(elem).then(function (res) {
-                    if (!res) throw new Error(check.callback.toString() + ' is failed');
-                  });
-                }
-              });
-            } else if (check.text) {
-              return _this2.driver.findElement(By.css('html')).then(function (elem) {
-                return elem.getAttribute('outerHTML');
-              }).then(function (html) {
-                if (html.indexOf(check.text) === -1) throw new Error("Missing text `" + check.text + "`");
-              });
-            } else if (check.url) {
-              return _this2.driver.getCurrentUrl().then(function (url) {
-                if (url.indexOf(check.url) === -1) {
-                  throw new Error('The specified URL was not included in the actual URL');
-                }
-              });
-            }
-          });
-        });
-      }
+        //Check javascript and response errors using browser logs.
+        promise = promise.then(function () {
+          return _this2.driver.getCurrentUrl().then(function (url) {
+            return new Promise(function (resolve) {
+              _this2.driver.manage().logs().get('browser').then(function (logs) {
+                logs.forEach(function (log) {
+                  //javascript
+                  if (Checker.JsErrorStrings.some(function (err) {
+                    return log.message.indexOf(err) >= 0;
+                  })) {
+                    throw new Error("Javascript error was detected: " + log.message);
+                  }
 
-      //Check javascript and response errors using browser logs.
-      promise = promise.then(function () {
-        return _this2.driver.getCurrentUrl().then(function (url) {
-          return new Promise(function (resolve) {
-            _this2.driver.manage().logs().get('browser').then(function (logs) {
-              logs.forEach(function (log) {
-                //javascript
-                if (Checker.JsErrorStrings.some(function (err) {
-                  return log.message.indexOf(err) >= 0;
-                })) {
-                  throw new Error("Javascript error was detected: " + log.message);
-                }
-
-                //response
-                if (log.message.indexOf(url + " - ") === 0) {
-                  var msg = log.message.split(url).join("");
-                  for (var i = 400; i <= 599; i++) {
-                    if (msg.indexOf(" " + i + " ") >= 0) {
-                      throw new Error("The response error was detected: " + log.message);
+                  //response
+                  if (log.message.indexOf(url + " - ") === 0) {
+                    var msg = log.message.split(url).join("");
+                    for (var i = 400; i <= 599; i++) {
+                      if (msg.indexOf(" " + i + " ") >= 0) {
+                        throw new Error("The response error was detected: " + log.message);
+                      }
                     }
                   }
-                }
+                });
+                resolve();
               });
-              resolve();
             });
           });
         });
+
+        //Format the error.
+        if (_this2.debug === false) {
+          promise = promise.catch(function (err) {
+            return _this2.driver.findElement(By.css('html')).then(function (elem) {
+              return elem.getAttribute('outerHTML');
+            }).then(function (html) {
+              return _this2.driver.getCurrentUrl().then(function (url) {
+                var data = Object.assign({}, _this2.data);
+                delete data.next;
+                throw new Error(url + "\n" + "JSON: " + JSON.stringify(data) + "\n" + "Message: " + err.message + "\n" + html);
+              });
+            });
+          });
+        }
       });
-
-      //Format the error.
-      if (this.debug === false) {
-        promise = promise.catch(function (err) {
-          return _this2.driver.findElement(By.css('html')).then(function (elem) {
-            return elem.getAttribute('outerHTML');
-          }).then(function (html) {
-            return _this2.driver.getCurrentUrl().then(function (url) {
-              var data = Object.assign({}, _this2.data);
-              delete data.next;
-              throw new Error(url + "\n" + "JSON: " + JSON.stringify(data) + "\n" + "Message: " + err.message + "\n" + html);
-            });
-          });
-        });
-      }
-
-      //Process next
-      if (this.data.next) {
-        var child = new Checker(this.driver, this.data.next);
-        promise = promise.then(function () {
-          return child.run();
-        });
-      }
 
       return promise;
     }
