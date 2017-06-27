@@ -126,11 +126,10 @@ var until = _seleniumWebdriver2.default.until;
 var By = _seleniumWebdriver2.default.By;
 
 var Checker = function () {
-  function Checker(driver, host) {
+  function Checker(driver) {
     _classCallCheck(this, Checker);
 
     this.driver = driver;
-    this.host = host;
     this.waitElementTimeout = Checker.WaitElementTimeout;
     this.debug = Checker.Debug;
   }
@@ -146,14 +145,14 @@ var Checker = function () {
     }
   }, {
     key: "run",
-    value: function run(scenario) {
+    value: function run(scenario, host) {
       var _this2 = this;
 
       var promise = Promise.resolve();
       scenario.forEach(function (item) {
         //url
         if (item.url) {
-          promise = _this2.driver.get(_this2.host ? _this2.host + item.url : item.url);
+          promise = _this2.driver.get(host ? host + item.url : item.url);
         }
 
         //actions

@@ -4,9 +4,8 @@ const By = webdriver.By;
 
 export default class Checker
 {
-  constructor(driver, host){
+  constructor(driver){
     this.driver = driver
-    this.host = host;
     this.waitElementTimeout = Checker.WaitElementTimeout
     this.debug = Checker.Debug;
   }
@@ -17,12 +16,12 @@ export default class Checker
       .then(elem => this.driver.wait(until.elementIsVisible(elem), this.waitElementTimeout));
   }
 
-  run(scenario){
+  run(scenario, host){
     let promise = Promise.resolve()
     scenario.forEach(item => {
       //url
       if(item.url) {
-        promise = this.driver.get(this.host ? this.host + item.url : item.url)
+        promise = this.driver.get(host ? host + item.url : item.url)
       }
 
       //actions
