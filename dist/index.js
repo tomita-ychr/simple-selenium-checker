@@ -154,6 +154,25 @@ var Checker = function () {
       });
     }
   }, {
+    key: 'detectFunction',
+    value: function detectFunction(functions, obj) {
+      var keys = [];
+      var func = undefined;
+      for (var key in functions) {
+        if (obj[key]) {
+          keys.push(key);
+          if (func) throw new Error("Found two identify keys. " + keys.join(','));
+          func = functions[key];
+        }
+      }
+
+      if (!func) {
+        throw new Error("Invalid checks object. " + JSON.stringify(obj));
+      }
+
+      return func;
+    }
+  }, {
     key: 'run',
     value: function run(scenario, host) {
       var _this2 = this;
@@ -169,7 +188,7 @@ var Checker = function () {
         if (item.actions) {
           item.actions.forEach(function (action) {
             promise = promise.then(function () {
-              return actions[action.type](_this2, action);
+              return _this2.detectFunction(actions, action)(_this2, action);
             });
           });
         }
@@ -178,17 +197,7 @@ var Checker = function () {
         if (item.checks) {
           item.checks.forEach(function (check) {
             promise = promise.then(function () {
-              var processed = false;
-              for (var key in checks) {
-                if (check[key]) {
-                  processed = true;
-                  return checks[key](_this2, check);
-                }
-              }
-
-              if (!processed) {
-                throw new Error("Invalid checks object. " + JSON.stringify(check));
-              }
+              return _this2.detectFunction(checks, check)(_this2, check);
             });
           });
         }
@@ -252,11 +261,6 @@ Checker.WaitElementTimeout = 4000;
 
 Checker.JsErrorStrings = ["SyntaxError", "EvalError", "ReferenceError", "RangeError", "TypeError", "URIError"];
 
-Checker.ActionType = {
-  Click: 'click',
-  SendKeys: 'sendKeys'
-};
-
 Checker.Debug = false;
 
 /***/ }),
@@ -270,7 +274,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.by = by;
-exports.text = text;
+exports.body = body;
 exports.url = url;
 
 var _seleniumWebdriver = __webpack_require__(2);
@@ -283,9 +287,9 @@ var By = _seleniumWebdriver2.default.By;
 
 function by(checker, check) {
   return checker.waitElement(check.by).then(function (elem) {
-    if (check.text) {
+    if (check.equal) {
       return elem.getText().then(function (text) {
-        if (text !== check.text) throw new Error('Text in ' + check.by.toString() + ' is not `' + check.text + '` actual `' + text + "`");
+        if (text !== check.equal) throw new Error('Text in ' + check.by.toString() + ' is not `' + check.equal + '` actual `' + text + "`");
       });
     } else if (check.like) {
       return elem.getText().then(function (text) {
@@ -299,11 +303,11 @@ function by(checker, check) {
   });
 }
 
-function text(checker, check) {
+function body(checker, check) {
   return checker.driver.findElement(By.css('html')).then(function (elem) {
     return elem.getAttribute('outerHTML');
   }).then(function (html) {
-    if (html.indexOf(check.text) === -1) throw new Error("Missing text `" + check.text + "`");
+    if (html.indexOf(check.body) === -1) throw new Error("Missing text `" + check.body + "`");
   });
 }
 
@@ -328,13 +332,13 @@ Object.defineProperty(exports, "__esModule", {
 exports.click = click;
 exports.sendKeys = sendKeys;
 function click(checker, action) {
-  return checker.waitElement(action.by).then(function (elem) {
+  return checker.waitElement(action.click).then(function (elem) {
     return elem.click();
   });
 }
 
 function sendKeys(checker, action) {
-  return checker.waitElement(action.by).then(function (elem) {
+  return checker.waitElement(action.sendKeys).then(function (elem) {
     return elem.sendKeys(action.value);
   });
 }

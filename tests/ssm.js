@@ -36,20 +36,20 @@ test.describe('SSM', () => {
     },{
       checks: [
         {by: By.css(".delay-content")},
-        {by: By.css(".main .col-sm-6:nth-child(2) h3"), text: "Home 002"},
+        {by: By.css(".main .col-sm-6:nth-child(2) h3"), equal: "Home 002"},
         {by: By.css(".main .col-sm-6:nth-child(3) img"), callback: elem => elem.getAttribute("alt").then(alt => alt == "Home alt 003")},
-        {text: "<title>Simple selenium checker - Home</title>"}
+        {body: "<title>Simple selenium checker - Home</title>"}
       ]
     },{
       actions:[
-        {by: By.css(".nav > li:nth-child(2) > a"), type: Checker.ActionType.Click},
+        {click: By.css(".nav > li:nth-child(2) > a")},
       ]
     },{
       checks: [
         {by: By.css(".delay-content")},
-        {by: By.css(".main .col-sm-6:nth-child(2) h3"), text: "Foo 002"},
+        {by: By.css(".main .col-sm-6:nth-child(2) h3"), equal: "Foo 002"},
         {by: By.css(".main .col-sm-6:nth-child(3) img"), callback: elem => elem.getAttribute("alt").then(alt => alt == "Foo alt 003")},
-        {text: "<title>Simple selenium checker - Foo"},
+        {body: "<title>Simple selenium checker - Foo"},
       ],
     }]
 
@@ -75,7 +75,7 @@ test.describe('SSM', () => {
       url: "http://127.0.0.1:8080/",
     },{
       actions:[
-        {by: By.css(".nav > li:nth-child(2) > a"), type: Checker.ActionType.Click},
+        {click: By.css(".nav > li:nth-child(2) > a")},
       ],
       checks: [
         {by: By.css("#home")},
@@ -93,7 +93,7 @@ test.describe('SSM', () => {
     let scenario = [{
       url: "http://127.0.0.1:8080/",
       checks: [
-        {by: By.css(".main .col-sm-6:nth-child(2) h3"), text: "Hoge 002"},
+        {by: By.css(".main .col-sm-6:nth-child(2) h3"), equal: "Hoge 002"},
       ]
     }]
 
@@ -107,10 +107,10 @@ test.describe('SSM', () => {
       url: "http://127.0.0.1:8080/",
     },{
       actions:[
-        {by: By.css(".nav > li:nth-child(2) > a"), type: Checker.ActionType.Click},
+        {click: By.css(".nav > li:nth-child(2) > a")},
       ],
       checks: [
-        {by: By.css(".main .col-sm-6:nth-child(3) h3"), text: "Bar 003"},
+        {by: By.css(".main .col-sm-6:nth-child(3) h3"), equal: "Bar 003"},
       ],
     }]
 
@@ -139,7 +139,7 @@ test.describe('SSM', () => {
       url: "http://127.0.0.1:8080/",
     },{
       actions:[
-        {by: By.css(".nav > li:nth-child(2) > a"), type: Checker.ActionType.Click},
+        {click: By.css(".nav > li:nth-child(2) > a")},
       ],
       checks: [
         {by: By.css(".main .col-sm-6:nth-child(3) img"), callback: elem => elem.getAttribute("alt").then(alt => false)},
@@ -157,7 +157,7 @@ test.describe('SSM', () => {
     let scenario = [{
       url: "http://127.0.0.1:8080/",
       checks: [
-        {text: "<title>Simple selenium checker - Hoge</title>"}
+        {body: "<title>Simple selenium checker - Hoge</title>"}
       ]
     }]
 
@@ -171,10 +171,10 @@ test.describe('SSM', () => {
       url: "http://127.0.0.1:8080/",
     },{
       actions:[
-        {by: By.css(".nav > li:nth-child(2) > a"), type: Checker.ActionType.Click},
+        {click: By.css(".nav > li:nth-child(2) > a")},
       ],
       checks: [
-        {text: "<title>Simple selenium checker - Bar</title>"}
+        {body: "<title>Simple selenium checker - Bar</title>"}
       ],
     }]
 
@@ -217,8 +217,8 @@ test.describe('SSM', () => {
       ],
     },{
       actions: [
-        {by: By.css(".input"), type: Checker.ActionType.SendKeys,  value: "fooBarTest"},
-        {by: By.css(".submit"), type: Checker.ActionType.Click},
+        {sendKeys: By.css(".input"), value: "fooBarTest"},
+        {click: By.css(".submit")},
       ],
       checks: [
         {by: By.css(".main .col-sm-6:nth-child(1) h3")},

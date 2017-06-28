@@ -3,9 +3,9 @@ const By = webdriver.By;
 
 export function by(checker, check){
   return checker.waitElement(check.by).then(elem => {
-    if(check.text){
+    if(check.equal){
       return elem.getText().then(text => {
-        if(text !== check.text) throw new Error('Text in ' + check.by.toString() + ' is not `' + check.text + '` actual `' + text + "`")
+        if(text !== check.equal) throw new Error('Text in ' + check.by.toString() + ' is not `' + check.equal + '` actual `' + text + "`")
       })
     } else if(check.like){
       return elem.getText().then(text => {
@@ -19,11 +19,11 @@ export function by(checker, check){
   })
 }
 
-export function text(checker, check){
+export function body(checker, check){
   return checker.driver.findElement(By.css('html'))
     .then(elem => elem.getAttribute('outerHTML'))
     .then(html => {
-      if(html.indexOf(check.text) === -1) throw new Error("Missing text `" + check.text + "`")
+      if(html.indexOf(check.body) === -1) throw new Error("Missing text `" + check.body + "`")
     })
 }
 

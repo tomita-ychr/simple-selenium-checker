@@ -18,6 +18,24 @@ export default class Checker
       .then(elem => this.driver.wait(until.elementIsVisible(elem), this.waitElementTimeout));
   }
 
+  detectFunction(functions, obj){
+    const keys = []
+    let func = undefined
+    for(let key in functions){
+      if(obj[key]){
+        keys.push(key)
+        if(func) throw new Error("Found two identify keys. " + keys.join(','))
+        func = functions[key]
+      }
+    }
+
+    if(!func){
+      throw new Error("Invalid checks object. " + JSON.stringify(obj))
+    }
+
+    return func
+  }
+
   run(scenario, host){
     let promise = Promise.resolve()
     scenario.forEach(item => {
@@ -29,26 +47,14 @@ export default class Checker
       //actions
       if(item.actions) {
         item.actions.forEach(action => {
-          promise = promise.then(() => actions[action.type](this, action))
+          promise = promise.then(() => this.detectFunction(actions, action)(this, action))
         })
       }
 
       //Process checks
       if(item.checks) {
         item.checks.forEach(check => {
-          promise = promise.then(() => {
-            let processed = false
-            for(let key in checks){
-              if(check[key]){
-                processed = true
-                return checks[key](this, check)
-              }
-            }
-
-            if(!processed){
-              throw new Error("Invalid checks object. " + JSON.stringify(check))
-            }
-          })
+          promise = promise.then(() => this.detectFunction(checks, check)(this, check))
         })
       }
 
@@ -114,10 +120,5 @@ Checker.JsErrorStrings = [
   "TypeError",
   "URIError"
 ]
-
-Checker.ActionType = {
-  Click: 'click',
-  SendKeys: 'sendKeys'
-}
 
 Checker.Debug = false
