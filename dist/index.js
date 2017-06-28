@@ -118,6 +118,16 @@ var _seleniumWebdriver = __webpack_require__(2);
 
 var _seleniumWebdriver2 = _interopRequireDefault(_seleniumWebdriver);
 
+var _checks = __webpack_require__(4);
+
+var checks = _interopRequireWildcard(_checks);
+
+var _actions = __webpack_require__(5);
+
+var actions = _interopRequireWildcard(_actions);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -135,7 +145,7 @@ var Checker = function () {
   }
 
   _createClass(Checker, [{
-    key: "waitElement",
+    key: 'waitElement',
     value: function waitElement(locator) {
       var _this = this;
 
@@ -144,7 +154,7 @@ var Checker = function () {
       });
     }
   }, {
-    key: "run",
+    key: 'run',
     value: function run(scenario, host) {
       var _this2 = this;
 
@@ -159,52 +169,21 @@ var Checker = function () {
         if (item.actions) {
           item.actions.forEach(function (action) {
             promise = promise.then(function () {
-              return _this2.waitElement(action.loc).then(function (elem) {
-                switch (action.type) {
-                  case Checker.ActionType.Click:
-                    return elem.click();
-                  case Checker.ActionType.SendKeys:
-                    return elem.sendKeys(action.value);
-                  default:
-                    throw new Error("Unknown action type " + action.type + " is specified.");
-                }
-              });
+              return actions[action.type](_this2, action);
             });
           });
         }
 
-        //Process checkes
+        //Process checks
         if (item.checks) {
           item.checks.forEach(function (check) {
             promise = promise.then(function () {
               if (check.loc) {
-                return _this2.waitElement(check.loc).then(function (elem) {
-                  if (check.text) {
-                    return elem.getText().then(function (text) {
-                      if (text !== check.text) throw new Error('Text in ' + check.loc.toString() + ' is not `' + check.text + '` actual `' + text + "`");
-                    });
-                  } else if (check.like) {
-                    return elem.getText().then(function (text) {
-                      if (text.indexOf(check.like) === -1) throw new Error('Text in ' + check.loc.toString() + ' dose not like `' + check.like + '` actual `' + text + '`');
-                    });
-                  } else if (check.callback) {
-                    return check.callback(elem).then(function (res) {
-                      if (!res) throw new Error(check.callback.toString() + ' is failed');
-                    });
-                  }
-                });
+                return checks['loc'](_this2, check);
               } else if (check.text) {
-                return _this2.driver.findElement(By.css('html')).then(function (elem) {
-                  return elem.getAttribute('outerHTML');
-                }).then(function (html) {
-                  if (html.indexOf(check.text) === -1) throw new Error("Missing text `" + check.text + "`");
-                });
+                return checks['text'](_this2, check);
               } else if (check.url) {
-                return _this2.driver.getCurrentUrl().then(function (url) {
-                  if (url.indexOf(check.url) === -1) {
-                    throw new Error('The specified URL was not included in the actual URL');
-                  }
-                });
+                return checks['url'](_this2, check);
               }
             });
           });
@@ -270,11 +249,91 @@ Checker.WaitElementTimeout = 4000;
 Checker.JsErrorStrings = ["SyntaxError", "EvalError", "ReferenceError", "RangeError", "TypeError", "URIError"];
 
 Checker.ActionType = {
-  Click: 'Click',
-  SendKeys: 'SendKeys'
+  Click: 'click',
+  SendKeys: 'sendKeys'
 };
 
 Checker.Debug = false;
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.loc = loc;
+exports.text = text;
+exports.url = url;
+
+var _seleniumWebdriver = __webpack_require__(2);
+
+var _seleniumWebdriver2 = _interopRequireDefault(_seleniumWebdriver);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var By = _seleniumWebdriver2.default.By;
+
+function loc(checker, check) {
+  return checker.waitElement(check.loc).then(function (elem) {
+    if (check.text) {
+      return elem.getText().then(function (text) {
+        if (text !== check.text) throw new Error('Text in ' + check.loc.toString() + ' is not `' + check.text + '` actual `' + text + "`");
+      });
+    } else if (check.like) {
+      return elem.getText().then(function (text) {
+        if (text.indexOf(check.like) === -1) throw new Error('Text in ' + check.loc.toString() + ' dose not like `' + check.like + '` actual `' + text + '`');
+      });
+    } else if (check.callback) {
+      return check.callback(elem).then(function (res) {
+        if (!res) throw new Error(check.callback.toString() + ' is failed');
+      });
+    }
+  });
+}
+
+function text(checker, check) {
+  return checker.driver.findElement(By.css('html')).then(function (elem) {
+    return elem.getAttribute('outerHTML');
+  }).then(function (html) {
+    if (html.indexOf(check.text) === -1) throw new Error("Missing text `" + check.text + "`");
+  });
+}
+
+function url(checker, check) {
+  return checker.driver.getCurrentUrl().then(function (url) {
+    if (url.indexOf(check.url) === -1) {
+      throw new Error('The specified URL was not included in the actual URL');
+    }
+  });
+}
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.click = click;
+exports.sendKeys = sendKeys;
+function click(checker, action) {
+  return checker.waitElement(action.loc).then(function (elem) {
+    return elem.click();
+  });
+}
+
+function sendKeys(checker, action) {
+  return checker.waitElement(action.loc).then(function (elem) {
+    return elem.sendKeys(action.value);
+  });
+}
 
 /***/ })
 /******/ ]);

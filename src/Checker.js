@@ -1,4 +1,6 @@
 import webdriver from 'selenium-webdriver';
+import * as checks from './checks'
+import * as actions from './actions'
 const until = webdriver.until;
 const By = webdriver.By;
 
@@ -27,53 +29,20 @@ export default class Checker
       //actions
       if(item.actions) {
         item.actions.forEach(action => {
-          promise = promise.then(() => {
-            return this.waitElement(action.loc).then(elem => {
-              switch (action.type) {
-                case Checker.ActionType.Click:
-                  return elem.click()
-                case Checker.ActionType.SendKeys:
-                  return elem.sendKeys(action.value)
-                default:
-                  throw new Error("Unknown action type " + action.type + " is specified.")
-              }
-            })
-          })
+          promise = promise.then(() => actions[action.type](this, action))
         })
       }
 
-      //Process checkes
+      //Process checks
       if(item.checks) {
         item.checks.forEach(check => {
           promise = promise.then(() => {
             if(check.loc){
-              return this.waitElement(check.loc).then(elem => {
-                if(check.text){
-                  return elem.getText().then(text => {
-                    if(text !== check.text) throw new Error('Text in ' + check.loc.toString() + ' is not `' + check.text + '` actual `' + text + "`")
-                  })
-                } else if(check.like){
-                  return elem.getText().then(text => {
-                    if(text.indexOf(check.like) === -1) throw new Error('Text in ' + check.loc.toString() + ' dose not like `' + check.like + '` actual `' + text + '`')
-                  })
-                } else if(check.callback) {
-                  return check.callback(elem).then(res => {
-                    if(!res) throw new Error(check.callback.toString() + ' is failed')
-                  })
-                }
-              })
+              return checks['loc'](this, check)
             } else if(check.text){
-              return this.driver.findElement(By.css('html'))
-                .then(elem => elem.getAttribute('outerHTML'))
-                .then(html => {
-                  if(html.indexOf(check.text) === -1) throw new Error("Missing text `" + check.text + "`")
-                })
+              return checks['text'](this, check)
             } else if(check.url){
-              return this.driver.getCurrentUrl().then(url => {
-                if(url.indexOf(check.url) === -1){
-                  throw new Error('The specified URL was not included in the actual URL')
-                }
-              })
+              return checks['url'](this, check)
             }
           })
         })
@@ -143,8 +112,8 @@ Checker.JsErrorStrings = [
 ]
 
 Checker.ActionType = {
-  Click: 'Click',
-  SendKeys: 'SendKeys'
+  Click: 'click',
+  SendKeys: 'sendKeys'
 }
 
 Checker.Debug = false

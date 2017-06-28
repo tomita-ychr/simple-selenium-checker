@@ -5,10 +5,13 @@ import pauser from 'selenium-pauser';
 import Checker from '../src/Checker'
 const By = webdriver.By;
 
+const isDebug = process.execArgv.indexOf('--debug') > -1 || process.execArgv.indexOf('--debug-brk') > -1
+
 let driver;
 test.describe('SSM', () => {
   test.before(() => {
     Checker.WaitElementTimeout = 1000
+    Checker.Debug = isDebug
     const chromeCapabilities = webdriver.Capabilities.chrome();
     chromeCapabilities.set('chromeOptions', {
       // 'args': ['--headless', '--disable-gpu']
@@ -20,7 +23,11 @@ test.describe('SSM', () => {
   });
 
   test.after(() => {
-    return pauser.pause().then(() => driver.quit())
+    if(isDebug){
+      return pauser.pause().then(() => driver.quit())
+    } else {
+      return driver.quit()
+    }
   });
 
   test.it('should succeed when giving correct page data.', () => {
