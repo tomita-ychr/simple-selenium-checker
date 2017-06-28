@@ -50,19 +50,20 @@ const scenario = [
     //Only the existence of the element.
     {by: By.css("#searchform")}
     //Compare the text contained in the element with exact match.
-    {by: By.css(".main .col-sm-6:nth-child(2) h3"), text: "Home 002"},
+    {by: By.css(".main .col-sm-6:nth-child(2) h3"), equal: "Home 002"},
     //Compare the text contained in the element with partial match.
     {by: By.css(".main .col-sm-6:nth-child(2) h3"), like: "Home 002"},
     //If the callback returns Promise with the resolved value true, it succeeds and fails if it returns Promise with false.
     {by: By.css(".main .col-sm-6:nth-child(3) img"), callback: elem => elem.getAttribute("alt").then(alt => alt == "Home alt 003")},
     //Search the entire body of the response with partial match.
-    {text: "<title>Simple selenium checker - Home</title>"}
+    {body: "<title>Simple selenium checker - Home</title>"}
   ]},
 
-  //Enter text in the form, click the button and link.
   {actions: [
-    {by: By.css("form input[type=text].name"), type: Checker.ActionType.SendKeys,  value: "Tom Chandler"},
-    {by: By.css(".nav li:nth-child(2) > a"), type: Checker.ActionType.Click},
+    //Enter text in the form element.
+    {sendKey: By.css("form input[type=text].name"), value: "Tom Chandler"},
+    //Click the button and link.
+    {click: By.css(".nav li:nth-child(2) > a")},
   ]}
 ]
 ```
