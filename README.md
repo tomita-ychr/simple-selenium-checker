@@ -32,7 +32,7 @@ const checker = new Checker(driver)
 
 const scenario = [
   {url: "https://www.google.com/"}
-  {checks: [{loc: By.css("#searchform")}]}
+  {checks: [{by: By.css("#searchform")}]}
 ]
 
 checker.run(scenario)
@@ -48,21 +48,21 @@ const scenario = [
   //Check the elements and text on the page.
   {checks: [
     //Only the existence of the element.
-    {loc: By.css("#searchform")}
+    {by: By.css("#searchform")}
     //Compare the text contained in the element with exact match.
-    {loc: By.css(".main .col-sm-6:nth-child(2) h3"), text: "Home 002"},
+    {by: By.css(".main .col-sm-6:nth-child(2) h3"), text: "Home 002"},
     //Compare the text contained in the element with partial match.
-    {loc: By.css(".main .col-sm-6:nth-child(2) h3"), like: "Home 002"},
+    {by: By.css(".main .col-sm-6:nth-child(2) h3"), like: "Home 002"},
     //If the callback returns Promise with the resolved value true, it succeeds and fails if it returns Promise with false.
-    {loc: By.css(".main .col-sm-6:nth-child(3) img"), callback: elem => elem.getAttribute("alt").then(alt => alt == "Home alt 003")},
+    {by: By.css(".main .col-sm-6:nth-child(3) img"), callback: elem => elem.getAttribute("alt").then(alt => alt == "Home alt 003")},
     //Search the entire body of the response with partial match.
     {text: "<title>Simple selenium checker - Home</title>"}
   ]},
 
   //Enter text in the form, click the button and link.
   {actions: [
-    {loc: By.css("form input[type=text].name"), type: Checker.ActionType.SendKeys,  value: "Tom Chandler"},
-    {loc: By.css(".nav li:nth-child(2) > a"), type: Checker.ActionType.Click},
+    {by: By.css("form input[type=text].name"), type: Checker.ActionType.SendKeys,  value: "Tom Chandler"},
+    {by: By.css(".nav li:nth-child(2) > a"), type: Checker.ActionType.Click},
   ]}
 ]
 ```
@@ -72,7 +72,7 @@ It is also possible to pass the url's host part to the second argument of run, w
 ```js
 const scenario = [
   {url: "/"}
-  {checks: [{loc: By.css("#searchform")}]}
+  {checks: [{by: By.css("#searchform")}]}
 ]
 
 checker.run(scenario, 'https://www.google.com')

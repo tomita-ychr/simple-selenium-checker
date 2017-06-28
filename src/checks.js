@@ -1,15 +1,15 @@
 import webdriver from 'selenium-webdriver';
 const By = webdriver.By;
 
-export function loc(checker, check){
-  return checker.waitElement(check.loc).then(elem => {
+export function by(checker, check){
+  return checker.waitElement(check.by).then(elem => {
     if(check.text){
       return elem.getText().then(text => {
-        if(text !== check.text) throw new Error('Text in ' + check.loc.toString() + ' is not `' + check.text + '` actual `' + text + "`")
+        if(text !== check.text) throw new Error('Text in ' + check.by.toString() + ' is not `' + check.text + '` actual `' + text + "`")
       })
     } else if(check.like){
       return elem.getText().then(text => {
-        if(text.indexOf(check.like) === -1) throw new Error('Text in ' + check.loc.toString() + ' dose not like `' + check.like + '` actual `' + text + '`')
+        if(text.indexOf(check.like) === -1) throw new Error('Text in ' + check.by.toString() + ' dose not like `' + check.like + '` actual `' + text + '`')
       })
     } else if(check.callback) {
       return check.callback(elem).then(res => {

@@ -37,8 +37,8 @@ export default class Checker
       if(item.checks) {
         item.checks.forEach(check => {
           promise = promise.then(() => {
-            if(check.loc){
-              return checks['loc'](this, check)
+            if(check.by){
+              return checks['by'](this, check)
             } else if(check.text){
               return checks['text'](this, check)
             } else if(check.url){

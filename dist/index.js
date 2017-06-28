@@ -178,8 +178,8 @@ var Checker = function () {
         if (item.checks) {
           item.checks.forEach(function (check) {
             promise = promise.then(function () {
-              if (check.loc) {
-                return checks['loc'](_this2, check);
+              if (check.by) {
+                return checks['by'](_this2, check);
               } else if (check.text) {
                 return checks['text'](_this2, check);
               } else if (check.url) {
@@ -265,7 +265,7 @@ Checker.Debug = false;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.loc = loc;
+exports.by = by;
 exports.text = text;
 exports.url = url;
 
@@ -277,15 +277,15 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var By = _seleniumWebdriver2.default.By;
 
-function loc(checker, check) {
-  return checker.waitElement(check.loc).then(function (elem) {
+function by(checker, check) {
+  return checker.waitElement(check.by).then(function (elem) {
     if (check.text) {
       return elem.getText().then(function (text) {
-        if (text !== check.text) throw new Error('Text in ' + check.loc.toString() + ' is not `' + check.text + '` actual `' + text + "`");
+        if (text !== check.text) throw new Error('Text in ' + check.by.toString() + ' is not `' + check.text + '` actual `' + text + "`");
       });
     } else if (check.like) {
       return elem.getText().then(function (text) {
-        if (text.indexOf(check.like) === -1) throw new Error('Text in ' + check.loc.toString() + ' dose not like `' + check.like + '` actual `' + text + '`');
+        if (text.indexOf(check.like) === -1) throw new Error('Text in ' + check.by.toString() + ' dose not like `' + check.like + '` actual `' + text + '`');
       });
     } else if (check.callback) {
       return check.callback(elem).then(function (res) {
@@ -324,13 +324,13 @@ Object.defineProperty(exports, "__esModule", {
 exports.click = click;
 exports.sendKeys = sendKeys;
 function click(checker, action) {
-  return checker.waitElement(action.loc).then(function (elem) {
+  return checker.waitElement(action.by).then(function (elem) {
     return elem.click();
   });
 }
 
 function sendKeys(checker, action) {
-  return checker.waitElement(action.loc).then(function (elem) {
+  return checker.waitElement(action.by).then(function (elem) {
     return elem.sendKeys(action.value);
   });
 }
