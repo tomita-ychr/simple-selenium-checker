@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/simple-selenium-checker.svg)](https://badge.fury.io/js/simple-selenium-checker)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-It is a tool to make it easy to write tests of web applications without knowledge of Selenium and difficult Promise.
+It is a tool to make it easy to write tests for web applications without knowledge of Selenium and difficult Promise.
 
 ## Installation
 
@@ -11,7 +11,7 @@ npm install simple-selenium-checker
 
 ## Usage
 
-Initialize Checker object with WebDriver as argument.
+Initialize Checker object with WebDriver as the argument.
 
 ```js
 import webdriver from 'selenium-webdriver'
@@ -38,7 +38,7 @@ const scenario = [
 checker.run(scenario)
 ```
 
-In the above scenario, first open `https: // www.google.com /` and check if there is a `# searchform` element on the page. Below are all the directives of the scenario.
+In the above scenario, first open `https: // www.google.com /` and check if there is a `#searchform` element on the page. Below are all the directives of the scenario.
 
 ```js
 const scenario = [
@@ -67,7 +67,7 @@ const scenario = [
 ]
 ```
 
-It is also possible to pass the url's host part to the second argument of run, without including it in the scenario.
+It is also possible to pass the URL's host part to the second argument of the run method, without including it in the scenario.
 
 ```js
 const scenario = [
@@ -78,9 +78,9 @@ const scenario = [
 checker.run(scenario, 'https://www.google.com')
 ```
 
-The `checks` option is implemented to wait until the specified element is visibled. So you can use it without worrying about elements added to the page with javascript.
+The `checks` option is implemented to wait until the specified element is visible. So you can use it without worrying about elements added to the page with javascript.
 
-You can change the timeout in ms by `Checker.WaitElementTimeout` static property (globaly) or `waitElementTimeout` instance property (locally). Default is 4000ms.
+You can change the timeout in ms by `Checker.WaitElementTimeout` static property (globally) or `waitElementTimeout` instance property (locally). The default is 4000ms.
 
 ```js
 const checker = new Checker(driver)
