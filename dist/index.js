@@ -178,12 +178,16 @@ var Checker = function () {
         if (item.checks) {
           item.checks.forEach(function (check) {
             promise = promise.then(function () {
-              if (check.by) {
-                return checks['by'](_this2, check);
-              } else if (check.text) {
-                return checks['text'](_this2, check);
-              } else if (check.url) {
-                return checks['url'](_this2, check);
+              var processed = false;
+              for (var key in checks) {
+                if (check[key]) {
+                  processed = true;
+                  return checks[key](_this2, check);
+                }
+              }
+
+              if (!processed) {
+                throw new Error("Invalid checks object. " + JSON.stringify(check));
               }
             });
           });

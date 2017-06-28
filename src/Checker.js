@@ -37,12 +37,16 @@ export default class Checker
       if(item.checks) {
         item.checks.forEach(check => {
           promise = promise.then(() => {
-            if(check.by){
-              return checks['by'](this, check)
-            } else if(check.text){
-              return checks['text'](this, check)
-            } else if(check.url){
-              return checks['url'](this, check)
+            let processed = false
+            for(let key in checks){
+              if(check[key]){
+                processed = true
+                return checks[key](this, check)
+              }
+            }
+
+            if(!processed){
+              throw new Error("Invalid checks object. " + JSON.stringify(check))
             }
           })
         })
