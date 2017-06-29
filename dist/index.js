@@ -251,44 +251,52 @@ var Checker = function () {
       return promise;
     }
   }, {
-    key: '_replacePlaceholder',
-    value: function _replacePlaceholder(elem) {
-      if (elem.placeholderKey) {
-        if (this.placeholder[elem.placeholderKey]) {
-          return elem.apply(this.placeholder[elem.placeholderKey]);
+    key: '_applyPlaceholderToValue',
+    value: function _applyPlaceholderToValue(value) {
+      if (value.placeholderKey) {
+        if (this.placeholder[value.placeholderKey]) {
+          return value.apply(this.placeholder[value.placeholderKey]);
         } else {
-          throw new Error('Missing ' + elem.placeholderKey + ' key in placeholder.');
+          throw new Error('Missing ' + value.placeholderKey + ' key in placeholder.');
         }
       } else {
-        return elem;
+        return value;
       }
+    }
+  }, {
+    key: '_applyPlaceholderToArray',
+    value: function _applyPlaceholderToArray(elems) {
+      var _this3 = this;
+
+      var newElems = [];
+      elems.forEach(function (elem) {
+        if (elem.forEach) {
+          newElems.push(_this3._applyPlaceholderToArray(elem));
+        } else {
+          var newElem = {};
+          for (var elemKey in elem) {
+            newElem[elemKey] = _this3._applyPlaceholderToValue(elem[elemKey]);
+          }
+          newElems.push(newElem);
+        }
+      });
+
+      return newElems;
     }
   }, {
     key: '_applyPlaceholder',
     value: function _applyPlaceholder(scenarioItem) {
-      var _this3 = this;
-
       if (this.placeholder === undefined) {
         return scenarioItem;
       }
 
       var newItem = {};
       for (var itemKey in scenarioItem) {
-        var elems = scenarioItem[itemKey];
-        if (elems.forEach) {
-          (function () {
-            var newElems = [];
-            elems.forEach(function (elem) {
-              var newElem = {};
-              for (var elemKey in elem) {
-                newElem[elemKey] = _this3._replacePlaceholder(elem[elemKey]);
-              }
-              newElems.push(newElem);
-            });
-            newItem[itemKey] = newElems;
-          })();
+        var elem = scenarioItem[itemKey];
+        if (elem.forEach) {
+          newItem[itemKey] = this._applyPlaceholderToArray(elem);
         } else {
-          newItem[itemKey] = this._replacePlaceholder(elems);
+          newItem[itemKey] = this._applyPlaceholderToValue(elem);
         }
       }
 

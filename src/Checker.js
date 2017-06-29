@@ -110,16 +110,33 @@ export default class Checker
     return promise;
   }
 
-  _replacePlaceholder(elem){
-    if(elem.placeholderKey){
-      if(this.placeholder[elem.placeholderKey]){
-        return elem.apply(this.placeholder[elem.placeholderKey])
+  _applyPlaceholderToValue(value){
+    if(value.placeholderKey){
+      if(this.placeholder[value.placeholderKey]){
+        return value.apply(this.placeholder[value.placeholderKey])
       } else {
-        throw new Error('Missing ' + elem.placeholderKey + ' key in placeholder.')
+        throw new Error('Missing ' + value.placeholderKey + ' key in placeholder.')
       }
     } else {
-      return elem
+      return value
     }
+  }
+
+  _applyPlaceholderToArray(elems){
+    const newElems = []
+    elems.forEach(elem => {
+      if(elem.forEach){
+        newElems.push(this._applyPlaceholderToArray(elem))
+      } else {
+        const newElem = {}
+        for(let elemKey in elem){
+          newElem[elemKey] = this._applyPlaceholderToValue(elem[elemKey])
+        }
+        newElems.push(newElem)
+      }
+    })
+
+    return newElems
   }
 
   _applyPlaceholder(scenarioItem){
@@ -129,19 +146,11 @@ export default class Checker
 
     const newItem = {}
     for(let itemKey in scenarioItem){
-      const elems = scenarioItem[itemKey]
-      if(elems.forEach){
-        const newElems = []
-        elems.forEach(elem => {
-          const newElem = {}
-          for(let elemKey in elem){
-            newElem[elemKey] = this._replacePlaceholder(elem[elemKey])
-          }
-          newElems.push(newElem)
-        })
-        newItem[itemKey] = newElems
+      const elem = scenarioItem[itemKey]
+      if(elem.forEach){
+        newItem[itemKey] = this._applyPlaceholderToArray(elem)
       } else {
-        newItem[itemKey] = this._replacePlaceholder(elems)
+        newItem[itemKey] = this._applyPlaceholderToValue(elem)
       }
     }
 
