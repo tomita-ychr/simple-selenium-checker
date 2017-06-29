@@ -83,10 +83,9 @@ export default class Checker
     let promise = Promise.resolve()
     scenario.forEach(item => {
       item = this._applyPlaceholder(item)
-
       //url
       if(item.url) {
-        promise = this.driver.get(host ? host + item.url : item.url)
+        promise = promise.then(() => this.driver.get(host ? host + item.url : item.url))
       }
 
       //actions

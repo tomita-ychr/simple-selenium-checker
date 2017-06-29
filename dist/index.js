@@ -234,10 +234,11 @@ var Checker = function () {
       var promise = Promise.resolve();
       scenario.forEach(function (item) {
         item = _this4._applyPlaceholder(item);
-
         //url
         if (item.url) {
-          promise = _this4.driver.get(host ? host + item.url : item.url);
+          promise = promise.then(function () {
+            return _this4.driver.get(host ? host + item.url : item.url);
+          });
         }
 
         //actions
