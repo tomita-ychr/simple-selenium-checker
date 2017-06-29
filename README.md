@@ -60,8 +60,8 @@ const scenario = [
     //Only the existence of the element.
     {by: By.css("#searchform")}
     //Compare the text contained in the element with exact match.
-    //When `wait` is specified, it checks repeatedly for the specified milliseconds until the target element is visible.
-    {by: By.css(".main .col-sm-6:nth-child(2) h3"), equal: "Home 002", wait: 1000},
+    //When `timeout` is specified, it checks repeatedly for the specified milliseconds until the target element is visible.
+    {by: By.css(".main .col-sm-6:nth-child(2) h3"), equal: "Home 002", timeout: 1000},
     //Compare the text contained in the element with partial match.
     {by: By.css(".main .col-sm-6:nth-child(2) h3"), like: "Home 002"},
     //If the callback returns Promise with the resolved value true, it succeeds and fails if it returns Promise with false.
@@ -77,6 +77,15 @@ const scenario = [
     {click: By.css(".nav li:nth-child(2) > a")},
   ]}
 ]
+```
+
+`timeout` has global scope setting and instance scope setting. the default is 3000ms.
+
+```js
+Checker.DefaultTimeout = 2000 //Global
+
+const checker = new Checker(driver)
+checker.defaultTimeout = 1000 //Instance
 ```
 
 It is also possible to pass the URL's host part to the second argument of the run method, without including it in the scenario.

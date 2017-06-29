@@ -2,7 +2,7 @@ import webdriver from 'selenium-webdriver';
 const By = webdriver.By;
 
 export function by(checker, check){
-  return checker.waitElement(check.by, check.wait).then(elem => {
+  return checker.waitElement(check.by, check.timeout).then(elem => {
     if(check.equal){
       return elem.getText().then(text => {
         if(text !== check.equal) throw new Error('Text in ' + check.by.toString() + ' is not `' + check.equal + '` actual `' + text + "`")
