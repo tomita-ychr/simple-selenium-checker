@@ -37,7 +37,7 @@ test.describe('SSM', () => {
         url: "http://127.0.0.1:8080/",
       },{
         checks: [
-          {by: By.css(".delay-content")},
+          {by: By.css(".delay-content"), wait: 1000},
           {by: By.css(".main .col-sm-6:nth-child(2) h3"), equal: "Home 002"},
           {by: By.css(".main .col-sm-6:nth-child(3) img"), callback: elem => elem.getAttribute("alt").then(alt => alt == "Home alt 003")},
           {body: "<title>Simple selenium checker - Home</title>"}
@@ -48,7 +48,7 @@ test.describe('SSM', () => {
         ]
       },{
         checks: [
-          {by: By.css(".delay-content")},
+          {by: By.css(".delay-content"), wait: 1000},
           {by: By.css(".main .col-sm-6:nth-child(2) h3"), equal: "Foo 002"},
           {by: By.css(".main .col-sm-6:nth-child(3) img"), callback: elem => elem.getAttribute("alt").then(alt => alt == "Foo alt 003")},
           {body: "<title>Simple selenium checker - Foo"},

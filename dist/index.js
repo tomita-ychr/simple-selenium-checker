@@ -140,7 +140,6 @@ var Checker = function () {
     _classCallCheck(this, Checker);
 
     this.driver = driver;
-    this.waitElementTimeout = Checker.WaitElementTimeout;
     this.debug = Checker.Debug;
   }
 
@@ -149,7 +148,7 @@ var Checker = function () {
     value: function waitElement(locator, timeout) {
       var _this = this;
 
-      if (timeout === undefined) timeout = this.waitElementTimeout;
+      if (timeout === undefined) timeout = 1;
       return this.driver.wait(until.elementLocated(locator), timeout).then(function (elem) {
         return _this.driver.wait(until.elementIsVisible(elem), timeout);
       });
@@ -375,8 +374,6 @@ var Checker = function () {
 exports.default = Checker;
 
 
-Checker.WaitElementTimeout = 4000;
-
 Checker.JsErrorStrings = ["SyntaxError", "EvalError", "ReferenceError", "RangeError", "TypeError", "URIError"];
 
 Checker.Debug = false;
@@ -404,7 +401,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var By = _seleniumWebdriver2.default.By;
 
 function by(checker, check) {
-  return checker.waitElement(check.by).then(function (elem) {
+  return checker.waitElement(check.by, check.wait).then(function (elem) {
     if (check.equal) {
       return elem.getText().then(function (text) {
         if (text !== check.equal) throw new Error('Text in ' + check.by.toString() + ' is not `' + check.equal + '` actual `' + text + "`");
@@ -451,19 +448,19 @@ exports.click = click;
 exports.sendKeys = sendKeys;
 exports.clear = clear;
 function click(checker, action) {
-  return checker.waitElement(action.click).then(function (elem) {
+  return checker.waitElement(action.click, action.wait).then(function (elem) {
     return elem.click();
   });
 }
 
 function sendKeys(checker, action) {
-  return checker.waitElement(action.sendKeys).then(function (elem) {
+  return checker.waitElement(action.sendKeys, action.wait).then(function (elem) {
     return elem.sendKeys(action.value);
   });
 }
 
 function clear(checker, action) {
-  return checker.waitElement(action.clear).then(function (elem) {
+  return checker.waitElement(action.clear, action.wait).then(function (elem) {
     return elem.clear();
   });
 }
