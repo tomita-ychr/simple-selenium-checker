@@ -9,3 +9,9 @@ export function sendKeys(checker, action){
     return elem.sendKeys(action.value)
   })
 }
+
+export function clear(checker, action){
+  return checker.waitElement(action.clear).then(elem => {
+    return elem.clear()
+  })
+}

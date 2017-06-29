@@ -179,6 +179,7 @@ var Checker = function () {
 
       var promise = Promise.resolve();
       scenario.forEach(function (item) {
+        item = _this2._applyPlaceholder(item);
         //url
         if (item.url) {
           promise = _this2.driver.get(host ? host + item.url : item.url);
@@ -248,6 +249,50 @@ var Checker = function () {
       });
 
       return promise;
+    }
+  }, {
+    key: '_replacePlaceholder',
+    value: function _replacePlaceholder(elem) {
+      if (elem.placeholderKey) {
+        if (this.placeholder[elem.placeholderKey]) {
+          return elem.apply(this.placeholder[elem.placeholderKey]);
+        } else {
+          throw new Error('Missing ' + elem.placeholderKey + ' key in placeholder.');
+        }
+      } else {
+        return elem;
+      }
+    }
+  }, {
+    key: '_applyPlaceholder',
+    value: function _applyPlaceholder(scenarioItem) {
+      var _this3 = this;
+
+      if (this.placeholder === undefined) {
+        return scenarioItem;
+      }
+
+      var newItem = {};
+      for (var itemKey in scenarioItem) {
+        var elems = scenarioItem[itemKey];
+        if (elems.forEach) {
+          (function () {
+            var newElems = [];
+            elems.forEach(function (elem) {
+              var newElem = {};
+              for (var elemKey in elem) {
+                newElem[elemKey] = _this3._replacePlaceholder(elem[elemKey]);
+              }
+              newElems.push(newElem);
+            });
+            newItem[itemKey] = newElems;
+          })();
+        } else {
+          newItem[itemKey] = this._replacePlaceholder(elems);
+        }
+      }
+
+      return newItem;
     }
   }]);
 
@@ -331,6 +376,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.click = click;
 exports.sendKeys = sendKeys;
+exports.clear = clear;
 function click(checker, action) {
   return checker.waitElement(action.click).then(function (elem) {
     return elem.click();
@@ -340,6 +386,12 @@ function click(checker, action) {
 function sendKeys(checker, action) {
   return checker.waitElement(action.sendKeys).then(function (elem) {
     return elem.sendKeys(action.value);
+  });
+}
+
+function clear(checker, action) {
+  return checker.waitElement(action.clear).then(function (elem) {
+    return elem.clear();
   });
 }
 

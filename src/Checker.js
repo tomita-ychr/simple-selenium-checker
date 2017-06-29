@@ -39,6 +39,7 @@ export default class Checker
   run(scenario, host){
     let promise = Promise.resolve()
     scenario.forEach(item => {
+      item = this._applyPlaceholder(item)
       //url
       if(item.url) {
         promise = this.driver.get(host ? host + item.url : item.url)
@@ -107,6 +108,44 @@ export default class Checker
     })
 
     return promise;
+  }
+
+  _replacePlaceholder(elem){
+    if(elem.placeholderKey){
+      if(this.placeholder[elem.placeholderKey]){
+        return elem.apply(this.placeholder[elem.placeholderKey])
+      } else {
+        throw new Error('Missing ' + elem.placeholderKey + ' key in placeholder.')
+      }
+    } else {
+      return elem
+    }
+  }
+
+  _applyPlaceholder(scenarioItem){
+    if(this.placeholder === undefined){
+      return scenarioItem
+    }
+
+    const newItem = {}
+    for(let itemKey in scenarioItem){
+      const elems = scenarioItem[itemKey]
+      if(elems.forEach){
+        const newElems = []
+        elems.forEach(elem => {
+          const newElem = {}
+          for(let elemKey in elem){
+            newElem[elemKey] = this._replacePlaceholder(elem[elemKey])
+          }
+          newElems.push(newElem)
+        })
+        newItem[itemKey] = newElems
+      } else {
+        newItem[itemKey] = this._replacePlaceholder(elems)
+      }
+    }
+
+    return newItem
   }
 }
 
