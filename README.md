@@ -15,7 +15,7 @@ Initialize Checker object with WebDriver as the argument.
 
 ```js
 import webdriver from 'selenium-webdriver'
-import Checker from '../src/Checker'
+import Checker from 'simple-selenium-checker'
 const By = webdriver.By;
 
 const driver = new webdriver.Builder()
@@ -42,6 +42,16 @@ In the above scenario, first open `https: // www.google.com /` and check if ther
 
 ```js
 const scenario = [
+  //Ignore that block if `execif` evaluates to false.
+  {execif: [//Elements in this array evaluated in the AND.
+    //Evaluate to true if the target element exists.
+    [{exists: By.css('.foo')}, {exists: By.css('.bar')}], //Elements in this array evaluated in the OR.
+    //Evaluate to true if the target element not exists.
+    [{nonExists: By.css('.main')},
+    //only `bool` is useful in the Placeholder described below.
+    [{bool: true}],
+  ]}
+
   //Opens the specified page.
   {url: "https://www.google.com/"}
 
@@ -50,7 +60,8 @@ const scenario = [
     //Only the existence of the element.
     {by: By.css("#searchform")}
     //Compare the text contained in the element with exact match.
-    {by: By.css(".main .col-sm-6:nth-child(2) h3"), equal: "Home 002"},
+    //When `wait` is specified, it checks repeatedly for the specified milliseconds until the target element is visible.
+    {by: By.css(".main .col-sm-6:nth-child(2) h3"), equal: "Home 002", wait: 1000},
     //Compare the text contained in the element with partial match.
     {by: By.css(".main .col-sm-6:nth-child(2) h3"), like: "Home 002"},
     //If the callback returns Promise with the resolved value true, it succeeds and fails if it returns Promise with false.
@@ -79,13 +90,33 @@ const scenario = [
 checker.run(scenario, 'https://www.google.com')
 ```
 
-The `checks` option is implemented to wait until the specified element is visible. So you can use it without worrying about elements added to the page with javascript.
-
-You can change the timeout in ms by `Checker.WaitElementTimeout` static property (globally) or `waitElementTimeout` instance property (locally). The default is 4000ms.
+With `placeholder` you can replace the elements in the scenario.
 
 ```js
-const checker = new Checker(driver)
-checker.waitElementTimeout = 1000
+import {placeholder} from 'simple-selenium-checker'
+
+const scenario = [
+  {url: placeholder('host_name').append('/form.html')}
+  {checks: [
+    {by: placeholder('checks_on_form')}
+  ]}
+]
+checker.placeholder = {
+  'host_name': 'http://www.example.com',
+  'checks_on_form': By.css('.foo'),
+}
+checker.run(scenario, 'https://www.google.com')
+```
+
+This scenario is replaced as follows.
+
+```js
+[
+  {url: 'https://www.google.com/form.html'}
+  {checks: [
+    {by: By.css('.foo')}
+  ]}
+]
 ```
 
 When Checker fails the test, it displays all sources of HTML in the message. If you set to true the debug property, only the original message is displayed.
