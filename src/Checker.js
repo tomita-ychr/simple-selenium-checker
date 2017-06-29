@@ -9,11 +9,10 @@ export default class Checker
   constructor(driver){
     this.driver = driver
     this.debug = Checker.Debug
-    this.defaultTimeout = Checker.DefaultTimeout
   }
 
   waitElement(locator, timeout){
-    if(timeout === undefined) timeout = this.defaultTimeout;
+    if(timeout === undefined) timeout = 1;
     return this.driver
       .wait(until.elementLocated(locator), timeout)
       .then(elem => this.driver.wait(until.elementIsVisible(elem), timeout));
@@ -213,8 +212,6 @@ export default class Checker
     return newItem
   }
 }
-
-Checker.DefaultTimeout = 3000
 
 Checker.JsErrorStrings = [
   "SyntaxError",

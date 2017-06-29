@@ -79,15 +79,6 @@ const scenario = [
 ]
 ```
 
-`timeout` has global scope setting and instance scope setting. the default is 3000ms.
-
-```js
-Checker.DefaultTimeout = 2000 //Global
-
-const checker = new Checker(driver)
-checker.defaultTimeout = 1000 //Instance
-```
-
 It is also possible to pass the URL's host part to the second argument of the run method, without including it in the scenario.
 
 ```js

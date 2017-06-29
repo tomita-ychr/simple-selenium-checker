@@ -10,7 +10,6 @@ const isDebug = process.execArgv.indexOf('--debug') > -1 || process.execArgv.ind
 let driver;
 test.describe('SSM', () => {
   test.before(() => {
-    Checker.DefaultTimeout = 1
     Checker.Debug = isDebug
     const chromeCapabilities = webdriver.Capabilities.chrome();
     chromeCapabilities.set('chromeOptions', {

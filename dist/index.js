@@ -146,7 +146,6 @@ var Checker = function () {
 
     this.driver = driver;
     this.debug = Checker.Debug;
-    this.defaultTimeout = Checker.DefaultTimeout;
   }
 
   _createClass(Checker, [{
@@ -154,7 +153,7 @@ var Checker = function () {
     value: function waitElement(locator, timeout) {
       var _this = this;
 
-      if (timeout === undefined) timeout = this.defaultTimeout;
+      if (timeout === undefined) timeout = 1;
       return this.driver.wait(until.elementLocated(locator), timeout).then(function (elem) {
         return _this.driver.wait(until.elementIsVisible(elem), timeout);
       });
@@ -379,8 +378,6 @@ var Checker = function () {
 
 exports.default = Checker;
 
-
-Checker.DefaultTimeout = 3000;
 
 Checker.JsErrorStrings = ["SyntaxError", "EvalError", "ReferenceError", "RangeError", "TypeError", "URIError"];
 
