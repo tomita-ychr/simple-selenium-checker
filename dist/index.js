@@ -146,16 +146,17 @@ var Checker = function () {
 
   _createClass(Checker, [{
     key: 'waitElement',
-    value: function waitElement(locator) {
+    value: function waitElement(locator, timeout) {
       var _this = this;
 
-      return this.driver.wait(until.elementLocated(locator), this.waitElementTimeout).then(function (elem) {
-        return _this.driver.wait(until.elementIsVisible(elem), _this.waitElementTimeout);
+      if (timeout === undefined) timeout = this.waitElementTimeout;
+      return this.driver.wait(until.elementLocated(locator), timeout).then(function (elem) {
+        return _this.driver.wait(until.elementIsVisible(elem), timeout);
       });
     }
   }, {
-    key: 'detectFunction',
-    value: function detectFunction(functions, obj) {
+    key: '_detectFunction',
+    value: function _detectFunction(functions, obj) {
       var keys = [];
       var func = undefined;
       for (var key in functions) {
@@ -173,23 +174,77 @@ var Checker = function () {
       return func;
     }
   }, {
+    key: '_testItem',
+    value: function _testItem(condition) {
+      if (condition.exists) {
+        return this.waitElement(condition.exists, condition.wait).then(function () {
+          return true;
+        }).catch(function () {
+          return false;
+        });
+      } else if (condition.nonExists) {
+        return this.waitElement(condition.nonExists, condition.wait).then(function () {
+          return false;
+        }).catch(function () {
+          return true;
+        });
+      } else if (condition.bool !== undefined) {
+        return Promise.resolve(condition.bool);
+      } else {
+        throw new Error("Invalid exexif condition " + JSON.stringify(condition));
+      }
+    }
+  }, {
+    key: '_testGroup',
+    value: function _testGroup(conditions) {
+      var _this2 = this;
+
+      var promise = Promise.resolve(false);
+      conditions.forEach(function (item) {
+        promise = promise.then(function (res) {
+          if (res) return true; //OR
+          return _this2._testItem(item);
+        });
+      });
+
+      return promise;
+    }
+  }, {
+    key: '_testExecif',
+    value: function _testExecif(conditions) {
+      var _this3 = this;
+
+      var promise = Promise.resolve(true);
+      if (conditions) {
+        conditions.forEach(function (group) {
+          promise = promise.then(function (res) {
+            if (!res) return false; //AND
+            return _this3._testGroup(group);
+          });
+        });
+      }
+
+      return promise;
+    }
+  }, {
     key: 'run',
     value: function run(scenario, host) {
-      var _this2 = this;
+      var _this4 = this;
 
       var promise = Promise.resolve();
       scenario.forEach(function (item) {
-        item = _this2._applyPlaceholder(item);
+        item = _this4._applyPlaceholder(item);
+
         //url
         if (item.url) {
-          promise = _this2.driver.get(host ? host + item.url : item.url);
+          promise = _this4.driver.get(host ? host + item.url : item.url);
         }
 
         //actions
         if (item.actions) {
           item.actions.forEach(function (action) {
             promise = promise.then(function () {
-              return _this2.detectFunction(actions, action)(_this2, action);
+              return _this4._detectFunction(actions, action)(_this4, action);
             });
           });
         }
@@ -198,16 +253,16 @@ var Checker = function () {
         if (item.checks) {
           item.checks.forEach(function (check) {
             promise = promise.then(function () {
-              return _this2.detectFunction(checks, check)(_this2, check);
+              return _this4._detectFunction(checks, check)(_this4, check);
             });
           });
         }
 
         //Check javascript and response errors using browser logs.
         promise = promise.then(function () {
-          return _this2.driver.getCurrentUrl().then(function (url) {
+          return _this4.driver.getCurrentUrl().then(function (url) {
             return new Promise(function (resolve) {
-              _this2.driver.manage().logs().get('browser').then(function (logs) {
+              _this4.driver.manage().logs().get('browser').then(function (logs) {
                 logs.forEach(function (log) {
                   //javascript
                   if (Checker.JsErrorStrings.some(function (err) {
@@ -233,13 +288,13 @@ var Checker = function () {
         });
 
         //Format the error.
-        if (_this2.debug === false) {
+        if (_this4.debug === false) {
           promise = promise.catch(function (err) {
-            return _this2.driver.findElement(By.css('html')).then(function (elem) {
+            return _this4.driver.findElement(By.css('html')).then(function (elem) {
               return elem.getAttribute('outerHTML');
             }).then(function (html) {
-              return _this2.driver.getCurrentUrl().then(function (url) {
-                var data = Object.assign({}, _this2.data);
+              return _this4.driver.getCurrentUrl().then(function (url) {
+                var data = Object.assign({}, _this4.data);
                 delete data.next;
                 throw new Error(url + "\n" + "JSON: " + JSON.stringify(data) + "\n" + "Message: " + err.message + "\n" + html);
               });
@@ -266,16 +321,16 @@ var Checker = function () {
   }, {
     key: '_applyPlaceholderToArray',
     value: function _applyPlaceholderToArray(elems) {
-      var _this3 = this;
+      var _this5 = this;
 
       var newElems = [];
       elems.forEach(function (elem) {
         if (elem.forEach) {
-          newElems.push(_this3._applyPlaceholderToArray(elem));
+          newElems.push(_this5._applyPlaceholderToArray(elem));
         } else {
           var newElem = {};
           for (var elemKey in elem) {
-            newElem[elemKey] = _this3._applyPlaceholderToValue(elem[elemKey]);
+            newElem[elemKey] = _this5._applyPlaceholderToValue(elem[elemKey]);
           }
           newElems.push(newElem);
         }

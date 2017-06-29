@@ -12,13 +12,14 @@ export default class Checker
     this.debug = Checker.Debug;
   }
 
-  waitElement(locator){
+  waitElement(locator, timeout){
+    if(timeout === undefined) timeout = this.waitElementTimeout;
     return this.driver
-      .wait(until.elementLocated(locator), this.waitElementTimeout)
-      .then(elem => this.driver.wait(until.elementIsVisible(elem), this.waitElementTimeout));
+      .wait(until.elementLocated(locator), timeout)
+      .then(elem => this.driver.wait(until.elementIsVisible(elem), timeout));
   }
 
-  detectFunction(functions, obj){
+  _detectFunction(functions, obj){
     const keys = []
     let func = undefined
     for(let key in functions){
@@ -36,10 +37,53 @@ export default class Checker
     return func
   }
 
+  _testItem(condition){
+    if(condition.exists){
+      return this.waitElement(condition.exists, condition.wait)
+        .then(() => true)
+        .catch(() => false)
+    } else if(condition.nonExists){
+      return this.waitElement(condition.nonExists, condition.wait)
+        .then(() => false)
+        .catch(() => true)
+    } else if(condition.bool !== undefined){
+      return Promise.resolve(condition.bool)
+    } else {
+      throw new Error("Invalid exexif condition " + JSON.stringify(condition))
+    }
+  }
+
+  _testGroup(conditions){
+    let promise = Promise.resolve(false)
+    conditions.forEach(item => {
+      promise = promise.then(res => {
+        if(res) return true//OR
+        return this._testItem(item)
+      })
+    })
+
+    return promise
+  }
+
+  _testExecif(conditions){
+    let promise = Promise.resolve(true)
+    if(conditions){
+      conditions.forEach(group => {
+        promise = promise.then(res => {
+          if(!res) return false//AND
+          return this._testGroup(group)
+        })
+      })
+    }
+
+    return promise
+  }
+
   run(scenario, host){
     let promise = Promise.resolve()
     scenario.forEach(item => {
       item = this._applyPlaceholder(item)
+
       //url
       if(item.url) {
         promise = this.driver.get(host ? host + item.url : item.url)
@@ -48,14 +92,14 @@ export default class Checker
       //actions
       if(item.actions) {
         item.actions.forEach(action => {
-          promise = promise.then(() => this.detectFunction(actions, action)(this, action))
+          promise = promise.then(() => this._detectFunction(actions, action)(this, action))
         })
       }
 
       //Process checks
       if(item.checks) {
         item.checks.forEach(check => {
-          promise = promise.then(() => this.detectFunction(checks, check)(this, check))
+          promise = promise.then(() => this._detectFunction(checks, check)(this, check))
         })
       }
 

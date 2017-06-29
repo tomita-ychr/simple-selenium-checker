@@ -342,4 +342,59 @@ test.describe('SSM', () => {
 
     checker.run(scenario)
   })
+
+  test.it('should when there is an execif directive, evaluate whether to execute that block.', () => {
+    driver.get('http://127.0.0.1:8080')
+    const checker = new Checker(driver)
+
+    return Promise.resolve()
+      .then(() => {
+        // exists
+        return checker._testExecif([
+          [{exists: By.css('header')}]
+        ]).then(res => assert(res === true))
+      }).then(() => {
+        //non exists
+        return checker._testExecif([
+          [{nonExists: By.css('header')}]
+        ]).then(res => assert(res === false))
+      }).then(() => {
+        // bool true
+        return checker._testExecif([
+          [{bool: true}]
+        ]).then(res => assert(res === true))
+      }).then(() => {
+        // bool false
+        return checker._testExecif([
+          [{bool: false}]
+        ]).then(res => assert(res === false))
+      }).then(() => {
+        //or
+        return checker._testExecif([
+          [{exists: By.css('header')}, {nonExists: By.css('header')}]
+        ]).then(res => assert(res === true))
+      }).then(() => {
+        //and
+        return checker._testExecif([
+          [{exists: By.css('header')}],
+          [{nonExists: By.css('header')}]
+        ]).then(res => assert(res === false))
+      })
+      // .then(() => {
+      //   //checker run
+      //   return checker.run([{
+      //     execif: [[{exists: By.css('header')}]],
+      //     checks: [
+      //       {by: By.css(".non-exists")},
+      //     ]
+      //   }]).catch(err => err).then(err => assert(err !== undefined))
+      // }).then(() => {
+      //   return checker.run([{
+      //     execif: [[{nonExists: By.css('header')}]],
+      //     checks: [
+      //       {by: By.css(".non-exists")},
+      //     ]
+      //   }])
+      // })
+  })
 })
