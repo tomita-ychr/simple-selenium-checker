@@ -202,7 +202,7 @@ var Checker = function () {
       var promise = Promise.resolve(false);
       conditions.forEach(function (item) {
         promise = promise.then(function (res) {
-          if (res) return true; //OR
+          if (res === true) return true; //OR
           return _this2._testItem(item);
         });
       });
@@ -218,7 +218,7 @@ var Checker = function () {
       if (conditions) {
         conditions.forEach(function (group) {
           promise = promise.then(function (res) {
-            if (!res) return false; //AND
+            if (res === false) return false; //AND
             return _this3._testGroup(group);
           });
         });
@@ -234,9 +234,15 @@ var Checker = function () {
       var promise = Promise.resolve();
       scenario.forEach(function (item) {
         item = _this4._applyPlaceholder(item);
+
+        promise = promise.then(function () {
+          return _this4._testExecif(item.execif);
+        });
+
         //url
         if (item.url) {
-          promise = promise.then(function () {
+          promise = promise.then(function (res) {
+            if (res === false) return false;
             return _this4.driver.get(host ? host + item.url : item.url);
           });
         }
@@ -244,7 +250,8 @@ var Checker = function () {
         //actions
         if (item.actions) {
           item.actions.forEach(function (action) {
-            promise = promise.then(function () {
+            promise = promise.then(function (res) {
+              if (res === false) return false;
               return _this4._detectFunction(actions, action)(_this4, action);
             });
           });
@@ -253,14 +260,16 @@ var Checker = function () {
         //Process checks
         if (item.checks) {
           item.checks.forEach(function (check) {
-            promise = promise.then(function () {
+            promise = promise.then(function (res) {
+              if (res === false) return false;
               return _this4._detectFunction(checks, check)(_this4, check);
             });
           });
         }
 
         //Check javascript and response errors using browser logs.
-        promise = promise.then(function () {
+        promise = promise.then(function (res) {
+          if (res === false) return false;
           return _this4.driver.getCurrentUrl().then(function (url) {
             return new Promise(function (resolve) {
               _this4.driver.manage().logs().get('browser').then(function (logs) {

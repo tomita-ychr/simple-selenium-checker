@@ -57,7 +57,7 @@ export default class Checker
     let promise = Promise.resolve(false)
     conditions.forEach(item => {
       promise = promise.then(res => {
-        if(res) return true//OR
+        if(res === true) return true//OR
         return this._testItem(item)
       })
     })
@@ -70,7 +70,7 @@ export default class Checker
     if(conditions){
       conditions.forEach(group => {
         promise = promise.then(res => {
-          if(!res) return false//AND
+          if(res === false) return false//AND
           return this._testGroup(group)
         })
       })
@@ -83,27 +83,40 @@ export default class Checker
     let promise = Promise.resolve()
     scenario.forEach(item => {
       item = this._applyPlaceholder(item)
+
+      promise = promise.then(() => this._testExecif(item.execif))
+
       //url
       if(item.url) {
-        promise = promise.then(() => this.driver.get(host ? host + item.url : item.url))
+        promise = promise.then(res => {
+          if(res === false) return false
+          return this.driver.get(host ? host + item.url : item.url)
+        })
       }
 
       //actions
       if(item.actions) {
         item.actions.forEach(action => {
-          promise = promise.then(() => this._detectFunction(actions, action)(this, action))
+          promise = promise.then(res => {
+            if(res === false) return false
+            return this._detectFunction(actions, action)(this, action)
+          })
         })
       }
 
       //Process checks
       if(item.checks) {
         item.checks.forEach(check => {
-          promise = promise.then(() => this._detectFunction(checks, check)(this, check))
+          promise = promise.then(res => {
+            if(res === false) return false
+            return this._detectFunction(checks, check)(this, check)
+          })
         })
       }
 
       //Check javascript and response errors using browser logs.
-      promise = promise.then(() => {
+      promise = promise.then(res => {
+        if(res === false) return false
         return this.driver.getCurrentUrl().then(url => {
           return new Promise(resolve => {
             this.driver.manage().logs().get('browser').then(logs => {

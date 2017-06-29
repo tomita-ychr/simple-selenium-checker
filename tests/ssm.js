@@ -401,22 +401,64 @@ test.describe('SSM', () => {
         [{exists: By.css('header')}],
         [{nonExists: By.css('header')}]
       ]).then(res => assert(res === false))
+    }).then(() => {//From here down is checker.run
+      // execute checks
+      return checker.run([{
+        execif: [[{exists: By.css('header')}]],
+        checks: [
+          {by: By.css(".non-exists")},
+        ]
+      }]).catch(err => err).then(err => assert(err !== undefined))
+    }).then(() => {
+      // ignore checks
+      return checker.run([{
+        execif: [[{nonExists: By.css('header')}]],
+        checks: [
+          {by: By.css(".non-exists")},
+          {by: By.css(".non-exists2")},
+        ]
+      }])
+    }).then(() => {
+      // execute url
+      return checker.run([{
+        execif: [[{exists: By.css('header')}]],
+        url: "http://127.0.0.1:8080/foo.html",
+      },{
+        checks: [
+          {by: By.css("#foo")},
+        ]
+      }])
+    }).then(() => {
+      // ignore url
+      return checker.run([{
+        execif: [[{nonExists: By.css('header')}]],
+        url: "http://127.0.0.1:8080/form.html",
+      },{
+        checks: [
+          {by: By.css("#foo")},
+        ]
+      }])
+    }).then(() => {
+      // execute action
+      return checker.run([{
+        execif: [[{exists: By.css('header')}]],
+        actions: [
+          {click: By.css(".nav > li:nth-child(1) > a")},
+        ],
+      },{
+        checks: [
+          {by: By.css("#home")},
+        ]
+      }])
+    }).then(() => {
+      // ignore action
+      return checker.run([{
+        execif: [[{nonExists: By.css('header')}]],
+        actions: [
+          {click: By.css(".non-exists")},
+          {click: By.css(".non-exists2")},
+        ],
+      }])
     })
-    // .then(() => {
-    //   //checker run
-    //   return checker.run([{
-    //     execif: [[{exists: By.css('header')}]],
-    //     checks: [
-    //       {by: By.css(".non-exists")},
-    //     ]
-    //   }]).catch(err => err).then(err => assert(err !== undefined))
-    // }).then(() => {
-    //   return checker.run([{
-    //     execif: [[{nonExists: By.css('header')}]],
-    //     checks: [
-    //       {by: By.css(".non-exists")},
-    //     ]
-    //   }])
-    // })
   })
 })
