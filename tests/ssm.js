@@ -2,8 +2,7 @@ import webdriver from 'selenium-webdriver'
 import test from 'selenium-webdriver/testing'
 import assert from 'power-assert'
 import pauser from 'selenium-pauser'
-import Checker from '../src/Checker'
-import placeholder from '../src/placeholder'
+import {Checker, placeholder} from '../dist/'
 const By = webdriver.By;
 
 const isDebug = process.execArgv.indexOf('--debug') > -1 || process.execArgv.indexOf('--debug-brk') > -1

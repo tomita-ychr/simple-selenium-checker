@@ -1,4 +1,5 @@
 import Checker from './Checker.js';
+import placeholder from './placeholder'
 
 export default Checker
-export {Checker}
+export {Checker, placeholder}

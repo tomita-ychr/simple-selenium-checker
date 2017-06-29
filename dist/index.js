@@ -83,16 +83,21 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Checker = undefined;
+exports.placeholder = exports.Checker = undefined;
 
 var _Checker = __webpack_require__(3);
 
 var _Checker2 = _interopRequireDefault(_Checker);
 
+var _placeholder = __webpack_require__(6);
+
+var _placeholder2 = _interopRequireDefault(_placeholder);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = _Checker2.default;
 exports.Checker = _Checker2.default;
+exports.placeholder = _placeholder2.default;
 
 /***/ }),
 /* 1 */,
@@ -463,6 +468,60 @@ function clear(checker, action) {
   return checker.waitElement(action.clear, action.wait).then(function (elem) {
     return elem.clear();
   });
+}
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+exports.default = placeholder;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Placeholder = function () {
+  function Placeholder(key) {
+    _classCallCheck(this, Placeholder);
+
+    this.key = key;
+    this.appendedTexts = [];
+  }
+
+  _createClass(Placeholder, [{
+    key: 'append',
+    value: function append(text) {
+      this.appendedTexts.push(text);
+      return this;
+    }
+  }, {
+    key: 'apply',
+    value: function apply(holderItem) {
+      if (this.appendedTexts.length) {
+        return holderItem + this.appendedTexts.join('');
+      } else {
+        return holderItem;
+      }
+    }
+  }, {
+    key: 'placeholderKey',
+    get: function get() {
+      return this.key;
+    }
+  }]);
+
+  return Placeholder;
+}();
+
+function placeholder(key) {
+  return new Placeholder(key);
 }
 
 /***/ })
