@@ -7,9 +7,9 @@ export function by(checker, check){
       return elem.getText().then(text => {
         if(text !== check.equal) throw new Error('Text in ' + check.by.toString() + ' is not `' + check.equal + '` actual `' + text + "`")
       })
-    } else if(check.like){
+    } else if(check.likes){
       return elem.getText().then(text => {
-        if(text.indexOf(check.like) === -1) throw new Error('Text in ' + check.by.toString() + ' dose not like `' + check.like + '` actual `' + text + '`')
+        if(text.indexOf(check.likes) === -1) throw new Error('Text in ' + check.by.toString() + ' dose not like `' + check.likes + '` actual `' + text + '`')
       })
     } else if(check.callback) {
       return check.callback(elem).then(res => {

@@ -287,9 +287,9 @@ test.describe('SSM', () => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
         checks: [
-          {by: By.css(".main .col-sm-6:nth-child(1) h3"), like: "ome 00"},
-          {by: By.css(".main .col-sm-6:nth-child(2) h3"), like: "ome 00"},
-          {by: By.css(".main .col-sm-6:nth-child(3) h3"), like: "ome 00"}
+          {by: By.css(".main .col-sm-6:nth-child(1) h3"), likes: "ome 00"},
+          {by: By.css(".main .col-sm-6:nth-child(2) h3"), likes: "ome 00"},
+          {by: By.css(".main .col-sm-6:nth-child(3) h3"), likes: "ome 00"}
         ]
       }]
 
@@ -299,7 +299,7 @@ test.describe('SSM', () => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
         checks: [
-          {by: By.css(".main .col-sm-6:nth-child(1) h3"), like: "bar"},
+          {by: By.css(".main .col-sm-6:nth-child(1) h3"), likes: "bar"},
         ]
       }]
 
@@ -321,7 +321,7 @@ test.describe('SSM', () => {
         checks: [
           {by: placeholder('checks_by')},
           {by: By.css(".main .col-sm-6:nth-child(1) h3"), equal: placeholder('checks_equal')},
-          {by: By.css(".main .col-sm-6:nth-child(2) h3"), like: placeholder('checks_like')},
+          {by: By.css(".main .col-sm-6:nth-child(2) h3"), likes: placeholder('checks_like')},
           {by: By.css(".main .col-sm-6:nth-child(3) h3"), callback: placeholder('checks_callback')}
         ],
       },{
@@ -354,7 +354,7 @@ test.describe('SSM', () => {
       assert(resScenario[0].url === 'http://127.0.0.1:8080/')
       assert(resScenario[0].checks[0].by.toString() === By.css(".main .col-sm-6:nth-child(2) h3").toString())
       assert(resScenario[0].checks[1].equal === 'Foo 001')
-      assert(resScenario[0].checks[2].like === 'oo 00')
+      assert(resScenario[0].checks[2].likes === 'oo 00')
       // https://gist.github.com/gomo/474b14bbf8955e0a20d56902eafd0fb8
       assert(resScenario[0].checks[3].callback.toString() === checker.placeholder.checks_callback.toString())
       assert(resScenario[0].actions[0].click.toString() === By.css(".nav > li:nth-child(2) > a").toString())
