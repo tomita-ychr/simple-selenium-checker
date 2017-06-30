@@ -6,13 +6,21 @@ export function exists(checker, check){
 }
 
 export function likes(checker, check){
-  return checker.waitElement(check.by, check.timeout)
-    .then(elem => elem.getText())
-    .then(text => {
-      if(text.indexOf(check.likes) === -1){
-        throw new Error('Text in ' + check.by.toString() + ' dose not like `' + check.likes + '` actual `' + text + '`')
-      }
-    })
+  if(check.by){
+    return checker.waitElement(check.by, check.timeout)
+      .then(elem => elem.getText())
+      .then(text => {
+        if(text.indexOf(check.likes) === -1){
+          throw new Error('Text in ' + check.by.toString() + ' dose not like `' + check.likes + '` actual `' + text + '`')
+        }
+      })
+  } else {
+    return checker.driver.findElement(By.css('html'))
+      .then(elem => elem.getAttribute('outerHTML'))
+      .then(html => {
+        if(html.indexOf(check.likes) === -1) throw new Error("Missing text `" + check.likes + "`")
+      })
+  }
 }
 
 export function equals(checker, check){
@@ -32,14 +40,6 @@ export function callback(checker, check){
       if(!res){
         throw new Error(check.callback.toString() + ' is failed')
       }
-    })
-}
-
-export function body(checker, check){
-  return checker.driver.findElement(By.css('html'))
-    .then(elem => elem.getAttribute('outerHTML'))
-    .then(html => {
-      if(html.indexOf(check.body) === -1) throw new Error("Missing text `" + check.body + "`")
     })
 }
 

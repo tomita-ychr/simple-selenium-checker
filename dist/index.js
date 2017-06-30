@@ -399,7 +399,6 @@ exports.exists = exists;
 exports.likes = likes;
 exports.equals = equals;
 exports.callback = callback;
-exports.body = body;
 exports.url = url;
 
 var _seleniumWebdriver = __webpack_require__(2);
@@ -415,13 +414,21 @@ function exists(checker, check) {
 }
 
 function likes(checker, check) {
-  return checker.waitElement(check.by, check.timeout).then(function (elem) {
-    return elem.getText();
-  }).then(function (text) {
-    if (text.indexOf(check.likes) === -1) {
-      throw new Error('Text in ' + check.by.toString() + ' dose not like `' + check.likes + '` actual `' + text + '`');
-    }
-  });
+  if (check.by) {
+    return checker.waitElement(check.by, check.timeout).then(function (elem) {
+      return elem.getText();
+    }).then(function (text) {
+      if (text.indexOf(check.likes) === -1) {
+        throw new Error('Text in ' + check.by.toString() + ' dose not like `' + check.likes + '` actual `' + text + '`');
+      }
+    });
+  } else {
+    return checker.driver.findElement(By.css('html')).then(function (elem) {
+      return elem.getAttribute('outerHTML');
+    }).then(function (html) {
+      if (html.indexOf(check.likes) === -1) throw new Error("Missing text `" + check.likes + "`");
+    });
+  }
 }
 
 function equals(checker, check) {
@@ -441,14 +448,6 @@ function callback(checker, check) {
     if (!res) {
       throw new Error(check.callback.toString() + ' is failed');
     }
-  });
-}
-
-function body(checker, check) {
-  return checker.driver.findElement(By.css('html')).then(function (elem) {
-    return elem.getAttribute('outerHTML');
-  }).then(function (html) {
-    if (html.indexOf(check.body) === -1) throw new Error("Missing text `" + check.body + "`");
   });
 }
 

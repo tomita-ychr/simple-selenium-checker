@@ -39,7 +39,7 @@ test.describe('SSM', () => {
           {exists: By.css(".delay-content"), timeout: 8000},
           {equals: "Home 002", by: By.css(".main .col-sm-6:nth-child(2) h3")},
           {callback: elem => elem.getAttribute("alt").then(alt => alt == "Home alt 003"), by: By.css(".main .col-sm-6:nth-child(3) img")},
-          {body: "<title>Simple selenium checker - Home</title>"}
+          {likes: "<title>Simple selenium checker - Home</title>"}
         ]
       },{
         actions:[
@@ -50,7 +50,7 @@ test.describe('SSM', () => {
           {exists: By.css(".delay-content"), timeout: 8000},
           {equals: "Foo 002", by: By.css(".main .col-sm-6:nth-child(2) h3")},
           {callback: elem => elem.getAttribute("alt").then(alt => alt == "Foo alt 003"), by: By.css(".main .col-sm-6:nth-child(3) img")},
-          {body: "<title>Simple selenium checker - Foo"},
+          {likes: "<title>Simple selenium checker - Foo"},
         ],
       }]
 
@@ -166,7 +166,7 @@ test.describe('SSM', () => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
         checks: [
-          {body: "<title>Simple selenium checker - Hoge</title>"}
+          {likes: "<title>Simple selenium checker - Hoge</title>"}
         ]
       }]
 
@@ -183,7 +183,7 @@ test.describe('SSM', () => {
           {click: By.css(".nav > li:nth-child(2) > a")},
         ],
         checks: [
-          {body: "<title>Simple selenium checker - Bar</title>"}
+          {likes: "<title>Simple selenium checker - Bar</title>"}
         ],
       }]
 
