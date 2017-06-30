@@ -186,8 +186,8 @@ var Checker = function () {
         }).catch(function () {
           return false;
         });
-      } else if (condition.nonExists) {
-        return this.waitElement(condition.nonExists, condition.wait).then(function () {
+      } else if (condition.notExists) {
+        return this.waitElement(condition.notExists, condition.wait).then(function () {
           return false;
         }).catch(function () {
           return true;

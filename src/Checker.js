@@ -41,8 +41,8 @@ export default class Checker
       return this.waitElement(condition.exists, condition.wait)
         .then(() => true)
         .catch(() => false)
-    } else if(condition.nonExists){
-      return this.waitElement(condition.nonExists, condition.wait)
+    } else if(condition.notExists){
+      return this.waitElement(condition.notExists, condition.wait)
         .then(() => false)
         .catch(() => true)
     } else if(condition.bool !== undefined){

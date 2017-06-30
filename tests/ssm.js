@@ -376,7 +376,7 @@ test.describe('SSM', () => {
     }).then(() => {
       //non exists
       return checker._testExecif([
-        [{nonExists: By.css('header')}]
+        [{notExists: By.css('header')}]
       ]).then(res => assert(res === false))
     }).then(() => {
       // bool true
@@ -391,13 +391,13 @@ test.describe('SSM', () => {
     }).then(() => {
       //or
       return checker._testExecif([
-        [{exists: By.css('header')}, {nonExists: By.css('header')}]
+        [{exists: By.css('header')}, {notExists: By.css('header')}]
       ]).then(res => assert(res === true))
     }).then(() => {
       //and
       return checker._testExecif([
         [{exists: By.css('header')}],
-        [{nonExists: By.css('header')}]
+        [{notExists: By.css('header')}]
       ]).then(res => assert(res === false))
     }).then(() => {//From here down is checker.run
       // execute checks
@@ -410,7 +410,7 @@ test.describe('SSM', () => {
     }).then(() => {
       // ignore checks
       return checker.run([{
-        execif: [[{nonExists: By.css('header')}]],
+        execif: [[{notExists: By.css('header')}]],
         checks: [
           {by: By.css(".non-exists")},
           {by: By.css(".non-exists2")},
@@ -429,7 +429,7 @@ test.describe('SSM', () => {
     }).then(() => {
       // ignore url
       return checker.run([{
-        execif: [[{nonExists: By.css('header')}]],
+        execif: [[{notExists: By.css('header')}]],
         url: "http://127.0.0.1:8080/form.html",
       },{
         checks: [
@@ -451,7 +451,7 @@ test.describe('SSM', () => {
     }).then(() => {
       // ignore action
       return checker.run([{
-        execif: [[{nonExists: By.css('header')}]],
+        execif: [[{notExists: By.css('header')}]],
         actions: [
           {click: By.css(".non-exists")},
           {click: By.css(".non-exists2")},
