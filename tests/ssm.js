@@ -62,7 +62,8 @@ test.describe('SSM', () => {
   test.it('should fail when you specify an element that is not on the page.', () => {
     return Promise.resolve().then(() => {
       const scenario = [{
-        url: "http://127.0.0.1:8080/",
+        url: "http://127.0.0.1:8080/"
+      },{
         checks: [
           {exists: By.css("#foo")},
         ]
@@ -79,10 +80,11 @@ test.describe('SSM', () => {
       },{
         actions:[
           {click: By.css(".nav > li:nth-child(2) > a")},
-        ],
+        ]
+      },{
         checks: [
           {exists: By.css("#home")},
-        ],
+        ]
       }]
 
       const checker = new Checker(driver)
@@ -97,6 +99,7 @@ test.describe('SSM', () => {
     return Promise.resolve().then(() => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
+      }, {
         checks: [
           {equals: "Hoge 002", by: By.css(".main .col-sm-6:nth-child(2) h3")},
         ]
@@ -114,6 +117,7 @@ test.describe('SSM', () => {
         actions:[
           {click: By.css(".nav > li:nth-child(2) > a")},
         ],
+      },{
         checks: [
           {equals: "Bar 003", by: By.css(".main .col-sm-6:nth-child(3) h3")},
         ],
@@ -131,6 +135,7 @@ test.describe('SSM', () => {
     return Promise.resolve().then(() => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
+      },{
         checks: [
           {callback: elem => elem.getAttribute("alt").then(alt => false), by: By.css(".main .col-sm-6:nth-child(3) img")},
         ]
@@ -148,6 +153,7 @@ test.describe('SSM', () => {
         actions:[
           {click: By.css(".nav > li:nth-child(2) > a")},
         ],
+      },{
         checks: [
           {callback: elem => elem.getAttribute("alt").then(alt => false), by: By.css(".main .col-sm-6:nth-child(3) img")},
         ],
@@ -164,7 +170,8 @@ test.describe('SSM', () => {
   test.it('should fail when text that is not in the page is specified.', () => {
     return Promise.resolve().then(() => {
       const scenario = [{
-        url: "http://127.0.0.1:8080/",
+        url: "http://127.0.0.1:8080/"
+      },{
         checks: [
           {likes: "<title>Simple selenium checker - Hoge</title>"}
         ]
@@ -182,6 +189,7 @@ test.describe('SSM', () => {
         actions:[
           {click: By.css(".nav > li:nth-child(2) > a")},
         ],
+      },{
         checks: [
           {likes: "<title>Simple selenium checker - Bar</title>"}
         ],
@@ -227,6 +235,7 @@ test.describe('SSM', () => {
     return Promise.resolve().then(() => {
       const scenario = [{
         url: "http://127.0.0.1:8080/form.html",
+      },{
         checks: [
           {exists: By.css(".input")},
         ],
@@ -235,6 +244,7 @@ test.describe('SSM', () => {
           {sendKeys: By.css(".input"), value: "fooBarTest"},
           {click: By.css(".submit")},
         ],
+      },{
         checks: [
           {exists: By.css(".main .col-sm-6:nth-child(1) h3")},
           {url: "http://127.0.0.1:8080/index.html?name=fooBarTest&send=send"},
@@ -250,6 +260,7 @@ test.describe('SSM', () => {
     return Promise.resolve().then(() => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
+      },{
         checks: [
           {url: "http://127.0.0.1:8080/hoge.html"},
         ]
@@ -267,6 +278,7 @@ test.describe('SSM', () => {
     return Promise.resolve().then(() => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
+      },{
         checks: [
           {url: "http://127.0.0.1:8080/hoge.html"},
         ]
@@ -286,6 +298,7 @@ test.describe('SSM', () => {
     return Promise.resolve().then(() => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
+      },{
         checks: [
           {likes: "ome 00", by: By.css(".main .col-sm-6:nth-child(1) h3")},
           {likes: "ome 00", by: By.css(".main .col-sm-6:nth-child(2) h3")},
@@ -298,6 +311,7 @@ test.describe('SSM', () => {
     }).then(() => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
+      },{
         checks: [
           {likes: "bar", by: By.css(".main .col-sm-6:nth-child(1) h3")},
         ]
@@ -315,9 +329,11 @@ test.describe('SSM', () => {
     return Promise.resolve().then(() => {
       const scenario = [{
         url: placeholder('url').append('/'),
+      },{
         actions: [
           {click: placeholder('actions_click')},
         ],
+      },{
         checks: [
           {exists: placeholder('checks_by')},
           {equals: placeholder('checks_equals'), by: By.css(".main .col-sm-6:nth-child(1) h3")},
@@ -326,6 +342,7 @@ test.describe('SSM', () => {
         ],
       },{
         url: placeholder('url').append('/form.html'),
+      },{
         actions: [
           {sendKeys: placeholder('actions_sendkey'), value: "fooBarTest"},
           {clear: By.css(".input")},
@@ -352,14 +369,14 @@ test.describe('SSM', () => {
       const resScenario = []
       scenario.forEach(scenarioItem => resScenario.push(checker._applyPlaceholder(scenarioItem)))
       assert(resScenario[0].url === 'http://127.0.0.1:8080/')
-      assert(resScenario[0].checks[0].exists.toString() === By.css(".main .col-sm-6:nth-child(2) h3").toString())
-      assert(resScenario[0].checks[1].equals === 'Foo 001')
-      assert(resScenario[0].checks[2].likes === 'oo 00')
+      assert(resScenario[1].actions[0].click.toString() === By.css(".nav > li:nth-child(2) > a").toString())
+      assert(resScenario[2].checks[0].exists.toString() === By.css(".main .col-sm-6:nth-child(2) h3").toString())
+      assert(resScenario[2].checks[1].equals === 'Foo 001')
+      assert(resScenario[2].checks[2].likes === 'oo 00')
       // https://gist.github.com/gomo/474b14bbf8955e0a20d56902eafd0fb8
-      assert(resScenario[0].checks[3].callback.toString() === checker.placeholder.checks_callback.toString())
-      assert(resScenario[0].actions[0].click.toString() === By.css(".nav > li:nth-child(2) > a").toString())
-      assert(resScenario[1].url === 'http://127.0.0.1:8080/form.html')
-      assert(resScenario[1].actions[0].sendKeys.toString() === By.css(".input").toString())
+      assert(resScenario[2].checks[3].callback.toString() === checker.placeholder.checks_callback.toString())
+      assert(resScenario[3].url === 'http://127.0.0.1:8080/form.html')
+      assert(resScenario[4].actions[0].sendKeys.toString() === By.css(".input").toString())
 
       return checker.run(scenario)
     })

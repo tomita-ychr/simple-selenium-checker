@@ -83,6 +83,17 @@ export default class Checker
     scenario.forEach(item => {
       item = this._applyPlaceholder(item)
 
+      //directive count check.
+      const keys = Object.keys(item)
+      const execifIndex = keys.indexOf('execif')
+      if(execifIndex >= 0){
+        keys.splice(execifIndex, 1)
+      }
+      if(keys.length > 1){
+        throw new Error('Only one directive can be placed in one scenario item.')
+      }
+
+      //execif
       promise = promise.then(() => this._testExecif(item.execif))
 
       //url
@@ -91,20 +102,14 @@ export default class Checker
           if(res === false) return false
           return this.driver.get(host ? host + item.url : item.url)
         })
-      }
-
-      //actions
-      if(item.actions) {
+      } else if(item.actions) {
         item.actions.forEach(action => {
           promise = promise.then(res => {
             if(res === false) return false
             return this._detectFunction(actions, action)(this, action)
           })
         })
-      }
-
-      //Process checks
-      if(item.checks) {
+      } else if(item.checks) {
         item.checks.forEach(check => {
           promise = promise.then(res => {
             if(res === false) return false

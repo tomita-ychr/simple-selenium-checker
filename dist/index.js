@@ -239,6 +239,17 @@ var Checker = function () {
       scenario.forEach(function (item) {
         item = _this4._applyPlaceholder(item);
 
+        //directive count check.
+        var keys = Object.keys(item);
+        var execifIndex = keys.indexOf('execif');
+        if (execifIndex >= 0) {
+          keys.splice(execifIndex, 1);
+        }
+        if (keys.length > 1) {
+          throw new Error('Only one directive can be placed in one scenario item.');
+        }
+
+        //execif
         promise = promise.then(function () {
           return _this4._testExecif(item.execif);
         });
@@ -249,20 +260,14 @@ var Checker = function () {
             if (res === false) return false;
             return _this4.driver.get(host ? host + item.url : item.url);
           });
-        }
-
-        //actions
-        if (item.actions) {
+        } else if (item.actions) {
           item.actions.forEach(function (action) {
             promise = promise.then(function (res) {
               if (res === false) return false;
               return _this4._detectFunction(actions, action)(_this4, action);
             });
           });
-        }
-
-        //Process checks
-        if (item.checks) {
+        } else if (item.checks) {
           item.checks.forEach(function (check) {
             promise = promise.then(function (res) {
               if (res === false) return false;
