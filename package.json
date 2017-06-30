@@ -1,6 +1,6 @@
 {
   "name": "simple-selenium-checker",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -27,10 +27,10 @@
     "gulp-util": "^3.0.8",
     "node-notifier": "^5.1.2",
     "power-assert": "^1.4.4",
-    "webpack": "^3.0.0"
+    "webpack": "^3.0.0",
+    "selenium-pauser": "0.0.2"
   },
   "dependencies": {
-    "selenium-pauser": "0.0.2",
     "selenium-webdriver": "^3.4.0"
   }
 }
