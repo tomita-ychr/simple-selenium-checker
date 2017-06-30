@@ -1,22 +1,38 @@
 import webdriver from 'selenium-webdriver';
 const By = webdriver.By;
 
-export function by(checker, check){
-  return checker.waitElement(check.by, check.timeout).then(elem => {
-    if(check.equals){
-      return elem.getText().then(text => {
-        if(text !== check.equals) throw new Error('Text in ' + check.by.toString() + ' is not `' + check.equals + '` actual `' + text + "`")
-      })
-    } else if(check.likes){
-      return elem.getText().then(text => {
-        if(text.indexOf(check.likes) === -1) throw new Error('Text in ' + check.by.toString() + ' dose not like `' + check.likes + '` actual `' + text + '`')
-      })
-    } else if(check.callback) {
-      return check.callback(elem).then(res => {
-        if(!res) throw new Error(check.callback.toString() + ' is failed')
-      })
-    }
-  })
+export function exists(checker, check){
+  return checker.waitElement(check.exists, check.timeout)
+}
+
+export function likes(checker, check){
+  return checker.waitElement(check.by, check.timeout)
+    .then(elem => elem.getText())
+    .then(text => {
+      if(text.indexOf(check.likes) === -1){
+        throw new Error('Text in ' + check.by.toString() + ' dose not like `' + check.likes + '` actual `' + text + '`')
+      }
+    })
+}
+
+export function equals(checker, check){
+  return checker.waitElement(check.by, check.timeout)
+    .then(elem => elem.getText())
+    .then(text => {
+      if(text !== check.equals){
+        throw new Error('Text in ' + check.by.toString() + ' is not `' + check.equals + '` actual `' + text + '`')
+      }
+    })
+}
+
+export function callback(checker, check){
+  return checker.waitElement(check.by, check.timeout)
+    .then(elem => check.callback(elem))
+    .then(res => {
+      if(!res){
+        throw new Error(check.callback.toString() + ' is failed')
+      }
+    })
 }
 
 export function body(checker, check){

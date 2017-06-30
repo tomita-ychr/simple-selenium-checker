@@ -36,9 +36,9 @@ test.describe('SSM', () => {
         url: "http://127.0.0.1:8080/",
       },{
         checks: [
-          {by: By.css(".delay-content"), timeout: 1000},
-          {by: By.css(".main .col-sm-6:nth-child(2) h3"), equals: "Home 002"},
-          {by: By.css(".main .col-sm-6:nth-child(3) img"), callback: elem => elem.getAttribute("alt").then(alt => alt == "Home alt 003")},
+          {exists: By.css(".delay-content"), timeout: 8000},
+          {equals: "Home 002", by: By.css(".main .col-sm-6:nth-child(2) h3")},
+          {callback: elem => elem.getAttribute("alt").then(alt => alt == "Home alt 003"), by: By.css(".main .col-sm-6:nth-child(3) img")},
           {body: "<title>Simple selenium checker - Home</title>"}
         ]
       },{
@@ -47,9 +47,9 @@ test.describe('SSM', () => {
         ]
       },{
         checks: [
-          {by: By.css(".delay-content"), timeout: 1000},
-          {by: By.css(".main .col-sm-6:nth-child(2) h3"), equals: "Foo 002"},
-          {by: By.css(".main .col-sm-6:nth-child(3) img"), callback: elem => elem.getAttribute("alt").then(alt => alt == "Foo alt 003")},
+          {exists: By.css(".delay-content"), timeout: 8000},
+          {equals: "Foo 002", by: By.css(".main .col-sm-6:nth-child(2) h3")},
+          {callback: elem => elem.getAttribute("alt").then(alt => alt == "Foo alt 003"), by: By.css(".main .col-sm-6:nth-child(3) img")},
           {body: "<title>Simple selenium checker - Foo"},
         ],
       }]
@@ -64,7 +64,7 @@ test.describe('SSM', () => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
         checks: [
-          {by: By.css("#foo")},
+          {exists: By.css("#foo")},
         ]
       }]
 
@@ -81,7 +81,7 @@ test.describe('SSM', () => {
           {click: By.css(".nav > li:nth-child(2) > a")},
         ],
         checks: [
-          {by: By.css("#home")},
+          {exists: By.css("#home")},
         ],
       }]
 
@@ -98,7 +98,7 @@ test.describe('SSM', () => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
         checks: [
-          {by: By.css(".main .col-sm-6:nth-child(2) h3"), equals: "Hoge 002"},
+          {equals: "Hoge 002", by: By.css(".main .col-sm-6:nth-child(2) h3")},
         ]
       }]
 
@@ -115,7 +115,7 @@ test.describe('SSM', () => {
           {click: By.css(".nav > li:nth-child(2) > a")},
         ],
         checks: [
-          {by: By.css(".main .col-sm-6:nth-child(3) h3"), equals: "Bar 003"},
+          {equals: "Bar 003", by: By.css(".main .col-sm-6:nth-child(3) h3")},
         ],
       }]
 
@@ -132,7 +132,7 @@ test.describe('SSM', () => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
         checks: [
-          {by: By.css(".main .col-sm-6:nth-child(3) img"), callback: elem => elem.getAttribute("alt").then(alt => false)},
+          {callback: elem => elem.getAttribute("alt").then(alt => false), by: By.css(".main .col-sm-6:nth-child(3) img")},
         ]
       }]
 
@@ -149,7 +149,7 @@ test.describe('SSM', () => {
           {click: By.css(".nav > li:nth-child(2) > a")},
         ],
         checks: [
-          {by: By.css(".main .col-sm-6:nth-child(3) img"), callback: elem => elem.getAttribute("alt").then(alt => false)},
+          {callback: elem => elem.getAttribute("alt").then(alt => false), by: By.css(".main .col-sm-6:nth-child(3) img")},
         ],
       }]
 
@@ -228,7 +228,7 @@ test.describe('SSM', () => {
       const scenario = [{
         url: "http://127.0.0.1:8080/form.html",
         checks: [
-          {by: By.css(".input")},
+          {exists: By.css(".input")},
         ],
       },{
         actions: [
@@ -236,7 +236,7 @@ test.describe('SSM', () => {
           {click: By.css(".submit")},
         ],
         checks: [
-          {by: By.css(".main .col-sm-6:nth-child(1) h3")},
+          {exists: By.css(".main .col-sm-6:nth-child(1) h3")},
           {url: "http://127.0.0.1:8080/index.html?name=fooBarTest&send=send"},
         ],
       }]
@@ -287,9 +287,9 @@ test.describe('SSM', () => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
         checks: [
-          {by: By.css(".main .col-sm-6:nth-child(1) h3"), likes: "ome 00"},
-          {by: By.css(".main .col-sm-6:nth-child(2) h3"), likes: "ome 00"},
-          {by: By.css(".main .col-sm-6:nth-child(3) h3"), likes: "ome 00"}
+          {likes: "ome 00", by: By.css(".main .col-sm-6:nth-child(1) h3")},
+          {likes: "ome 00", by: By.css(".main .col-sm-6:nth-child(2) h3")},
+          {likes: "ome 00", by: By.css(".main .col-sm-6:nth-child(3) h3")}
         ]
       }]
 
@@ -299,7 +299,7 @@ test.describe('SSM', () => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
         checks: [
-          {by: By.css(".main .col-sm-6:nth-child(1) h3"), likes: "bar"},
+          {likes: "bar", by: By.css(".main .col-sm-6:nth-child(1) h3")},
         ]
       }]
 
@@ -319,10 +319,10 @@ test.describe('SSM', () => {
           {click: placeholder('actions_click')},
         ],
         checks: [
-          {by: placeholder('checks_by')},
-          {by: By.css(".main .col-sm-6:nth-child(1) h3"), equals: placeholder('checks_equals')},
-          {by: By.css(".main .col-sm-6:nth-child(2) h3"), likes: placeholder('checks_likes')},
-          {by: By.css(".main .col-sm-6:nth-child(3) h3"), callback: placeholder('checks_callback')}
+          {exists: placeholder('checks_by')},
+          {equals: placeholder('checks_equals'), by: By.css(".main .col-sm-6:nth-child(1) h3")},
+          {likes: placeholder('checks_likes'), by: By.css(".main .col-sm-6:nth-child(2) h3")},
+          {callback: placeholder('checks_callback'), by: By.css(".main .col-sm-6:nth-child(3) h3")}
         ],
       },{
         url: placeholder('url').append('/form.html'),
@@ -333,7 +333,7 @@ test.describe('SSM', () => {
         ]
       },{
         checks: [
-          {by: By.css(".input"), callback: elem => elem.getAttribute("value").then(val => val == 'placeholdercheck')}
+          {callback: elem => elem.getAttribute("value").then(val => val == 'placeholdercheck'), by: By.css(".input")}
         ]
       }]
 
@@ -352,7 +352,7 @@ test.describe('SSM', () => {
       const resScenario = []
       scenario.forEach(scenarioItem => resScenario.push(checker._applyPlaceholder(scenarioItem)))
       assert(resScenario[0].url === 'http://127.0.0.1:8080/')
-      assert(resScenario[0].checks[0].by.toString() === By.css(".main .col-sm-6:nth-child(2) h3").toString())
+      assert(resScenario[0].checks[0].exists.toString() === By.css(".main .col-sm-6:nth-child(2) h3").toString())
       assert(resScenario[0].checks[1].equals === 'Foo 001')
       assert(resScenario[0].checks[2].likes === 'oo 00')
       // https://gist.github.com/gomo/474b14bbf8955e0a20d56902eafd0fb8
@@ -405,7 +405,7 @@ test.describe('SSM', () => {
       return checker.run([{
         execif: [[{exists: By.css('header')}]],
         checks: [
-          {by: By.css(".non-exists")},
+          {exists: By.css(".non-exists")},
         ]
       }]).catch(err => err).then(err => assert(err !== undefined))
     }).then(() => {
@@ -413,8 +413,8 @@ test.describe('SSM', () => {
       return checker.run([{
         execif: [[{notExists: By.css('header')}]],
         checks: [
-          {by: By.css(".non-exists")},
-          {by: By.css(".non-exists2")},
+          {exists: By.css(".non-exists")},
+          {exists: By.css(".non-exists2")},
         ]
       }])
     }).then(() => {
@@ -424,7 +424,7 @@ test.describe('SSM', () => {
         url: "http://127.0.0.1:8080/foo.html",
       },{
         checks: [
-          {by: By.css("#foo")},
+          {exists: By.css("#foo")},
         ]
       }])
     }).then(() => {
@@ -434,7 +434,7 @@ test.describe('SSM', () => {
         url: "http://127.0.0.1:8080/form.html",
       },{
         checks: [
-          {by: By.css("#foo")},
+          {exists: By.css("#foo")},
         ]
       }])
     }).then(() => {
@@ -446,7 +446,7 @@ test.describe('SSM', () => {
         ],
       },{
         checks: [
-          {by: By.css("#home")},
+          {exists: By.css("#home")},
         ]
       }])
     }).then(() => {
