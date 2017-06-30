@@ -12,7 +12,7 @@ export default class Checker
   }
 
   waitElement(locator, timeout){
-    if(timeout === undefined) timeout = 1;
+    if(timeout === undefined) timeout = Checker.DefaultTimeout;
     return this.driver
       .wait(until.elementLocated(locator), timeout)
       .then(elem => this.driver.wait(until.elementIsVisible(elem), timeout));
@@ -223,3 +223,5 @@ Checker.JsErrorStrings = [
 ]
 
 Checker.Debug = false
+
+Checker.DefaultTimeout = 12000

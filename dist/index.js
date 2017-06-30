@@ -153,7 +153,7 @@ var Checker = function () {
     value: function waitElement(locator, timeout) {
       var _this = this;
 
-      if (timeout === undefined) timeout = 1;
+      if (timeout === undefined) timeout = Checker.DefaultTimeout;
       return this.driver.wait(until.elementLocated(locator), timeout).then(function (elem) {
         return _this.driver.wait(until.elementIsVisible(elem), timeout);
       });
@@ -382,6 +382,8 @@ exports.default = Checker;
 Checker.JsErrorStrings = ["SyntaxError", "EvalError", "ReferenceError", "RangeError", "TypeError", "URIError"];
 
 Checker.Debug = false;
+
+Checker.DefaultTimeout = 12000;
 
 /***/ }),
 /* 4 */

@@ -11,6 +11,7 @@ let driver;
 test.describe('SSM', () => {
   test.before(() => {
     Checker.Debug = isDebug
+    Checker.DefaultTimeout = 1
     const chromeCapabilities = webdriver.Capabilities.chrome();
     chromeCapabilities.set('chromeOptions', {
       // 'args': ['--headless', '--disable-gpu']
