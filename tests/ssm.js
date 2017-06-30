@@ -37,7 +37,7 @@ test.describe('SSM', () => {
       },{
         checks: [
           {by: By.css(".delay-content"), timeout: 1000},
-          {by: By.css(".main .col-sm-6:nth-child(2) h3"), equal: "Home 002"},
+          {by: By.css(".main .col-sm-6:nth-child(2) h3"), equals: "Home 002"},
           {by: By.css(".main .col-sm-6:nth-child(3) img"), callback: elem => elem.getAttribute("alt").then(alt => alt == "Home alt 003")},
           {body: "<title>Simple selenium checker - Home</title>"}
         ]
@@ -48,7 +48,7 @@ test.describe('SSM', () => {
       },{
         checks: [
           {by: By.css(".delay-content"), timeout: 1000},
-          {by: By.css(".main .col-sm-6:nth-child(2) h3"), equal: "Foo 002"},
+          {by: By.css(".main .col-sm-6:nth-child(2) h3"), equals: "Foo 002"},
           {by: By.css(".main .col-sm-6:nth-child(3) img"), callback: elem => elem.getAttribute("alt").then(alt => alt == "Foo alt 003")},
           {body: "<title>Simple selenium checker - Foo"},
         ],
@@ -98,7 +98,7 @@ test.describe('SSM', () => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
         checks: [
-          {by: By.css(".main .col-sm-6:nth-child(2) h3"), equal: "Hoge 002"},
+          {by: By.css(".main .col-sm-6:nth-child(2) h3"), equals: "Hoge 002"},
         ]
       }]
 
@@ -115,7 +115,7 @@ test.describe('SSM', () => {
           {click: By.css(".nav > li:nth-child(2) > a")},
         ],
         checks: [
-          {by: By.css(".main .col-sm-6:nth-child(3) h3"), equal: "Bar 003"},
+          {by: By.css(".main .col-sm-6:nth-child(3) h3"), equals: "Bar 003"},
         ],
       }]
 
@@ -320,8 +320,8 @@ test.describe('SSM', () => {
         ],
         checks: [
           {by: placeholder('checks_by')},
-          {by: By.css(".main .col-sm-6:nth-child(1) h3"), equal: placeholder('checks_equal')},
-          {by: By.css(".main .col-sm-6:nth-child(2) h3"), likes: placeholder('checks_like')},
+          {by: By.css(".main .col-sm-6:nth-child(1) h3"), equals: placeholder('checks_equals')},
+          {by: By.css(".main .col-sm-6:nth-child(2) h3"), likes: placeholder('checks_likes')},
           {by: By.css(".main .col-sm-6:nth-child(3) h3"), callback: placeholder('checks_callback')}
         ],
       },{
@@ -341,8 +341,8 @@ test.describe('SSM', () => {
       checker.placeholder = {
         'url': 'http://127.0.0.1:8080',
         'checks_by': By.css(".main .col-sm-6:nth-child(2) h3"),
-        'checks_equal': 'Foo 001',
-        'checks_like': 'oo 00',
+        'checks_equals': 'Foo 001',
+        'checks_likes': 'oo 00',
         'checks_callback': () => Promise.resolve(true),
         'actions_click': By.css(".nav > li:nth-child(2) > a"),
         'actions_sendkey': By.css(".input"),
@@ -353,7 +353,7 @@ test.describe('SSM', () => {
       scenario.forEach(scenarioItem => resScenario.push(checker._applyPlaceholder(scenarioItem)))
       assert(resScenario[0].url === 'http://127.0.0.1:8080/')
       assert(resScenario[0].checks[0].by.toString() === By.css(".main .col-sm-6:nth-child(2) h3").toString())
-      assert(resScenario[0].checks[1].equal === 'Foo 001')
+      assert(resScenario[0].checks[1].equals === 'Foo 001')
       assert(resScenario[0].checks[2].likes === 'oo 00')
       // https://gist.github.com/gomo/474b14bbf8955e0a20d56902eafd0fb8
       assert(resScenario[0].checks[3].callback.toString() === checker.placeholder.checks_callback.toString())
