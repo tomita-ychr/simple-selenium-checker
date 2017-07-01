@@ -7,7 +7,7 @@
 		exports["SimpleSeleniumChecker"] = factory(require("selenium-webdriver"));
 	else
 		root["SimpleSeleniumChecker"] = factory(root["WebDriver"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_2__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_0__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -70,11 +70,17 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_0__;
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -85,11 +91,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.placeholder = exports.Checker = undefined;
 
-var _Checker = __webpack_require__(3);
+var _Checker = __webpack_require__(2);
 
 var _Checker2 = _interopRequireDefault(_Checker);
 
-var _placeholder = __webpack_require__(6);
+var _placeholder = __webpack_require__(5);
 
 var _placeholder2 = _interopRequireDefault(_placeholder);
 
@@ -100,14 +106,7 @@ exports.Checker = _Checker2.default;
 exports.placeholder = _placeholder2.default;
 
 /***/ }),
-/* 1 */,
 /* 2 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
-
-/***/ }),
-/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -119,15 +118,15 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _seleniumWebdriver = __webpack_require__(2);
+var _seleniumWebdriver = __webpack_require__(0);
 
 var _seleniumWebdriver2 = _interopRequireDefault(_seleniumWebdriver);
 
-var _checks = __webpack_require__(4);
+var _checks = __webpack_require__(3);
 
 var checks = _interopRequireWildcard(_checks);
 
-var _actions = __webpack_require__(5);
+var _actions = __webpack_require__(4);
 
 var actions = _interopRequireWildcard(_actions);
 
@@ -172,7 +171,7 @@ var Checker = function () {
       }
 
       if (!func) {
-        throw new Error("Invalid checks object. " + JSON.stringify(obj));
+        throw new Error("Invalid object. " + JSON.stringify(obj));
       }
 
       return func;
@@ -244,8 +243,14 @@ var Checker = function () {
           promise = _this4.run(item.scenario, promise);
         } else {
           //directive count check.
-          if (Object.keys(item).length > 1) {
+          var directives = Object.keys(item);
+          if (directives.length !== 1) {
             throw new Error('Only one directive can be placed in one scenario item.');
+          }
+
+          //check supported directives
+          if (['execif', 'url', 'actions', 'checks'].indexOf(directives[0]) === -1) {
+            throw new Error("Illegal directive object. " + JSON.stringify(item));
           }
 
           item = _this4._applyPlaceholder(item);
@@ -255,10 +260,7 @@ var Checker = function () {
             promise = promise.then(function () {
               return _this4._testExecif(item.execif);
             });
-          }
-
-          //url
-          if (item.url) {
+          } else if (item.url) {
             promise = promise.then(function (res) {
               if (res === false) return false;
               return _this4.driver.get(item.url);
@@ -397,7 +399,7 @@ Checker.Debug = false;
 Checker.DefaultTimeout = 12000;
 
 /***/ }),
-/* 4 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -412,7 +414,7 @@ exports.equals = equals;
 exports.callback = callback;
 exports.url = url;
 
-var _seleniumWebdriver = __webpack_require__(2);
+var _seleniumWebdriver = __webpack_require__(0);
 
 var _seleniumWebdriver2 = _interopRequireDefault(_seleniumWebdriver);
 
@@ -471,7 +473,7 @@ function url(checker, check) {
 }
 
 /***/ }),
-/* 5 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -502,7 +504,7 @@ function clear(checker, action) {
 }
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

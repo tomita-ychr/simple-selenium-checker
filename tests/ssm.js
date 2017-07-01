@@ -2,7 +2,8 @@ import webdriver from 'selenium-webdriver'
 import test from 'selenium-webdriver/testing'
 import assert from 'power-assert'
 import pauser from 'selenium-pauser'
-import {Checker, placeholder} from '../dist/'
+import Checker from '../src/Checker'
+import placeholder from '../src/placeholder'
 const By = webdriver.By;
 
 const isDebug = process.execArgv.indexOf('--debug') > -1 || process.execArgv.indexOf('--debug-brk') > -1
@@ -532,5 +533,79 @@ test.describe('SSM', () => {
     })
 
     return promise
+  })
+
+  test.it('should be able to handle nested scenarios.', () => {
+    const checker = new Checker(driver)
+
+    return Promise.resolve().then(() => {
+      // second level
+      return checker.run([{
+        url: "http://127.0.0.1:8080/"
+      },{
+        scenario: [{
+          url: "http://127.0.0.1:8080/foo.html"
+        },{
+          checks: [
+            {exists: By.css("#foo")},
+            {exists: By.css("#nothing2")}
+          ]
+        }]
+      }]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("Waiting for element to be located By(css selector, #nothing2)") >= 0)
+      })
+    }).then(() => {
+      // third level
+      return checker.run([{
+        url: "http://127.0.0.1:8080/"
+      },{
+        scenario: [{
+          url: "http://127.0.0.1:8080/foo.html"
+        },{
+          checks: [{exists: By.css("#foo")}]
+        },{
+          scenario: [{
+            url: "http://127.0.0.1:8080/form.html"
+          },{
+            checks: [
+              {exists: By.css(".input[name=name]")},
+              {exists: By.css("#nothing3")}
+            ]
+          }]
+        }]
+      }]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("Waiting for element to be located By(css selector, #nothing3)") >= 0)
+      })
+    }).then(() => {
+      //execif third level
+      return checker.run([{
+        url: "http://127.0.0.1:8080/"
+      },{
+        scenario: [{
+          url: "http://127.0.0.1:8080/foo.html"
+        },{
+          checks: [{exists: By.css("#foo")}]
+        },{
+          scenario: [{
+            url: "http://127.0.0.1:8080/form.html"
+          },{
+            execif: [[{exists: By.css('#home')}]]
+          },{
+            checks: [
+              {exists: By.css("#home")}
+            ]
+          }]
+        }]
+      },{
+        url: "http://127.0.0.1:8080/"
+      },{
+        checks: [{exists: By.css("#foo")}]
+      }]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("Waiting for element to be located By(css selector, #foo)") >= 0)
+      })
+    })
   })
 })

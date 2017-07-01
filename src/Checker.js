@@ -30,7 +30,7 @@ export default class Checker
     }
 
     if(!func){
-      throw new Error("Invalid checks object. " + JSON.stringify(obj))
+      throw new Error("Invalid object. " + JSON.stringify(obj))
     }
 
     return func
@@ -88,8 +88,14 @@ export default class Checker
         promise = this.run(item.scenario, promise)
       } else {
         //directive count check.
-        if(Object.keys(item).length > 1){
+        const directives = Object.keys(item)
+        if(directives.length !== 1){
           throw new Error('Only one directive can be placed in one scenario item.')
+        }
+
+        //check supported directives
+        if(['execif', 'url', 'actions', 'checks'].indexOf(directives[0]) === -1){
+          throw new Error("Illegal directive object. " + JSON.stringify(item))
         }
 
         item = this._applyPlaceholder(item)
@@ -97,10 +103,7 @@ export default class Checker
         //execif
         if(item.execif){
           promise = promise.then(() => this._testExecif(item.execif))
-        }
-
-        //url
-        if(item.url) {
+        }else if(item.url) {
           promise = promise.then(res => {
             if(res === false) return false
             return this.driver.get(item.url)
