@@ -9,7 +9,7 @@ const By = webdriver.By;
 const isDebug = process.execArgv.indexOf('--debug') > -1 || process.execArgv.indexOf('--debug-brk') > -1
 
 let driver;
-test.describe('SSM', () => {
+test.describe('SSC', () => {
   test.before(() => {
     Checker.Debug = isDebug
     Checker.DefaultTimeout = 1
