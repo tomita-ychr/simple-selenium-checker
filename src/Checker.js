@@ -78,96 +78,100 @@ export default class Checker
     return promise
   }
 
-  run(scenario, host){
-    let promise = Promise.resolve()
+  run(scenario, promise){
+    if(!promise){
+      promise = Promise.resolve()
+    }
+
     scenario.forEach(item => {
-      item = this._applyPlaceholder(item)
+      if(item.scenario){
+        promise = this.run(item.scenario, promise)
+      } else {
+        //directive count check.
+        if(Object.keys(item).length > 1){
+          throw new Error('Only one directive can be placed in one scenario item.')
+        }
 
-      //directive count check.
-      const keys = Object.keys(item)
-      const execifIndex = keys.indexOf('execif')
-      if(execifIndex >= 0){
-        keys.splice(execifIndex, 1)
-      }
-      if(keys.length > 1){
-        throw new Error('Only one directive can be placed in one scenario item.')
-      }
+        item = this._applyPlaceholder(item)
 
-      //execif
-      promise = promise.then(() => this._testExecif(item.execif))
+        //execif
+        if(item.execif){
+          promise = promise.then(() => this._testExecif(item.execif))
+        }
 
-      //url
-      if(item.url) {
+        //url
+        if(item.url) {
+          promise = promise.then(res => {
+            if(res === false) return false
+            return this.driver.get(item.url)
+          })
+        } else if(item.actions) {
+          item.actions.forEach(action => {
+            promise = promise.then(res => {
+              if(res === false) return false
+              return this._detectFunction(actions, action)(this, action)
+            })
+          })
+        } else if(item.checks) {
+          item.checks.forEach(check => {
+            promise = promise.then(res => {
+              if(res === false) return false
+              return this._detectFunction(checks, check)(this, check)
+            })
+          })
+        }
+
+        //Check javascript and response errors using browser logs.
         promise = promise.then(res => {
           if(res === false) return false
-          return this.driver.get(host ? host + item.url : item.url)
-        })
-      } else if(item.actions) {
-        item.actions.forEach(action => {
-          promise = promise.then(res => {
-            if(res === false) return false
-            return this._detectFunction(actions, action)(this, action)
-          })
-        })
-      } else if(item.checks) {
-        item.checks.forEach(check => {
-          promise = promise.then(res => {
-            if(res === false) return false
-            return this._detectFunction(checks, check)(this, check)
-          })
-        })
-      }
+          return this.driver.getCurrentUrl().then(url => {
+            return new Promise(resolve => {
+              this.driver.manage().logs().get('browser').then(logs => {
+                logs.forEach(log => {
+                  //javascript
+                  if(Checker.JsErrorStrings.some(err => log.message.indexOf(err) >= 0)){
+                    throw new Error("Javascript error was detected: " + log.message)
+                  }
 
-      //Check javascript and response errors using browser logs.
-      promise = promise.then(res => {
-        if(res === false) return false
-        return this.driver.getCurrentUrl().then(url => {
-          return new Promise(resolve => {
-            this.driver.manage().logs().get('browser').then(logs => {
-              logs.forEach(log => {
-                //javascript
-                if(Checker.JsErrorStrings.some(err => log.message.indexOf(err) >= 0)){
-                  throw new Error("Javascript error was detected: " + log.message)
-                }
-
-                //response
-                if(log.message.indexOf(url + " - ") === 0){
-                  const msg = log.message.split(url).join("")
-                  for(let i = 400;i <= 599; i++){
-                    if(msg.indexOf(" " + i + " ") >= 0){
-                      throw new Error("The response error was detected: " + log.message)
+                  //response
+                  if(log.message.indexOf(url + " - ") === 0){
+                    const msg = log.message.split(url).join("")
+                    for(let i = 400;i <= 599; i++){
+                      if(msg.indexOf(" " + i + " ") >= 0){
+                        throw new Error("The response error was detected: " + log.message)
+                      }
                     }
                   }
-                }
+                })
+                resolve()
               })
-              resolve()
             })
           })
         })
-      })
 
-      //Format the error.
-      if(this.debug === false){
-        promise = promise.catch(err => {
-          return this.driver.findElement(By.css('html'))
-            .then(elem => elem.getAttribute('outerHTML'))
-            .then(html => {
-              return this.driver.getCurrentUrl().then(url => {
-                const data = Object.assign({}, this.data)
-                delete data.next
-                throw new Error(
-                  url + "\n" +
-                  "JSON: " + JSON.stringify(data) + "\n" +
-                  "Message: " + err.message + "\n" +
-                  html
-                )
+        //Format the error.
+        if(this.debug === false){
+          promise = promise.catch(err => {
+            return this.driver.findElement(By.css('html'))
+              .then(elem => elem.getAttribute('outerHTML'))
+              .then(html => {
+                return this.driver.getCurrentUrl().then(url => {
+                  const data = Object.assign({}, this.data)
+                  delete data.next
+                  throw new Error(
+                    url + "\n" +
+                    "JSON: " + JSON.stringify(item) + "\n" +
+                    "Message: " + err.message + "\n" +
+                    html
+                  )
+                })
               })
-            })
-        })
+          })
+        }
       }
     })
 
-    return promise;
+    return promise.then(() => undefined);
   }
 
   _applyPlaceholderToValue(value){

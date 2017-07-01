@@ -384,7 +384,7 @@ test.describe('SSM', () => {
 
   test.it('should when there is an execif directive, evaluate whether to execute that block.', () => {
     const checker = new Checker(driver)
-    return Promise.resolve().then(() => {
+    let promise =  Promise.resolve().then(() => {
       return driver.get('http://127.0.0.1:8080')
     }).then(() => {
       // exists
@@ -417,64 +417,120 @@ test.describe('SSM', () => {
         [{exists: By.css('header')}],
         [{notExists: By.css('header')}]
       ]).then(res => assert(res === false))
-    }).then(() => {//From here down is checker.run
+    })
+
+    //From here down is checker.run tests.
+    promise = promise.then(() => {
       // execute checks
       return checker.run([{
-        execif: [[{exists: By.css('header')}]],
-        checks: [
-          {exists: By.css(".non-exists")},
-        ]
+        url: 'http://127.0.0.1:8080/'
+      },{
+        scenario: [{
+          execif: [[{exists: By.css('header')}]],
+        },{
+          checks: [
+            {exists: By.css(".non-exists")},
+          ]
+        }]
       }]).catch(err => err).then(err => assert(err !== undefined))
     }).then(() => {
-      // ignore checks
+      //ignore checks
       return checker.run([{
-        execif: [[{notExists: By.css('header')}]],
-        checks: [
-          {exists: By.css(".non-exists")},
-          {exists: By.css(".non-exists2")},
-        ]
+        url: 'http://127.0.0.1:8080/'
+      },{
+        scenario: [{
+          execif: [[{notExists: By.css('header')}]],
+        },{
+          checks: [
+            {exists: By.css(".non-exists")},
+            {exists: By.css(".non-exists2")},
+          ]
+        }]
       }])
-    }).then(() => {
+    })
+    .then(() => {
       // execute url
       return checker.run([{
-        execif: [[{exists: By.css('header')}]],
-        url: "http://127.0.0.1:8080/foo.html",
+        url: 'http://127.0.0.1:8080/'
+      },{
+        scenario: [{
+          execif: [[{exists: By.css('header')}]]
+        },{
+          url: "http://127.0.0.1:8080/foo.html"
+        }]
       },{
         checks: [
           {exists: By.css("#foo")},
+          {exists: By.css("#fail-on-execute-url")},
         ]
-      }])
+      }]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("Waiting for element to be located By(css selector, #fail-on-execute-url)") >= 0)
+      })
     }).then(() => {
       // ignore url
       return checker.run([{
-        execif: [[{notExists: By.css('header')}]],
-        url: "http://127.0.0.1:8080/form.html",
+        url: 'http://127.0.0.1:8080/foo.html'
+      },{
+        scenario: [{
+          execif: [[{notExists: By.css('header')}]]
+        },{
+          url: "http://127.0.0.1:8080/form.html"
+        }]
       },{
         checks: [
           {exists: By.css("#foo")},
+          {exists: By.css("#fail-on-ignore-url")},
         ]
-      }])
+      }]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("Waiting for element to be located By(css selector, #fail-on-ignore-url)") >= 0)
+      })
     }).then(() => {
       // execute action
       return checker.run([{
-        execif: [[{exists: By.css('header')}]],
-        actions: [
-          {click: By.css(".nav > li:nth-child(1) > a")},
-        ],
+        url: 'http://127.0.0.1:8080/foo.html'
+      },{
+        scenario: [{
+          execif: [[{exists: By.css('header')}]]
+        },{
+          actions: [
+            {click: By.css(".nav > li:nth-child(1) > a")},
+          ]
+        }]
       },{
         checks: [
           {exists: By.css("#home")},
+          {exists: By.css("#fail-on-execute-action")},
         ]
-      }])
+      }]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("Waiting for element to be located By(css selector, #fail-on-execute-action)") >= 0)
+      })
     }).then(() => {
       // ignore action
       return checker.run([{
-        execif: [[{notExists: By.css('header')}]],
-        actions: [
-          {click: By.css(".non-exists")},
-          {click: By.css(".non-exists2")},
-        ],
-      }])
+        url: 'http://127.0.0.1:8080/'
+      },{
+        scenario: [
+          {execif: [[{notExists: By.css('header')}]]
+        },{
+          actions: [
+            {click: By.css(".non-exists")},
+            {click: By.css(".non-exists2")},
+          ]
+        }]
+      },{
+        checks: [
+          {exists: By.css("#home")},
+          {exists: By.css("#fail-on-ignore-action")},
+        ]
+      }]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("Waiting for element to be located By(css selector, #fail-on-ignore-action)") >= 0)
+      })
     })
+
+    return promise
   })
 })

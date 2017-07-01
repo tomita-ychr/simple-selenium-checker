@@ -232,97 +232,103 @@ var Checker = function () {
     }
   }, {
     key: 'run',
-    value: function run(scenario, host) {
+    value: function run(scenario, promise) {
       var _this4 = this;
 
-      var promise = Promise.resolve();
+      if (!promise) {
+        promise = Promise.resolve();
+      }
+
       scenario.forEach(function (item) {
-        item = _this4._applyPlaceholder(item);
+        if (item.scenario) {
+          promise = _this4.run(item.scenario, promise);
+        } else {
+          //directive count check.
+          if (Object.keys(item).length > 1) {
+            throw new Error('Only one directive can be placed in one scenario item.');
+          }
 
-        //directive count check.
-        var keys = Object.keys(item);
-        var execifIndex = keys.indexOf('execif');
-        if (execifIndex >= 0) {
-          keys.splice(execifIndex, 1);
-        }
-        if (keys.length > 1) {
-          throw new Error('Only one directive can be placed in one scenario item.');
-        }
+          item = _this4._applyPlaceholder(item);
 
-        //execif
-        promise = promise.then(function () {
-          return _this4._testExecif(item.execif);
-        });
+          //execif
+          if (item.execif) {
+            promise = promise.then(function () {
+              return _this4._testExecif(item.execif);
+            });
+          }
 
-        //url
-        if (item.url) {
+          //url
+          if (item.url) {
+            promise = promise.then(function (res) {
+              if (res === false) return false;
+              return _this4.driver.get(item.url);
+            });
+          } else if (item.actions) {
+            item.actions.forEach(function (action) {
+              promise = promise.then(function (res) {
+                if (res === false) return false;
+                return _this4._detectFunction(actions, action)(_this4, action);
+              });
+            });
+          } else if (item.checks) {
+            item.checks.forEach(function (check) {
+              promise = promise.then(function (res) {
+                if (res === false) return false;
+                return _this4._detectFunction(checks, check)(_this4, check);
+              });
+            });
+          }
+
+          //Check javascript and response errors using browser logs.
           promise = promise.then(function (res) {
             if (res === false) return false;
-            return _this4.driver.get(host ? host + item.url : item.url);
-          });
-        } else if (item.actions) {
-          item.actions.forEach(function (action) {
-            promise = promise.then(function (res) {
-              if (res === false) return false;
-              return _this4._detectFunction(actions, action)(_this4, action);
-            });
-          });
-        } else if (item.checks) {
-          item.checks.forEach(function (check) {
-            promise = promise.then(function (res) {
-              if (res === false) return false;
-              return _this4._detectFunction(checks, check)(_this4, check);
-            });
-          });
-        }
+            return _this4.driver.getCurrentUrl().then(function (url) {
+              return new Promise(function (resolve) {
+                _this4.driver.manage().logs().get('browser').then(function (logs) {
+                  logs.forEach(function (log) {
+                    //javascript
+                    if (Checker.JsErrorStrings.some(function (err) {
+                      return log.message.indexOf(err) >= 0;
+                    })) {
+                      throw new Error("Javascript error was detected: " + log.message);
+                    }
 
-        //Check javascript and response errors using browser logs.
-        promise = promise.then(function (res) {
-          if (res === false) return false;
-          return _this4.driver.getCurrentUrl().then(function (url) {
-            return new Promise(function (resolve) {
-              _this4.driver.manage().logs().get('browser').then(function (logs) {
-                logs.forEach(function (log) {
-                  //javascript
-                  if (Checker.JsErrorStrings.some(function (err) {
-                    return log.message.indexOf(err) >= 0;
-                  })) {
-                    throw new Error("Javascript error was detected: " + log.message);
-                  }
-
-                  //response
-                  if (log.message.indexOf(url + " - ") === 0) {
-                    var msg = log.message.split(url).join("");
-                    for (var i = 400; i <= 599; i++) {
-                      if (msg.indexOf(" " + i + " ") >= 0) {
-                        throw new Error("The response error was detected: " + log.message);
+                    //response
+                    if (log.message.indexOf(url + " - ") === 0) {
+                      var msg = log.message.split(url).join("");
+                      for (var i = 400; i <= 599; i++) {
+                        if (msg.indexOf(" " + i + " ") >= 0) {
+                          throw new Error("The response error was detected: " + log.message);
+                        }
                       }
                     }
-                  }
+                  });
+                  resolve();
                 });
-                resolve();
               });
             });
           });
-        });
 
-        //Format the error.
-        if (_this4.debug === false) {
-          promise = promise.catch(function (err) {
-            return _this4.driver.findElement(By.css('html')).then(function (elem) {
-              return elem.getAttribute('outerHTML');
-            }).then(function (html) {
-              return _this4.driver.getCurrentUrl().then(function (url) {
-                var data = Object.assign({}, _this4.data);
-                delete data.next;
-                throw new Error(url + "\n" + "JSON: " + JSON.stringify(data) + "\n" + "Message: " + err.message + "\n" + html);
+          //Format the error.
+          if (_this4.debug === false) {
+            promise = promise.catch(function (err) {
+              return _this4.driver.findElement(By.css('html')).then(function (elem) {
+                return elem.getAttribute('outerHTML');
+              }).then(function (html) {
+                return _this4.driver.getCurrentUrl().then(function (url) {
+                  var data = Object.assign({}, _this4.data);
+                  delete data.next;
+                  throw new Error(url + "\n" + "JSON: " + JSON.stringify(item) + "\n" + "Message: " + err.message + "\n" + html);
+                });
               });
             });
-          });
+          }
         }
       });
 
-      return promise;
+      return promise.then(function () {
+        return undefined;
+      });
     }
   }, {
     key: '_applyPlaceholderToValue',
