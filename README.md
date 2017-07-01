@@ -38,36 +38,42 @@ const scenario = [
 checker.run(scenario)
 ```
 
-In the above scenario, first open `https: // www.google.com /` and check if there is a `#searchform` element on the page. Below are all the directives of the scenario.
+In the above scenario, first open `https: // www.google.com /` and check if there is a `#searchform` element on the page.
+
+
+Below are all the supported directives of the scenario.
 
 ```js
 const scenario = [
-  //Ignore that block if `execif` evaluates to false.
-  {execif: [//Elements in this array evaluated in the AND.
-    //Evaluate to true if the target element exists.
-    [{exists: By.css('.foo')}, {exists: By.css('.bar')}], //Elements in this array evaluated in the OR.
-    //Evaluate to true if the target element not exists.
-    [{nonExists: By.css('.main')},
-    //only `bool` is useful in the Placeholder described below.
-    [{bool: true}],
-  ]}
-
   //Opens the specified page.
   {url: "https://www.google.com/"}
+
+  //Scenarios can be nested.
+  scenario: [
+    //If `execif` evaluates to false, ignoring after directives.
+    {execif: [//Elements in this array evaluated in the AND.
+      //Evaluate to true if the target element exists.
+      [{exists: By.css('.foo')}, {exists: By.css('.bar')}], //Elements in this array evaluated in the OR.
+      //Evaluate to true if the target element not exists.
+      [{nonExists: By.css('.main')},
+      //only `bool` is useful in the Placeholder described below.
+      [{bool: true}],
+    ]}
+  ]
 
   //Check the elements and text on the page.
   {checks: [
     //Only the existence of the element.
-    {by: By.css("#searchform")}
+    {exists: By.css("#searchform")}
     //Compare the text contained in the element with exact match.
     //When `timeout` is specified, it checks repeatedly for the specified milliseconds until the target element is visible.
-    {by: By.css(".main .col-sm-6:nth-child(2) h3"), equal: "Home 002", timeout: 1000},
+    {equals: "Home 002", by: By.css(".main .col-sm-6:nth-child(2) h3"), timeout: 1000},
     //Compare the text contained in the element with partial match.
-    {by: By.css(".main .col-sm-6:nth-child(2) h3"), like: "Home 002"},
+    {likes: "Home 002", by: By.css(".main .col-sm-6:nth-child(2) h3")},
     //If the callback returns Promise with the resolved value true, it succeeds and fails if it returns Promise with false.
-    {by: By.css(".main .col-sm-6:nth-child(3) img"), callback: elem => elem.getAttribute("alt").then(alt => alt == "Home alt 003")},
+    {callback: elem => elem.getAttribute("alt").then(alt => alt == "Home alt 003"), by: By.css(".main .col-sm-6:nth-child(3) img")},
     //Search the entire body of the response with partial match.
-    {body: "<title>Simple selenium checker - Home</title>"}
+    {likes: "<title>Simple selenium checker - Home</title>"}
   ]},
 
   {actions: [
@@ -77,17 +83,6 @@ const scenario = [
     {click: By.css(".nav li:nth-child(2) > a")},
   ]}
 ]
-```
-
-It is also possible to pass the URL's host part to the second argument of the run method, without including it in the scenario.
-
-```js
-const scenario = [
-  {url: "/"}
-  {checks: [{by: By.css("#searchform")}]}
-]
-
-checker.run(scenario, 'https://www.google.com')
 ```
 
 With `placeholder` you can replace the elements in the scenario.
