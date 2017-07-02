@@ -8,10 +8,17 @@ export function exists(checker, check){
 export function likes(checker, check){
   if(check.by){
     return checker.waitElement(check.by, check.timeout)
-      .then(elem => elem.getText())
+      .then(elem => {
+        if(check.attr){
+          return elem.getAttribute(check.attr)
+        } else {
+          return elem.getText()
+        }
+      })
       .then(text => {
         if(text.indexOf(check.likes) === -1){
-          throw new Error('Text in ' + check.by.toString() + ' dose not like `' + check.likes + '` actual `' + text + '`')
+          const target = check.attr ? check.attr + ' of ' : 'Text in '
+          throw new Error(target + check.by.toString() + ' dose not like `' + check.likes + '` actual `' + text + '`')
         }
       })
   } else {
@@ -25,20 +32,17 @@ export function likes(checker, check){
 
 export function equals(checker, check){
   return checker.waitElement(check.by, check.timeout)
-    .then(elem => elem.getText())
-    .then(text => {
-      if(text !== check.equals){
-        throw new Error('Text in ' + check.by.toString() + ' is not `' + check.equals + '` actual `' + text + '`')
+    .then(elem => {
+      if(check.attr){
+        return elem.getAttribute(check.attr)
+      } else {
+        return elem.getText()
       }
     })
-}
-
-export function callback(checker, check){
-  return checker.waitElement(check.by, check.timeout)
-    .then(elem => check.callback(elem))
-    .then(res => {
-      if(!res){
-        throw new Error(check.callback.toString() + ' is failed')
+    .then(text => {
+      if(text !== check.equals){
+        const target = check.attr ? check.attr + ' of ' : 'Text in '
+        throw new Error(target + check.by.toString() + ' is not `' + check.equals + '` actual `' + text + '`')
       }
     })
 }

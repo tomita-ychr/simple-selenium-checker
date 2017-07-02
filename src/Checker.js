@@ -22,7 +22,7 @@ export default class Checker
     const keys = []
     let func = undefined
     for(let key in functions){
-      if(obj[key]){
+      if(key in obj){
         keys.push(key)
         if(func) throw new Error("Found two identify keys. " + keys.join(','))
         func = functions[key]
@@ -30,7 +30,7 @@ export default class Checker
     }
 
     if(!func){
-      throw new Error("Invalid object. " + JSON.stringify(obj))
+      throw new Error("Missing supported directive in " + JSON.stringify(obj))
     }
 
     return func
@@ -179,7 +179,7 @@ export default class Checker
 
   _applyPlaceholderToValue(value){
     if(value.placeholderKey){
-      if(this.placeholder[value.placeholderKey]){
+      if(value.placeholderKey in this.placeholder){
         return value.apply(this.placeholder[value.placeholderKey])
       } else {
         throw new Error('Missing ' + value.placeholderKey + ' key in placeholder.')

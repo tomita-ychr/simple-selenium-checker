@@ -163,7 +163,7 @@ var Checker = function () {
       var keys = [];
       var func = undefined;
       for (var key in functions) {
-        if (obj[key]) {
+        if (key in obj) {
           keys.push(key);
           if (func) throw new Error("Found two identify keys. " + keys.join(','));
           func = functions[key];
@@ -171,7 +171,7 @@ var Checker = function () {
       }
 
       if (!func) {
-        throw new Error("Invalid object. " + JSON.stringify(obj));
+        throw new Error("Missing supported directive in " + JSON.stringify(obj));
       }
 
       return func;
@@ -336,7 +336,7 @@ var Checker = function () {
     key: '_applyPlaceholderToValue',
     value: function _applyPlaceholderToValue(value) {
       if (value.placeholderKey) {
-        if (this.placeholder[value.placeholderKey]) {
+        if (value.placeholderKey in this.placeholder) {
           return value.apply(this.placeholder[value.placeholderKey]);
         } else {
           throw new Error('Missing ' + value.placeholderKey + ' key in placeholder.');
@@ -411,7 +411,6 @@ Object.defineProperty(exports, "__esModule", {
 exports.exists = exists;
 exports.likes = likes;
 exports.equals = equals;
-exports.callback = callback;
 exports.url = url;
 
 var _seleniumWebdriver = __webpack_require__(0);
@@ -429,10 +428,15 @@ function exists(checker, check) {
 function likes(checker, check) {
   if (check.by) {
     return checker.waitElement(check.by, check.timeout).then(function (elem) {
-      return elem.getText();
+      if (check.attr) {
+        return elem.getAttribute(check.attr);
+      } else {
+        return elem.getText();
+      }
     }).then(function (text) {
       if (text.indexOf(check.likes) === -1) {
-        throw new Error('Text in ' + check.by.toString() + ' dose not like `' + check.likes + '` actual `' + text + '`');
+        var target = check.attr ? check.attr + ' of ' : 'Text in ';
+        throw new Error(target + check.by.toString() + ' dose not like `' + check.likes + '` actual `' + text + '`');
       }
     });
   } else {
@@ -446,20 +450,15 @@ function likes(checker, check) {
 
 function equals(checker, check) {
   return checker.waitElement(check.by, check.timeout).then(function (elem) {
-    return elem.getText();
+    if (check.attr) {
+      return elem.getAttribute(check.attr);
+    } else {
+      return elem.getText();
+    }
   }).then(function (text) {
     if (text !== check.equals) {
-      throw new Error('Text in ' + check.by.toString() + ' is not `' + check.equals + '` actual `' + text + '`');
-    }
-  });
-}
-
-function callback(checker, check) {
-  return checker.waitElement(check.by, check.timeout).then(function (elem) {
-    return check.callback(elem);
-  }).then(function (res) {
-    if (!res) {
-      throw new Error(check.callback.toString() + ' is failed');
+      var target = check.attr ? check.attr + ' of ' : 'Text in ';
+      throw new Error(target + check.by.toString() + ' is not `' + check.equals + '` actual `' + text + '`');
     }
   });
 }

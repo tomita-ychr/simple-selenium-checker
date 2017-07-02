@@ -39,7 +39,7 @@ test.describe('SSC', () => {
         checks: [
           {exists: By.css(".delay-content"), timeout: 8000},
           {equals: "Home 002", by: By.css(".main .col-sm-6:nth-child(2) h3")},
-          {callback: elem => elem.getAttribute("alt").then(alt => alt == "Home alt 003"), by: By.css(".main .col-sm-6:nth-child(3) img")},
+          {equals: "Home alt 003", attr: 'alt', by: By.css(".main .col-sm-6:nth-child(3) img")},
           {likes: "<title>Simple selenium checker - Home</title>"}
         ]
       },{
@@ -50,7 +50,7 @@ test.describe('SSC', () => {
         checks: [
           {exists: By.css(".delay-content"), timeout: 8000},
           {equals: "Foo 002", by: By.css(".main .col-sm-6:nth-child(2) h3")},
-          {callback: elem => elem.getAttribute("alt").then(alt => alt == "Foo alt 003"), by: By.css(".main .col-sm-6:nth-child(3) img")},
+          {equals: "Foo alt 003", attr: "alt", by: By.css(".main .col-sm-6:nth-child(3) img")},
           {likes: "<title>Simple selenium checker - Foo"},
         ],
       }]
@@ -128,42 +128,6 @@ test.describe('SSC', () => {
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
         assert(err.message.indexOf("Text in By(css selector, .main .col-sm-6:nth-child(3) h3) is not `Bar 003` actual `Foo 003") >= 0)
-      })
-    })
-  })
-
-  test.it('should fail when the callback returns false.', () => {
-    return Promise.resolve().then(() => {
-      const scenario = [{
-        url: "http://127.0.0.1:8080/",
-      },{
-        checks: [
-          {callback: elem => elem.getAttribute("alt").then(alt => false), by: By.css(".main .col-sm-6:nth-child(3) img")},
-        ]
-      }]
-
-      const checker = new Checker(driver)
-      return checker.run(scenario).catch(err => err).then(err => {
-        assert(err != undefined)
-        assert(err.message.indexOf(" is failed") >= 0)
-      })
-    }).then(() => {
-      const scenario = [{
-        url: "http://127.0.0.1:8080/",
-      },{
-        actions:[
-          {click: By.css(".nav > li:nth-child(2) > a")},
-        ],
-      },{
-        checks: [
-          {callback: elem => elem.getAttribute("alt").then(alt => false), by: By.css(".main .col-sm-6:nth-child(3) img")},
-        ],
-      }]
-
-      const checker = new Checker(driver)
-      return checker.run(scenario).catch(err => err).then(err => {
-        assert(err != undefined)
-        assert(err.message.indexOf(" is failed") >= 0)
       })
     })
   })
@@ -339,7 +303,7 @@ test.describe('SSC', () => {
           {exists: placeholder('checks_by')},
           {equals: placeholder('checks_equals'), by: By.css(".main .col-sm-6:nth-child(1) h3")},
           {likes: placeholder('checks_likes'), by: By.css(".main .col-sm-6:nth-child(2) h3")},
-          {callback: placeholder('checks_callback'), by: By.css(".main .col-sm-6:nth-child(3) h3")}
+          {equals: placeholder('checks_attr_value'), attr:"value", by: By.css(".main .col-sm-6:nth-child(3) h3")}
         ],
       },{
         url: placeholder('url').append('/form.html'),
@@ -351,7 +315,7 @@ test.describe('SSC', () => {
         ]
       },{
         checks: [
-          {callback: elem => elem.getAttribute("value").then(val => val == 'placeholdercheck'), by: By.css(".input")}
+          {equals: 'placeholdercheck', attr: 'value', by: By.css(".input")}
         ]
       }]
 
@@ -361,7 +325,7 @@ test.describe('SSC', () => {
         'checks_by': By.css(".main .col-sm-6:nth-child(2) h3"),
         'checks_equals': 'Foo 001',
         'checks_likes': 'oo 00',
-        'checks_callback': () => Promise.resolve(true),
+        'checks_attr_value': null,
         'actions_click': By.css(".nav > li:nth-child(2) > a"),
         'actions_sendkey': By.css(".input"),
         'actions_sendkey_value': 'placeholdercheck'
@@ -375,7 +339,7 @@ test.describe('SSC', () => {
       assert(resScenario[2].checks[1].equals === 'Foo 001')
       assert(resScenario[2].checks[2].likes === 'oo 00')
       // https://gist.github.com/gomo/474b14bbf8955e0a20d56902eafd0fb8
-      assert(resScenario[2].checks[3].callback.toString() === checker.placeholder.checks_callback.toString())
+      assert(resScenario[2].checks[3].equals === null)
       assert(resScenario[3].url === 'http://127.0.0.1:8080/form.html')
       assert(resScenario[4].actions[0].sendKeys.toString() === By.css(".input").toString())
 
@@ -605,6 +569,37 @@ test.describe('SSC', () => {
       }]).catch(err => {
         assert(err !== undefined)
         assert(err.message.indexOf("Waiting for element to be located By(css selector, #foo)") >= 0)
+      })
+    })
+  })
+
+  test.it('should be able to check HTML attributes.', () => {
+    const checker = new Checker(driver)
+    return Promise.resolve().then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/"},
+        {checks: [
+          {equals: 'http://127.0.0.1:8080/foo.html', attr: "href", by: By.css(".nav > li:nth-child(2) > a")},
+          {equals: 'page-header', attr: "class", by: By.css("header")},
+          {equals: 'nav nav-pills', attr: "class", by: By.css(".nav")},
+          {equals: 'nav', attr: "class", by: By.css(".nav")},
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("class of By(css selector, .nav) is not `nav` actual `nav nav-pills`") >= 0)
+      })
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/"},
+        {checks: [
+          {likes: '/foo.html', attr: "href", by: By.css(".nav > li:nth-child(2) > a")},
+          {likes: 'ge-head', attr: "class", by: By.css("header")},
+          {likes: 'nav-pil', attr: "class", by: By.css(".nav")},
+          {likes: 'foooo', attr: "class", by: By.css(".nav")},
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("class of By(css selector, .nav) dose not like `foooo` actual `nav nav-pills`") >= 0)
       })
     })
   })
