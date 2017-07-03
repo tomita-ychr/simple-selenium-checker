@@ -39,7 +39,7 @@ test.describe('SSC', () => {
         checks: [
           {exists: By.css(".delay-content"), timeout: 8000},
           {equals: "Home 002", by: By.css(".main .col-sm-6:nth-child(2) h3")},
-          {equals: "Home alt 003", attr: 'alt', by: By.css(".main .col-sm-6:nth-child(3) img")},
+          {equals: "Home alt 003", type: {attr: 'alt'}, by: By.css(".main .col-sm-6:nth-child(3) img")},
           {likes: "<title>Simple selenium checker - Home</title>"}
         ]
       },{
@@ -50,7 +50,7 @@ test.describe('SSC', () => {
         checks: [
           {exists: By.css(".delay-content"), timeout: 8000},
           {equals: "Foo 002", by: By.css(".main .col-sm-6:nth-child(2) h3")},
-          {equals: "Foo alt 003", attr: "alt", by: By.css(".main .col-sm-6:nth-child(3) img")},
+          {equals: "Foo alt 003", type: {attr: "alt"}, by: By.css(".main .col-sm-6:nth-child(3) img")},
           {likes: "<title>Simple selenium checker - Foo"},
         ],
       }]
@@ -145,7 +145,7 @@ test.describe('SSC', () => {
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
-        assert(err.message.indexOf("Missing text `<title>Simple selenium checker - Hoge</title>`") >= 0)
+        assert(err.message.indexOf("Response body dose not contain `<title>Simple selenium checker - Hoge</title>`") >= 0)
       })
     }).then(() => {
       const scenario = [{
@@ -163,7 +163,7 @@ test.describe('SSC', () => {
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
-        assert(err.message.indexOf("Missing text `<title>Simple selenium checker - Bar</title>`") >= 0)
+        assert(err.message.indexOf("Response body dose not contain `<title>Simple selenium checker - Bar</title>`.") >= 0)
       })
     })
   })
@@ -212,7 +212,7 @@ test.describe('SSC', () => {
       },{
         checks: [
           {exists: By.css(".main .col-sm-6:nth-child(1) h3")},
-          {url: "http://127.0.0.1:8080/index.html?name=fooBarTest&send=send"},
+          {equals: "http://127.0.0.1:8080/index.html?name=fooBarTest&send=send", type: "url"},
         ],
       }]
 
@@ -221,20 +221,64 @@ test.describe('SSC', () => {
     })
   })
 
-  test.it('should fail when a URL different from the actual URL is specified.', () => {
+  test.it('should be able to check url.', () => {
+    const checker = new Checker(driver)
     return Promise.resolve().then(() => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
       },{
         checks: [
-          {url: "http://127.0.0.1:8080/hoge.html"},
+          {equals: "http://127.0.0.1:8080/", type: 'url'},
+          {likes: "127.0.0.1", type: 'url'},
+          {notEquals: "http://127.0.0.1:8080/foobar.html", type: 'url'},
+          {notLikes: "foobar", type: 'url'},
         ]
       }]
 
-      const checker = new Checker(driver)
-      return checker.run(scenario).catch(err => err).then(err => {
+      return checker.run(scenario)
+    }).then(() => {
+      return checker.run([{
+        url: "http://127.0.0.1:8080/",
+      },{
+        checks: [
+          {equals: "http://127.0.0.1:8080/hoge.html", type: 'url'},
+        ]
+      }]).catch(err => err).then(err => {
         assert(err != undefined)
-        assert(err.message.indexOf("The specified URL was not included in the actual URL") >= 0)
+        assert(err.message.indexOf("Url is not `http://127.0.0.1:8080/hoge.html` actual `http://127.0.0.1:8080/`") >= 0)
+      })
+    }).then(() => {
+      return checker.run([{
+        url: "http://127.0.0.1:8080/",
+      },{
+        checks: [
+          {likes: "hoge.html", type: 'url'},
+        ]
+      }]).catch(err => err).then(err => {
+        assert(err != undefined)
+        assert(err.message.indexOf("Url dose not contain `hoge.html` actual `http://127.0.0.1:8080/`.") >= 0)
+      })
+    }).then(() => {
+      return checker.run([{
+        url: "http://127.0.0.1:8080/",
+      },{
+        checks: [
+          {notEquals: "http://127.0.0.1:8080/", type: 'url'},
+        ]
+      }]).catch(err => err).then(err => {
+        assert(err != undefined)
+        assert(err.message.indexOf("Url is `http://127.0.0.1:8080/`.") >= 0)
+      })
+    }).then(() => {
+      return checker.run([{
+        url: "http://127.0.0.1:8080/",
+      },{
+        checks: [
+          {notLikes: "127.0.0.1", type: 'url'},
+        ]
+      }]).catch(err => err).then(err => {
+        assert(err != undefined)
+        assert(err.message.indexOf("Url contains `127.0.0.1`.") >= 0)
       })
     })
   })
@@ -245,7 +289,7 @@ test.describe('SSC', () => {
         url: "http://127.0.0.1:8080/",
       },{
         checks: [
-          {url: "http://127.0.0.1:8080/hoge.html"},
+          {equals: "http://127.0.0.1:8080/hoge.html", type: 'url'},
         ]
       }]
 
@@ -253,7 +297,7 @@ test.describe('SSC', () => {
       checker.debug = true;
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
-        assert(err.message.indexOf("The specified URL was not included in the actual URL") >= 0)
+        assert(err.message.indexOf("Url is not `http://127.0.0.1:8080/hoge.html` actual `http://127.0.0.1:8080/`") >= 0)
         assert(err.message.indexOf('<html lang="en">') === -1)
       })
     })
@@ -285,7 +329,7 @@ test.describe('SSC', () => {
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
-        assert(err.message.indexOf("Text in By(css selector, .main .col-sm-6:nth-child(1) h3) dose not like `bar` actual `Home 001`") >= 0)
+        assert(err.message.indexOf("Text in By(css selector, .main .col-sm-6:nth-child(1) h3) dose not contain `bar` actual `Home 001`") >= 0)
       })
     })
   })
@@ -303,7 +347,7 @@ test.describe('SSC', () => {
           {exists: placeholder('checks_by')},
           {equals: placeholder('checks_equals'), by: By.css(".main .col-sm-6:nth-child(1) h3")},
           {likes: placeholder('checks_likes'), by: By.css(".main .col-sm-6:nth-child(2) h3")},
-          {equals: placeholder('checks_attr_value'), attr:"value", by: By.css(".main .col-sm-6:nth-child(3) h3")}
+          {equals: placeholder('checks_attr_value'), type: {attr:"value"}, by: By.css(".main .col-sm-6:nth-child(3) h3")}
         ],
       },{
         url: placeholder('url').append('/form.html'),
@@ -315,7 +359,7 @@ test.describe('SSC', () => {
         ]
       },{
         checks: [
-          {equals: 'placeholdercheck', attr: 'value', by: By.css(".input")}
+          {equals: 'placeholdercheck', type: {attr: 'value'}, by: By.css(".input")}
         ]
       }]
 
@@ -579,10 +623,10 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {checks: [
-          {equals: 'http://127.0.0.1:8080/foo.html', attr: "href", by: By.css(".nav > li:nth-child(2) > a")},
-          {equals: 'page-header', attr: "class", by: By.css("header")},
-          {equals: 'nav nav-pills', attr: "class", by: By.css(".nav")},
-          {equals: 'nav', attr: "class", by: By.css(".nav")},
+          {equals: 'http://127.0.0.1:8080/foo.html', type: {attr: "href"}, by: By.css(".nav > li:nth-child(2) > a")},
+          {equals: 'page-header', type: {attr: "class"}, by: By.css("header")},
+          {equals: 'nav nav-pills', type: {attr: "class"}, by: By.css(".nav")},
+          {equals: 'nav', type: {attr: "class"}, by: By.css(".nav")},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -592,14 +636,14 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {checks: [
-          {likes: '/foo.html', attr: "href", by: By.css(".nav > li:nth-child(2) > a")},
-          {likes: 'ge-head', attr: "class", by: By.css("header")},
-          {likes: 'nav-pil', attr: "class", by: By.css(".nav")},
-          {likes: 'foooo', attr: "class", by: By.css(".nav")},
+          {likes: '/foo.html', type: {attr: "href"}, by: By.css(".nav > li:nth-child(2) > a")},
+          {likes: 'ge-head', type: {attr: "class"}, by: By.css("header")},
+          {likes: 'nav-pil', type: {attr: "class"}, by: By.css(".nav")},
+          {likes: 'foooo', type: {attr: "class"}, by: By.css(".nav")},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("class of By(css selector, .nav) dose not like `foooo` actual `nav nav-pills`") >= 0)
+        assert(err.message.indexOf("class of By(css selector, .nav) dose not contain `foooo` actual `nav nav-pills`") >= 0)
       })
     })
   })
@@ -612,8 +656,8 @@ test.describe('SSC', () => {
         {checks: [
           {notEquals: 'Bar', by: By.css(".nav > li:nth-child(1) > a")},
           {notEquals: 'Bar', by: By.css(".nav > li:nth-child(2) > a")},
-          {notEquals: 'http://127.0.0.1:8080/bar.html', attr: "href", by: By.css(".nav > li:nth-child(2) > a")},
-          {notEquals: 'page-footer', attr: "class", by: By.css("header")},
+          {notEquals: 'http://127.0.0.1:8080/bar.html', type: {attr: "href"}, by: By.css(".nav > li:nth-child(2) > a")},
+          {notEquals: 'page-footer', type: {attr: "class"}, by: By.css("header")},
         ]},
       ])
     }).then(() => {
@@ -630,7 +674,7 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {checks: [
-          {notEquals: 'http://127.0.0.1:8080/foo.html', attr: "href", by: By.css(".nav > li:nth-child(2) > a")},
+          {notEquals: 'http://127.0.0.1:8080/foo.html', type: {attr: "href"}, by: By.css(".nav > li:nth-child(2) > a")},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -642,8 +686,8 @@ test.describe('SSC', () => {
         {checks: [
           {notLikes: 'Bar', by: By.css(".nav > li:nth-child(1) > a")},
           {notLikes: 'Bar', by: By.css(".nav > li:nth-child(2) > a")},
-          {notLikes: 'http://127.0.0.1:8080/bar.html', attr: "href", by: By.css(".nav > li:nth-child(2) > a")},
-          {notLikes: 'page-footer', attr: "class", by: By.css("header")},
+          {notLikes: 'http://127.0.0.1:8080/bar.html', type: {attr: "href"}, by: By.css(".nav > li:nth-child(2) > a")},
+          {notLikes: 'page-footer', type: {attr: "class"}, by: By.css("header")},
           {notLikes: 'foobarfoobar'}
         ]},
       ])
@@ -661,7 +705,7 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {checks: [
-          {notLikes: 'page-header', attr: "class", by: By.css("header")},
+          {notLikes: 'page-header', type: {attr: "class"}, by: By.css("header")},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -675,7 +719,7 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("The response contains `Simple selenium cheker`.") >= 0)
+        assert(err.message.indexOf("Response body contains `Simple selenium cheker`.") >= 0)
       })
     }).then(() => {
       return checker.run([

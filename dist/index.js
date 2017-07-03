@@ -427,7 +427,6 @@ exports.likes = likes;
 exports.equals = equals;
 exports.notEquals = notEquals;
 exports.notLikes = notLikes;
-exports.url = url;
 
 var _seleniumWebdriver = __webpack_require__(0);
 
@@ -445,86 +444,83 @@ function notExists(checker, check) {
   return checker.waitDissapearElement(check.notExists, check.timeout);
 }
 
-function likes(checker, check) {
-  if (check.by) {
-    return checker.waitElement(check.by, check.timeout).then(function (elem) {
-      if (check.attr) {
-        return elem.getAttribute(check.attr);
-      } else {
-        return elem.getText();
-      }
-    }).then(function (text) {
-      if (text.indexOf(check.likes) === -1) {
-        var target = check.attr ? check.attr + ' of ' : 'Text in ';
-        throw new Error(target + check.by.toString() + ' dose not like `' + check.likes + '` actual `' + text + '`');
-      }
+function deletectType(checker, check) {
+  var promise = void 0;
+  var message = void 0;
+  if (check.type === undefined && check.by) {
+    message = "Text in " + check.by;
+    promise = checker.waitElement(check.by, check.timeout).then(function (elem) {
+      return elem.getText();
+    });
+  } else if (check.type === undefined) {
+    message = "Response body";
+    promise = checker.driver.findElement(By.css('html')).then(function (elem) {
+      return elem.getAttribute('outerHTML');
+    });
+  } else if (check.type == 'url') {
+    message = "Url";
+    promise = checker.driver.getCurrentUrl();
+  } else if (check.type.hasOwnProperty('attr')) {
+    message = check.type.attr + " of " + check.by;
+    promise = checker.waitElement(check.by, check.timeout).then(function (elem) {
+      return elem.getAttribute(check.type.attr);
     });
   } else {
-    return checker.driver.findElement(By.css('html')).then(function (elem) {
-      return elem.getAttribute('outerHTML');
-    }).then(function (html) {
-      if (html.indexOf(check.likes) === -1) throw new Error("Missing text `" + check.likes + "`");
-    });
+    throw new Error('Illegal checker directive type ' + JSON.stringify(check));
   }
+
+  return { promise: promise, message: message };
+}
+
+function buildActualMessage(check, message, actual) {
+  //for response body text
+  if (check.type === undefined && check.by === undefined) {
+    message += '.';
+  } else {
+    message += ' actual `' + actual + '`.';
+  }
+
+  return message;
+}
+
+function likes(checker, check) {
+  var type = deletectType(checker, check);
+
+  return type.promise.then(function (text) {
+    if (text.indexOf(check.likes) === -1) {
+      var message = type.message + ' dose not contain `' + check.likes + '`';
+      throw new Error(buildActualMessage(check, message, text));
+    }
+  });
 }
 
 function equals(checker, check) {
-  return checker.waitElement(check.by, check.timeout).then(function (elem) {
-    if (check.attr) {
-      return elem.getAttribute(check.attr);
-    } else {
-      return elem.getText();
-    }
-  }).then(function (text) {
+  var type = deletectType(checker, check);
+
+  return type.promise.then(function (text) {
     if (text !== check.equals) {
-      var target = check.attr ? check.attr + ' of ' : 'Text in ';
-      throw new Error(target + check.by.toString() + ' is not `' + check.equals + '` actual `' + text + '`');
+      var message = type.message + ' is not `' + check.equals + '`';
+      throw new Error(buildActualMessage(check, message, text));
     }
   });
 }
 
 function notEquals(checker, check) {
-  return checker.waitElement(check.by, check.timeout).then(function (elem) {
-    if (check.attr) {
-      return elem.getAttribute(check.attr);
-    } else {
-      return elem.getText();
-    }
-  }).then(function (text) {
+  var type = deletectType(checker, check);
+
+  return type.promise.then(function (text) {
     if (text === check.notEquals) {
-      var target = check.attr ? check.attr + ' of ' : 'Text in ';
-      throw new Error(target + check.by.toString() + ' is `' + check.notEquals + '`.');
+      throw new Error(type.message + ' is `' + check.notEquals + '`.');
     }
   });
 }
 
 function notLikes(checker, check) {
-  if (check.by) {
-    return checker.waitElement(check.by, check.timeout).then(function (elem) {
-      if (check.attr) {
-        return elem.getAttribute(check.attr);
-      } else {
-        return elem.getText();
-      }
-    }).then(function (text) {
-      if (text.indexOf(check.notLikes) >= 0) {
-        var target = check.attr ? check.attr + ' of ' : 'Text in ';
-        throw new Error(target + check.by.toString() + ' contains `' + check.notLikes + '`.');
-      }
-    });
-  } else {
-    return checker.driver.findElement(By.css('html')).then(function (elem) {
-      return elem.getAttribute('outerHTML');
-    }).then(function (html) {
-      if (html.indexOf(check.notLikes) >= 0) throw new Error("The response contains `" + check.notLikes + "`.");
-    });
-  }
-}
+  var type = deletectType(checker, check);
 
-function url(checker, check) {
-  return checker.driver.getCurrentUrl().then(function (url) {
-    if (url.indexOf(check.url) === -1) {
-      throw new Error('The specified URL was not included in the actual URL');
+  return type.promise.then(function (text) {
+    if (text.indexOf(check.notLikes) >= 0) {
+      throw new Error(type.message + ' contains `' + check.notLikes + '`.');
     }
   });
 }
