@@ -603,4 +603,97 @@ test.describe('SSC', () => {
       })
     })
   })
+
+  test.it('should be able to do a negative check.', () => {
+    const checker = new Checker(driver)
+    return Promise.resolve().then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/"},
+        {checks: [
+          {notEquals: 'Bar', by: By.css(".nav > li:nth-child(1) > a")},
+          {notEquals: 'Bar', by: By.css(".nav > li:nth-child(2) > a")},
+          {notEquals: 'http://127.0.0.1:8080/bar.html', attr: "href", by: By.css(".nav > li:nth-child(2) > a")},
+          {notEquals: 'page-footer', attr: "class", by: By.css("header")},
+        ]},
+      ])
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/"},
+        {checks: [
+          {notEquals: 'Home', by: By.css(".nav > li:nth-child(1) > a")}
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("Text in By(css selector, .nav > li:nth-child(1) > a) is `Home`.") >= 0)
+      })
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/"},
+        {checks: [
+          {notEquals: 'http://127.0.0.1:8080/foo.html', attr: "href", by: By.css(".nav > li:nth-child(2) > a")},
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("href of By(css selector, .nav > li:nth-child(2) > a) is `http://127.0.0.1:8080/foo.html`.") >= 0)
+      })
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/"},
+        {checks: [
+          {notLikes: 'Bar', by: By.css(".nav > li:nth-child(1) > a")},
+          {notLikes: 'Bar', by: By.css(".nav > li:nth-child(2) > a")},
+          {notLikes: 'http://127.0.0.1:8080/bar.html', attr: "href", by: By.css(".nav > li:nth-child(2) > a")},
+          {notLikes: 'page-footer', attr: "class", by: By.css("header")},
+          {notLikes: 'foobarfoobar'}
+        ]},
+      ])
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/"},
+        {checks: [
+          {notLikes: 'Foo', by: By.css(".nav > li:nth-child(2) > a")},
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("Text in By(css selector, .nav > li:nth-child(2) > a) contains `Foo`.") >= 0)
+      })
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/"},
+        {checks: [
+          {notLikes: 'page-header', attr: "class", by: By.css("header")},
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("class of By(css selector, header) contains `page-header`.") >= 0)
+      })
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/"},
+        {checks: [
+          {notLikes: 'Simple selenium cheker'},
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("The response contains `Simple selenium cheker`.") >= 0)
+      })
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/"},
+        {checks: [
+          {notExists: By.css(".not-exists")},
+        ]},
+      ])
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/"},
+        {checks: [
+          {notExists: By.css("body")},
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("Waiting By(css selector, body) disappear from the screen.") >= 0)
+      })
+    })
+  })
 })

@@ -148,13 +148,26 @@ var Checker = function () {
   }
 
   _createClass(Checker, [{
-    key: 'waitElement',
-    value: function waitElement(locator, timeout) {
+    key: 'waitDissapearElement',
+    value: function waitDissapearElement(locator, timeout) {
       var _this = this;
 
       if (timeout === undefined) timeout = Checker.DefaultTimeout;
+      var cond = new _seleniumWebdriver2.default.Condition(locator + ' disappear from the screen.', function () {
+        return _this.driver.findElements(locator).then(function (elems) {
+          return elems.length === 0;
+        });
+      });
+      return this.driver.wait(cond, timeout);
+    }
+  }, {
+    key: 'waitElement',
+    value: function waitElement(locator, timeout) {
+      var _this2 = this;
+
+      if (timeout === undefined) timeout = Checker.DefaultTimeout;
       return this.driver.wait(until.elementLocated(locator), timeout).then(function (elem) {
-        return _this.driver.wait(until.elementIsVisible(elem), timeout);
+        return _this2.driver.wait(until.elementIsVisible(elem), timeout);
       });
     }
   }, {
@@ -163,7 +176,7 @@ var Checker = function () {
       var keys = [];
       var func = undefined;
       for (var key in functions) {
-        if (key in obj) {
+        if (obj.hasOwnProperty(key)) {
           keys.push(key);
           if (func) throw new Error("Found two identify keys. " + keys.join(','));
           func = functions[key];
@@ -200,13 +213,13 @@ var Checker = function () {
   }, {
     key: '_testGroup',
     value: function _testGroup(conditions) {
-      var _this2 = this;
+      var _this3 = this;
 
       var promise = Promise.resolve(false);
       conditions.forEach(function (item) {
         promise = promise.then(function (res) {
           if (res === true) return true; //OR
-          return _this2._testItem(item);
+          return _this3._testItem(item);
         });
       });
 
@@ -215,14 +228,14 @@ var Checker = function () {
   }, {
     key: '_testExecif',
     value: function _testExecif(conditions) {
-      var _this3 = this;
+      var _this4 = this;
 
       var promise = Promise.resolve(true);
       if (conditions) {
         conditions.forEach(function (group) {
           promise = promise.then(function (res) {
             if (res === false) return false; //AND
-            return _this3._testGroup(group);
+            return _this4._testGroup(group);
           });
         });
       }
@@ -232,7 +245,7 @@ var Checker = function () {
   }, {
     key: 'run',
     value: function run(scenario, promise) {
-      var _this4 = this;
+      var _this5 = this;
 
       if (!promise) {
         promise = Promise.resolve();
@@ -240,7 +253,7 @@ var Checker = function () {
 
       scenario.forEach(function (item) {
         if (item.scenario) {
-          promise = _this4.run(item.scenario, promise);
+          promise = _this5.run(item.scenario, promise);
         } else {
           //directive count check.
           var directives = Object.keys(item);
@@ -253,30 +266,30 @@ var Checker = function () {
             throw new Error("Illegal directive object. " + JSON.stringify(item));
           }
 
-          item = _this4._applyPlaceholder(item);
+          item = _this5._applyPlaceholder(item);
 
           //execif
           if (item.execif) {
             promise = promise.then(function () {
-              return _this4._testExecif(item.execif);
+              return _this5._testExecif(item.execif);
             });
           } else if (item.url) {
             promise = promise.then(function (res) {
               if (res === false) return false;
-              return _this4.driver.get(item.url);
+              return _this5.driver.get(item.url);
             });
           } else if (item.actions) {
             item.actions.forEach(function (action) {
               promise = promise.then(function (res) {
                 if (res === false) return false;
-                return _this4._detectFunction(actions, action)(_this4, action);
+                return _this5._detectFunction(actions, action)(_this5, action);
               });
             });
           } else if (item.checks) {
             item.checks.forEach(function (check) {
               promise = promise.then(function (res) {
                 if (res === false) return false;
-                return _this4._detectFunction(checks, check)(_this4, check);
+                return _this5._detectFunction(checks, check)(_this5, check);
               });
             });
           }
@@ -284,9 +297,9 @@ var Checker = function () {
           //Check javascript and response errors using browser logs.
           promise = promise.then(function (res) {
             if (res === false) return false;
-            return _this4.driver.getCurrentUrl().then(function (url) {
+            return _this5.driver.getCurrentUrl().then(function (url) {
               return new Promise(function (resolve) {
-                _this4.driver.manage().logs().get('browser').then(function (logs) {
+                _this5.driver.manage().logs().get('browser').then(function (logs) {
                   logs.forEach(function (log) {
                     //javascript
                     if (Checker.JsErrorStrings.some(function (err) {
@@ -312,13 +325,13 @@ var Checker = function () {
           });
 
           //Format the error.
-          if (_this4.debug === false) {
+          if (_this5.debug === false) {
             promise = promise.catch(function (err) {
-              return _this4.driver.findElement(By.css('html')).then(function (elem) {
+              return _this5.driver.findElement(By.css('html')).then(function (elem) {
                 return elem.getAttribute('outerHTML');
               }).then(function (html) {
-                return _this4.driver.getCurrentUrl().then(function (url) {
-                  var data = Object.assign({}, _this4.data);
+                return _this5.driver.getCurrentUrl().then(function (url) {
+                  var data = Object.assign({}, _this5.data);
                   delete data.next;
                   throw new Error(url + "\n" + "JSON: " + JSON.stringify(item) + "\n" + "Message: " + err.message + "\n" + html);
                 });
@@ -336,7 +349,7 @@ var Checker = function () {
     key: '_applyPlaceholderToValue',
     value: function _applyPlaceholderToValue(value) {
       if (value.placeholderKey) {
-        if (value.placeholderKey in this.placeholder) {
+        if (this.placeholder.hasOwnProperty(value.placeholderKey)) {
           return value.apply(this.placeholder[value.placeholderKey]);
         } else {
           throw new Error('Missing ' + value.placeholderKey + ' key in placeholder.');
@@ -348,16 +361,16 @@ var Checker = function () {
   }, {
     key: '_applyPlaceholderToArray',
     value: function _applyPlaceholderToArray(elems) {
-      var _this5 = this;
+      var _this6 = this;
 
       var newElems = [];
       elems.forEach(function (elem) {
         if (elem.forEach) {
-          newElems.push(_this5._applyPlaceholderToArray(elem));
+          newElems.push(_this6._applyPlaceholderToArray(elem));
         } else {
           var newElem = {};
           for (var elemKey in elem) {
-            newElem[elemKey] = _this5._applyPlaceholderToValue(elem[elemKey]);
+            newElem[elemKey] = _this6._applyPlaceholderToValue(elem[elemKey]);
           }
           newElems.push(newElem);
         }
@@ -409,8 +422,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.exists = exists;
+exports.notExists = notExists;
 exports.likes = likes;
 exports.equals = equals;
+exports.notEquals = notEquals;
+exports.notLikes = notLikes;
 exports.url = url;
 
 var _seleniumWebdriver = __webpack_require__(0);
@@ -423,6 +439,10 @@ var By = _seleniumWebdriver2.default.By;
 
 function exists(checker, check) {
   return checker.waitElement(check.exists, check.timeout);
+}
+
+function notExists(checker, check) {
+  return checker.waitDissapearElement(check.notExists, check.timeout);
 }
 
 function likes(checker, check) {
@@ -461,6 +481,44 @@ function equals(checker, check) {
       throw new Error(target + check.by.toString() + ' is not `' + check.equals + '` actual `' + text + '`');
     }
   });
+}
+
+function notEquals(checker, check) {
+  return checker.waitElement(check.by, check.timeout).then(function (elem) {
+    if (check.attr) {
+      return elem.getAttribute(check.attr);
+    } else {
+      return elem.getText();
+    }
+  }).then(function (text) {
+    if (text === check.notEquals) {
+      var target = check.attr ? check.attr + ' of ' : 'Text in ';
+      throw new Error(target + check.by.toString() + ' is `' + check.notEquals + '`.');
+    }
+  });
+}
+
+function notLikes(checker, check) {
+  if (check.by) {
+    return checker.waitElement(check.by, check.timeout).then(function (elem) {
+      if (check.attr) {
+        return elem.getAttribute(check.attr);
+      } else {
+        return elem.getText();
+      }
+    }).then(function (text) {
+      if (text.indexOf(check.notLikes) >= 0) {
+        var target = check.attr ? check.attr + ' of ' : 'Text in ';
+        throw new Error(target + check.by.toString() + ' contains `' + check.notLikes + '`.');
+      }
+    });
+  } else {
+    return checker.driver.findElement(By.css('html')).then(function (elem) {
+      return elem.getAttribute('outerHTML');
+    }).then(function (html) {
+      if (html.indexOf(check.notLikes) >= 0) throw new Error("The response contains `" + check.notLikes + "`.");
+    });
+  }
 }
 
 function url(checker, check) {

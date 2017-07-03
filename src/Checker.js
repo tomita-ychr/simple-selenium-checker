@@ -11,18 +11,26 @@ export default class Checker
     this.debug = Checker.Debug
   }
 
+  waitDissapearElement(locator, timeout){
+    if(timeout === undefined) timeout = Checker.DefaultTimeout;
+    const cond = new webdriver.Condition(locator + ' disappear from the screen.', () => {
+      return this.driver.findElements(locator).then(elems => elems.length === 0)
+    })
+    return this.driver.wait(cond, timeout)
+  }
+
   waitElement(locator, timeout){
     if(timeout === undefined) timeout = Checker.DefaultTimeout;
     return this.driver
       .wait(until.elementLocated(locator), timeout)
-      .then(elem => this.driver.wait(until.elementIsVisible(elem), timeout));
+      .then(elem => this.driver.wait(until.elementIsVisible(elem), timeout))
   }
 
   _detectFunction(functions, obj){
     const keys = []
     let func = undefined
     for(let key in functions){
-      if(key in obj){
+      if(obj.hasOwnProperty(key)){
         keys.push(key)
         if(func) throw new Error("Found two identify keys. " + keys.join(','))
         func = functions[key]
@@ -179,7 +187,7 @@ export default class Checker
 
   _applyPlaceholderToValue(value){
     if(value.placeholderKey){
-      if(value.placeholderKey in this.placeholder){
+      if(this.placeholder.hasOwnProperty(value.placeholderKey)){
         return value.apply(this.placeholder[value.placeholderKey])
       } else {
         throw new Error('Missing ' + value.placeholderKey + ' key in placeholder.')
