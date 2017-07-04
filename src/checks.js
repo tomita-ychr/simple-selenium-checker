@@ -1,4 +1,5 @@
 import webdriver from 'selenium-webdriver';
+import util from 'util';
 const By = webdriver.By;
 const Promise = webdriver.promise;
 
@@ -7,91 +8,85 @@ export function exists(checker, check){
 }
 
 export function notExists(checker, check){
-  return checker.waitDissapearElement(check.notExists, check.timeout)
+  return checker.waitDissapearElements(check.notExists, check.timeout)
 }
 
-function deletectType(checker, check){
-  let promise
-  let message;
-  if(check.type === undefined && check.by){
-    message = "Text in " + check.by
-    promise = checker.waitElement(check.by, check.timeout)
+function createPromise(checker, check){
+  if(check.type === undefined){
+    return checker.waitElement(check.by, check.timeout)
       .then(elem => elem.getText())
-  } else if(check.type === undefined){
-    message = "Response body"
-    promise = checker.driver.findElement(By.css('html'))
+  } else if(check.type === 'html'){
+    return checker.driver.findElement(By.css('html'))
       .then(elem => elem.getAttribute('outerHTML'))
   } else if(check.type == 'checkbox'){
-    message = "Checkbox " + check.by
-    promise = checker.waitElements(check.by, check.count, check.timeout)
+    return checker.waitElements(check.by, check.count, check.timeout)
       .then(elems => Promise.map(elems, elem => elem.isSelected().then(selected => {
         return {elem: elem, selected: selected}
       })))
       .then(composits => composits.filter(composit => composit.selected).map(composit => composit.elem))
       .then(elems => Promise.map(elems, elem => elem.getAttribute("value")))
   } else if(check.type == 'url'){
-    message = "Url"
-    promise = checker.driver.getCurrentUrl()
+    return checker.driver.getCurrentUrl()
   } else if(check.type.hasOwnProperty('attr')) {
-    message = check.type.attr + " of " + check.by
-    promise = checker.waitElement(check.by, check.timeout)
+    return checker.waitElement(check.by, check.timeout)
       .then(elem => elem.getAttribute(check.type.attr))
   } else {
     throw new Error('Illegal checker directive type ' + JSON.stringify(check))
   }
-
-  return {promise, message}
 }
 
-function buildActualMessage(check, message, actual){
-  //for response body text
-  if(check.type === undefined && check.by === undefined){
-    message += '.'
+function createErrorMessage(check, predicate, expect, actual){
+  if(check.type === undefined){
+    return util.format("Text in %s %s `%s`%s.", check.by, predicate, expect, actual ? util.format(' actual `%s`', actual) : '')
+  } else if(check.type === 'html'){
+    return util.format("Response body %s `%s`.", predicate, expect)
+  } else if(check.type == 'checkbox'){
+    return util.format("Checkbox %s %s `%s`%s.", check.by, predicate, expect, actual ? util.format(' actual `%s`', actual) : '')
+  } else if(check.type == 'url'){
+    return util.format("Url %s `%s`%s.", predicate, expect, actual ? util.format(' actual `%s`', actual) : '')
+  } else if(check.type.hasOwnProperty('attr')) {
+    return util.format("%s of %s %s `%s`%s.", check.type.attr, check.by, predicate, expect, actual ? util.format(' actual `%s`', actual) : '')
   } else {
-    message += ' actual `' + actual + '`.'
+    throw new Error('Illegal checker directive type ' + JSON.stringify(check))
   }
-
-  return message
 }
 
 export function likes(checker, check){
-  const type = deletectType(checker, check)
+  const promise = createPromise(checker, check)
 
-  return type.promise.then(text => {
+  return promise.then(text => {
     if(text.indexOf(check.likes) === -1){
-      let message = type.message + ' dose not contain `' + check.likes + '`'
-      throw new Error(buildActualMessage(check, message, text))
+      throw new Error(createErrorMessage(check, 'dose not contain', check.likes, text))
     }
   })
 }
 
 export function equals(checker, check){
-  const type = deletectType(checker, check)
+  const promise = createPromise(checker, check)
 
-  return type.promise.then(text => {
+  return promise.then(text => {
     if(text !== check.equals){
-      let message = type.message + ' is not `' + check.equals + '`'
-      throw new Error(buildActualMessage(check, message, text))
+      throw new Error(createErrorMessage(check, 'is not', check.equals, text))
     }
   })
 }
 
 export function notEquals(checker, check){
-  const type = deletectType(checker, check)
+  const promise = createPromise(checker, check)
 
-  return type.promise.then(text => {
+  return promise.then(text => {
     if(text === check.notEquals){
-      throw new Error(type.message + ' is `' + check.notEquals + '`.')
+      throw new Error(createErrorMessage(check, 'is', check.notEquals))
     }
   })
 }
 
 export function notLikes(checker, check){
-  const type = deletectType(checker, check)
+  const promise = createPromise(checker, check)
 
-  return type.promise.then(text => {
+  return promise.then(text => {
     if(text.indexOf(check.notLikes) >= 0){
-      throw new Error(type.message + ' contains `' + check.notLikes + '`.')
+      throw new Error(createErrorMessage(check, 'contains', check.notLikes))
     }
   })
 }
