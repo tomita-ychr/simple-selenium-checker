@@ -740,4 +740,16 @@ test.describe('SSC', () => {
       })
     })
   })
+
+  test.it('should handle checkboxes.', () => {
+    const checker = new Checker(driver)
+    return Promise.resolve().then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/options.html"},
+        {checks: [
+          {equals: ['checkbox2'], type: 'checkbox', by: By.css(".checkbox-inline input[name=checkbox]")},
+        ]},
+      ])
+    })
+  })
 })

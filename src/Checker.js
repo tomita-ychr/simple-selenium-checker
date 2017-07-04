@@ -11,10 +11,25 @@ export default class Checker
     this.debug = Checker.Debug
   }
 
-  waitDissapearElement(locator, timeout){
+  waitDissapearElements(locator, timeout){
     if(timeout === undefined) timeout = Checker.DefaultTimeout;
     const cond = new webdriver.Condition(locator + ' disappear from the screen.', () => {
       return this.driver.findElements(locator).then(elems => elems.length === 0)
+    })
+    return this.driver.wait(cond, timeout)
+  }
+
+  waitElements(locator, count, timeout){
+    if(count === undefined) count = 1
+    if(timeout === undefined) timeout = Checker.DefaultTimeout
+    const cond = new webdriver.Condition(count + ' ' + locator + ' ' + count === 1 ? 'is' : 'are' + ' found.', () => {
+      return this.driver.findElements(locator).then(elems => {
+        if(elems.length >= count){
+          return elems
+        }
+
+        return false
+      })
     })
     return this.driver.wait(cond, timeout)
   }

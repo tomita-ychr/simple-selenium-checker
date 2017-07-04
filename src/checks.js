@@ -1,5 +1,6 @@
 import webdriver from 'selenium-webdriver';
 const By = webdriver.By;
+const Promise = webdriver.promise;
 
 export function exists(checker, check){
   return checker.waitElement(check.exists, check.timeout)
@@ -20,6 +21,14 @@ function deletectType(checker, check){
     message = "Response body"
     promise = checker.driver.findElement(By.css('html'))
       .then(elem => elem.getAttribute('outerHTML'))
+  } else if(check.type == 'checkbox'){
+    message = "Checkbox " + check.by
+    promise = checker.waitElements(check.by, check.count, check.timeout)
+      .then(elems => Promise.map(elems, elem => elem.isSelected().then(selected => {
+        return {elem: elem, selected: selected}
+      })))
+      .then(composits => composits.filter(composit => composit.selected).map(composit => composit.elem))
+      .then(elems => Promise.map(elems, elem => elem.getAttribute("value")))
   } else if(check.type == 'url'){
     message = "Url"
     promise = checker.driver.getCurrentUrl()

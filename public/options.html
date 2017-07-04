@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FormSend</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
+<body>
+  <div class="container">
+    <form action="index.html" method="get">
+      <div class="form-group">
+        <label class="checkbox-inline">
+          <input name="checkbox" type="checkbox"  value="checkbox1"> checkbox1
+        </label>
+        <label class="checkbox-inline">
+          <input name="checkbox" type="checkbox"  value="checkbox2" checked> checkbox2
+        </label>
+        <label class="checkbox-inline">
+          <input name="checkbox" type="checkbox"  value="checkbox3"> checkbox3
+        </label>
+      </div>
+      <div class="form-group">
+        <label class="radio-inline">
+          <input name="radio" type="radio"  value="radio1"> radio1
+        </label>
+        <label class="radio-inline">
+          <input name="radio" type="radio"  value="radio2" checked> radio2
+        </label>
+        <label class="radio-inline">
+          <input name="radio" type="radio"  value="radio3"> radio3
+        </label>
+      </div>
+      <div class="form-group">
+        <select class="select-single form-control" name="select-single">
+          <option value="option1">option1</option>
+          <option value="option2" selected>option2</option>
+          <option value="option3">option3</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <select class="select-multiple form-control" name="select-multiple" multiple>
+          <option value="option1">option1</option>
+          <option value="option2" selected>option2</option>
+          <option value="option3">option3</option>
+        </select>
+      </div>
+      <input class="submit" type="submit" name="send" value="send">
+    </form>
+  </div>
+</body>
+</html>
