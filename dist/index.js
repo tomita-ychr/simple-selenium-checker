@@ -443,6 +443,8 @@ exports.exists = exists;
 exports.notExists = notExists;
 exports.likes = likes;
 exports.equals = equals;
+exports.unchecked = unchecked;
+exports.checked = checked;
 exports.notEquals = notEquals;
 exports.notLikes = notLikes;
 
@@ -458,14 +460,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var By = _seleniumWebdriver2.default.By;
 var Promise = _seleniumWebdriver2.default.promise;
-
-function exists(checker, check) {
-  return checker.waitElement(check.exists, check.timeout);
-}
-
-function notExists(checker, check) {
-  return checker.waitDissapearElements(check.notExists, check.timeout);
-}
 
 function createPromise(checker, check) {
   if (check.type === undefined) {
@@ -511,7 +505,7 @@ function createErrorMessage(check, predicate, expect, actual) {
   } else if (check.type === 'html') {
     return _util2.default.format("Response body %s `%s`.", predicate, expect);
   } else if (check.type == 'checkbox') {
-    return _util2.default.format("Checkbox %s %s `%s`%s.", check.by, predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
+    return _util2.default.format("%s %s %s `%s`%s.", check.type, check.by, predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
   } else if (check.type == 'url') {
     return _util2.default.format("Url %s `%s`%s.", predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
   } else if (check.type.hasOwnProperty('attr')) {
@@ -521,30 +515,64 @@ function createErrorMessage(check, predicate, expect, actual) {
   }
 }
 
-function likes(checker, check) {
-  var promise = createPromise(checker, check);
+function exists(checker, check) {
+  return checker.waitElement(check.exists, check.timeout);
+}
 
-  return promise.then(function (text) {
+function notExists(checker, check) {
+  return checker.waitDissapearElements(check.notExists, check.timeout);
+}
+
+function likes(checker, check) {
+  return createPromise(checker, check).then(function (text) {
     if (text.indexOf(check.likes) === -1) {
       throw new Error(createErrorMessage(check, 'dose not contain', check.likes, text));
     }
   });
 }
 
-function equals(checker, check) {
-  var promise = createPromise(checker, check);
+function compareArray(array1, array2) {
+  return JSON.stringify(array1.sort()) === JSON.stringify(array2.sort());
+}
 
-  return promise.then(function (text) {
-    if (text !== check.equals) {
-      throw new Error(createErrorMessage(check, 'is not', check.equals, text));
+function equals(checker, check) {
+  return createPromise(checker, check).then(function (values) {
+    if (check.type == 'checkbox') {
+      if (!compareArray(values, check.equals)) {
+        throw new Error(createErrorMessage(check, 'is not', check.equals, values));
+      }
+    } else {
+      if (values !== check.equals) {
+        throw new Error(createErrorMessage(check, 'is not', check.equals, values));
+      }
     }
   });
 }
 
-function notEquals(checker, check) {
-  var promise = createPromise(checker, check);
+function unchecked(checker, check) {
+  check = Object.assign(check, { type: 'checkbox' });
+  return createPromise(checker, check).then(function (values) {
+    check.unchecked.forEach(function (uncheckedValue) {
+      if (values.indexOf(uncheckedValue) >= 0) {
+        throw new Error(createErrorMessage(check, 'is checked', check.unchecked));
+      }
+    });
+  });
+}
 
-  return promise.then(function (text) {
+function checked(checker, check) {
+  check = Object.assign(check, { type: 'checkbox' });
+  return createPromise(checker, check).then(function (values) {
+    check.checked.forEach(function (checkedValue) {
+      if (values.indexOf(checkedValue) === -1) {
+        throw new Error(createErrorMessage(check, 'is not checked', check.checked, values));
+      }
+    });
+  });
+}
+
+function notEquals(checker, check) {
+  return createPromise(checker, check).then(function (text) {
     if (text === check.notEquals) {
       throw new Error(createErrorMessage(check, 'is', check.notEquals));
     }
@@ -552,9 +580,7 @@ function notEquals(checker, check) {
 }
 
 function notLikes(checker, check) {
-  var promise = createPromise(checker, check);
-
-  return promise.then(function (text) {
+  return createPromise(checker, check).then(function (text) {
     if (text.indexOf(check.notLikes) >= 0) {
       throw new Error(createErrorMessage(check, 'contains', check.notLikes));
     }
@@ -573,7 +599,17 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.click = click;
 exports.sendKeys = sendKeys;
+exports.check = check;
 exports.clear = clear;
+
+var _seleniumWebdriver = __webpack_require__(0);
+
+var _seleniumWebdriver2 = _interopRequireDefault(_seleniumWebdriver);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Promise = _seleniumWebdriver2.default.promise;
+
 function click(checker, action) {
   return checker.waitElement(action.click, action.timeout).then(function (elem) {
     return elem.click();
@@ -586,10 +622,52 @@ function sendKeys(checker, action) {
   });
 }
 
-function clear(checker, action) {
-  return checker.waitElement(action.clear, action.timeout).then(function (elem) {
-    return elem.clear();
+function check(checker, action) {
+  return checker.waitElements(action.check, action.count, action.timeout).then(function (elems) {
+    return Promise.map(elems, function (elem) {
+      return elem.getAttribute('value').then(function (value) {
+        return { elem: elem, value: value };
+      });
+    });
+  }).then(function (composits) {
+    return Promise.map(composits, function (composit) {
+      return composit.elem.isSelected().then(function (isSelected) {
+        return { elem: composit.elem, value: composit.value, isSelected: isSelected };
+      });
+    });
+  }).then(function (composits) {
+    return composits.filter(function (composit) {
+      return !composit.isSelected && action.values.indexOf(composit.value) >= 0;
+    });
+  }).then(function (composits) {
+    return Promise.map(composits, function (composit) {
+      return composit.elem.click();
+    });
   });
+}
+
+function clear(checker, action) {
+  if (action.type == 'checkbox') {
+    return checker.waitElements(action.clear, action.count, action.timeout).then(function (elems) {
+      return Promise.map(elems, function (elem) {
+        return elem.isSelected().then(function (isSelected) {
+          return { elem: elem, isSelected: isSelected };
+        });
+      });
+    }).then(function (composits) {
+      return composits.filter(function (composit) {
+        return composit.isSelected;
+      });
+    }).then(function (composits) {
+      return Promise.map(composits, function (composit) {
+        return composit.elem.click();
+      });
+    });
+  } else {
+    return checker.waitElement(action.clear, action.timeout).then(function (elem) {
+      return elem.clear();
+    });
+  }
 }
 
 /***/ }),

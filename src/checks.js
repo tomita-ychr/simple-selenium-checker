@@ -3,14 +3,6 @@ import util from 'util';
 const By = webdriver.By;
 const Promise = webdriver.promise;
 
-export function exists(checker, check){
-  return checker.waitElement(check.exists, check.timeout)
-}
-
-export function notExists(checker, check){
-  return checker.waitDissapearElements(check.notExists, check.timeout)
-}
-
 function createPromise(checker, check){
   if(check.type === undefined){
     return checker.waitElement(check.by, check.timeout)
@@ -41,7 +33,7 @@ function createErrorMessage(check, predicate, expect, actual){
   } else if(check.type === 'html'){
     return util.format("Response body %s `%s`.", predicate, expect)
   } else if(check.type == 'checkbox'){
-    return util.format("Checkbox %s %s `%s`%s.", check.by, predicate, expect, actual ? util.format(' actual `%s`', actual) : '')
+    return util.format("%s %s %s `%s`%s.", check.type, check.by, predicate, expect, actual ? util.format(' actual `%s`', actual) : '')
   } else if(check.type == 'url'){
     return util.format("Url %s `%s`%s.", predicate, expect, actual ? util.format(' actual `%s`', actual) : '')
   } else if(check.type.hasOwnProperty('attr')) {
@@ -51,30 +43,64 @@ function createErrorMessage(check, predicate, expect, actual){
   }
 }
 
-export function likes(checker, check){
-  const promise = createPromise(checker, check)
+export function exists(checker, check){
+  return checker.waitElement(check.exists, check.timeout)
+}
 
-  return promise.then(text => {
+export function notExists(checker, check){
+  return checker.waitDissapearElements(check.notExists, check.timeout)
+}
+
+export function likes(checker, check){
+  return createPromise(checker, check).then(text => {
     if(text.indexOf(check.likes) === -1){
       throw new Error(createErrorMessage(check, 'dose not contain', check.likes, text))
     }
   })
 }
 
-export function equals(checker, check){
-  const promise = createPromise(checker, check)
+function compareArray(array1, array2){
+  return JSON.stringify(array1.sort()) === JSON.stringify(array2.sort())
+}
 
-  return promise.then(text => {
-    if(text !== check.equals){
-      throw new Error(createErrorMessage(check, 'is not', check.equals, text))
+export function equals(checker, check){
+  return createPromise(checker, check).then(values => {
+    if(check.type == 'checkbox'){
+      if(!compareArray(values, check.equals)){
+        throw new Error(createErrorMessage(check, 'is not', check.equals, values))
+      }
+    } else {
+      if(values !== check.equals){
+        throw new Error(createErrorMessage(check, 'is not', check.equals, values))
+      }
     }
   })
 }
 
-export function notEquals(checker, check){
-  const promise = createPromise(checker, check)
+export function unchecked(checker, check){
+  check = Object.assign(check, {type: 'checkbox'})
+  return createPromise(checker, check).then(values => {
+    check.unchecked.forEach(uncheckedValue => {
+      if(values.indexOf(uncheckedValue) >= 0){
+        throw new Error(createErrorMessage(check, 'is checked', check.unchecked))
+      }
+    })
+  })
+}
 
-  return promise.then(text => {
+export function checked(checker, check){
+  check = Object.assign(check, {type: 'checkbox'})
+  return createPromise(checker, check).then(values => {
+    check.checked.forEach(checkedValue => {
+      if(values.indexOf(checkedValue) === -1){
+        throw new Error(createErrorMessage(check, 'is not checked', check.checked, values))
+      }
+    })
+  })
+}
+
+export function notEquals(checker, check){
+  return createPromise(checker, check).then(text => {
     if(text === check.notEquals){
       throw new Error(createErrorMessage(check, 'is', check.notEquals))
     }
@@ -82,9 +108,7 @@ export function notEquals(checker, check){
 }
 
 export function notLikes(checker, check){
-  const promise = createPromise(checker, check)
-
-  return promise.then(text => {
+  return createPromise(checker, check).then(text => {
     if(text.indexOf(check.notLikes) >= 0){
       throw new Error(createErrorMessage(check, 'contains', check.notLikes))
     }

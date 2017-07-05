@@ -741,15 +741,90 @@ test.describe('SSC', () => {
     })
   })
 
-  // test.it('should handle checkboxes.', () => {
-  //   const checker = new Checker(driver)
-  //   return Promise.resolve().then(() => {
-  //     return checker.run([
-  //       {url: "http://127.0.0.1:8080/options.html"},
-  //       {checks: [
-  //         {equals: ['checkbox2'], type: 'checkbox', by: By.css(".checkbox-inline input[name=checkbox]")},
-  //       ]},
-  //     ])
-  //   })
-  // })
+  test.it('should handle checkboxes.', () => {
+    const checker = new Checker(driver)
+    return Promise.resolve().then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/options.html"},
+        {checks: [
+          {equals: ['checkbox2'], type: 'checkbox', by: By.css(".checkbox-inline input[name=checkbox]")},
+        ]},
+      ])
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/options.html"},
+        {checks: [
+          {equals: ['checkbox1', 'checkbox2'], type: 'checkbox', by: By.css(".checkbox-inline input[name=checkbox]")},
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("checkbox By(css selector, .checkbox-inline input[name=checkbox]) is not `checkbox1,checkbox2` actual `checkbox2`.") >= 0)
+      })
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/options.html"},
+        {actions: [
+          {clear: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox'},
+        ]},
+        {checks: [
+          {equals: [], type: 'checkbox', by: By.css(".checkbox-inline input[name=checkbox]")},
+          {unchecked: ['checkbox1'], by: By.css(".checkbox-inline input[name=checkbox]")}
+        ]},
+        {actions: [
+          {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox3']},
+        ]},
+        {checks: [
+          {equals: ['checkbox1', 'checkbox3'], type: 'checkbox', by: By.css(".checkbox-inline input[name=checkbox]")},
+          {checked: ['checkbox1'], by: By.css(".checkbox-inline input[name=checkbox]")},
+          {checked: ['checkbox3'], by: By.css(".checkbox-inline input[name=checkbox]")}
+        ]},
+        {actions: [
+          {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox2']},
+        ]},
+        {checks: [
+          {equals: ['checkbox1', 'checkbox2', 'checkbox3'], type: 'checkbox', by: By.css(".checkbox-inline input[name=checkbox]")},
+        ]},
+        {actions: [
+          {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']},
+        ]},
+        {checks: [
+          {equals: ['checkbox1', 'checkbox2', 'checkbox3'], type: 'checkbox', by: By.css(".checkbox-inline input[name=checkbox]")},
+        ]},
+      ])
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/options.html"},
+        {actions: [
+          {clear: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox'},
+        ]},
+        {actions: [
+          {clear: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox'},
+          {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']},
+        ]},
+        {checks: [
+          {unchecked: ['checkbox1'], by: By.css(".checkbox-inline input[name=checkbox]")}
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("checkbox By(css selector, .checkbox-inline input[name=checkbox]) is checked `checkbox1`.") >= 0)
+      })
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/options.html"},
+        {actions: [
+          {clear: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox'},
+        ]},
+        {actions: [
+          {clear: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox'},
+          {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']},
+        ]},
+        {checks: [
+          {checked: ['checkbox2'], by: By.css(".checkbox-inline input[name=checkbox]")}
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("checkbox By(css selector, .checkbox-inline input[name=checkbox]) is not checked `checkbox2` actual `checkbox1`.") >= 0)
+      })
+    })
+  })
 })
