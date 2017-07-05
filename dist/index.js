@@ -488,6 +488,26 @@ function createPromise(checker, check) {
         return elem.getAttribute("value");
       });
     });
+  } else if (check.type == 'radio') {
+    return checker.waitElements(check.by, check.count, check.timeout).then(function (elems) {
+      return Promise.map(elems, function (elem) {
+        return elem.isSelected().then(function (selected) {
+          return { elem: elem, selected: selected };
+        });
+      });
+    }).then(function (composits) {
+      return composits.filter(function (composit) {
+        return composit.selected;
+      }).map(function (composit) {
+        return composit.elem;
+      });
+    }).then(function (elems) {
+      return Promise.map(elems, function (elem) {
+        return elem.getAttribute("value");
+      });
+    }).then(function (values) {
+      return values[0];
+    });
   } else if (check.type == 'url') {
     return checker.driver.getCurrentUrl();
   } else if (check.type.hasOwnProperty('attr')) {
@@ -504,7 +524,7 @@ function createErrorMessage(check, predicate, expect, actual) {
     return _util2.default.format("Text in %s %s `%s`%s.", check.by, predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
   } else if (check.type === 'html') {
     return _util2.default.format("Response body %s `%s`.", predicate, expect);
-  } else if (check.type == 'checkbox') {
+  } else if (check.type == 'checkbox' || check.type == 'radio') {
     return _util2.default.format("%s %s %s `%s`%s.", check.type, check.by, predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
   } else if (check.type == 'url') {
     return _util2.default.format("Url %s `%s`%s.", predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
@@ -606,6 +626,10 @@ var _seleniumWebdriver = __webpack_require__(0);
 
 var _seleniumWebdriver2 = _interopRequireDefault(_seleniumWebdriver);
 
+var _util = __webpack_require__(6);
+
+var _util2 = _interopRequireDefault(_util);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Promise = _seleniumWebdriver2.default.promise;
@@ -623,27 +647,47 @@ function sendKeys(checker, action) {
 }
 
 function check(checker, action) {
-  return checker.waitElements(action.check, action.count, action.timeout).then(function (elems) {
-    return Promise.map(elems, function (elem) {
-      return elem.getAttribute('value').then(function (value) {
-        return { elem: elem, value: value };
+  if (action.type == 'checkbox') {
+    return checker.waitElements(action.check, action.count, action.timeout).then(function (elems) {
+      return Promise.map(elems, function (elem) {
+        return elem.getAttribute('value').then(function (value) {
+          return { elem: elem, value: value };
+        });
+      });
+    }).then(function (composits) {
+      return Promise.map(composits, function (composit) {
+        return composit.elem.isSelected().then(function (isSelected) {
+          return { elem: composit.elem, value: composit.value, isSelected: isSelected };
+        });
+      });
+    }).then(function (composits) {
+      return composits.filter(function (composit) {
+        return !composit.isSelected && action.values.indexOf(composit.value) >= 0;
+      });
+    }).then(function (composits) {
+      return Promise.map(composits, function (composit) {
+        return composit.elem.click();
       });
     });
-  }).then(function (composits) {
-    return Promise.map(composits, function (composit) {
-      return composit.elem.isSelected().then(function (isSelected) {
-        return { elem: composit.elem, value: composit.value, isSelected: isSelected };
+  } else if (action.type == 'radio') {
+    return checker.waitElements(action.check, action.count, action.timeout).then(function (elems) {
+      return Promise.map(elems, function (elem) {
+        return elem.getAttribute('value').then(function (value) {
+          return { elem: elem, value: value };
+        });
       });
+    }).then(function (composits) {
+      return composits.filter(function (composit) {
+        return composit.value == action.value;
+      });
+    }).then(function (composits) {
+      if (composits.length == 0) {
+        throw new Error(_util2.default.format("Radio button with `%s` were not found in %s.", action.value, action.check));
+      }
+
+      return composits[0].elem.click();
     });
-  }).then(function (composits) {
-    return composits.filter(function (composit) {
-      return !composit.isSelected && action.values.indexOf(composit.value) >= 0;
-    });
-  }).then(function (composits) {
-    return Promise.map(composits, function (composit) {
-      return composit.elem.click();
-    });
-  });
+  }
 }
 
 function clear(checker, action) {

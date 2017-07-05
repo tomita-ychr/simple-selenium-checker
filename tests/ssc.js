@@ -827,4 +827,56 @@ test.describe('SSC', () => {
       })
     })
   })
+
+    test.it('should handle radio buttons.', () => {
+    const checker = new Checker(driver)
+    return Promise.resolve().then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/options.html"},
+        {checks: [
+          {equals: 'radio2', type: 'radio', by: By.css(".radio-inline input[name=radio]")},
+        ]},
+      ])
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/options.html"},
+        {checks: [
+          {equals: 'radio1', type: 'radio', by: By.css(".radio-inline input[name=radio]")},
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("radio By(css selector, .radio-inline input[name=radio]) is not `radio1` actual `radio2`.") >= 0)
+      })
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/options.html"},
+        {actions: [
+          {check: By.css(".radio-inline input[name=radio]"), type: 'radio', value: 'radio1'},
+        ]},
+        {checks: [
+          {equals: 'radio1', type: 'radio', by: By.css(".radio-inline input[name=radio]")},
+        ]},
+        {actions: [
+          {check: By.css(".radio-inline input[name=radio]"), type: 'radio', value: 'radio99'},
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("Radio button with `radio99` were not found in By(css selector, .radio-inline input[name=radio]).") >= 0)
+      })
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/options.html"},
+        {actions: [
+          {check: By.css(".radio-inline input[name=radio]"), type: 'radio', value: 'radio1'},
+        ]},
+        {checks: [
+          {notEquals: 'radio2', type: 'radio', by: By.css(".radio-inline input[name=radio]")},
+          {notEquals: 'radio1', type: 'radio', by: By.css(".radio-inline input[name=radio]")},
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("radio By(css selector, .radio-inline input[name=radio]) is `radio1`.") >= 0)
+      })
+    })
+  })
 })

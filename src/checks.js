@@ -17,6 +17,14 @@ function createPromise(checker, check){
       })))
       .then(composits => composits.filter(composit => composit.selected).map(composit => composit.elem))
       .then(elems => Promise.map(elems, elem => elem.getAttribute("value")))
+  } else if(check.type == 'radio'){
+    return checker.waitElements(check.by, check.count, check.timeout)
+      .then(elems => Promise.map(elems, elem => elem.isSelected().then(selected => {
+        return {elem: elem, selected: selected}
+      })))
+      .then(composits => composits.filter(composit => composit.selected).map(composit => composit.elem))
+      .then(elems => Promise.map(elems, elem => elem.getAttribute("value")))
+      .then(values => values[0])
   } else if(check.type == 'url'){
     return checker.driver.getCurrentUrl()
   } else if(check.type.hasOwnProperty('attr')) {
@@ -32,7 +40,7 @@ function createErrorMessage(check, predicate, expect, actual){
     return util.format("Text in %s %s `%s`%s.", check.by, predicate, expect, actual ? util.format(' actual `%s`', actual) : '')
   } else if(check.type === 'html'){
     return util.format("Response body %s `%s`.", predicate, expect)
-  } else if(check.type == 'checkbox'){
+  } else if(check.type == 'checkbox' || check.type == 'radio'){
     return util.format("%s %s %s `%s`%s.", check.type, check.by, predicate, expect, actual ? util.format(' actual `%s`', actual) : '')
   } else if(check.type == 'url'){
     return util.format("Url %s `%s`%s.", predicate, expect, actual ? util.format(' actual `%s`', actual) : '')
