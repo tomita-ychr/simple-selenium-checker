@@ -1,5 +1,6 @@
 import webdriver from 'selenium-webdriver';
 import util from 'util';
+const By = webdriver.By;
 const Promise = webdriver.promise;
 
 export function click(checker, action){
@@ -47,6 +48,28 @@ export function check(checker, action){
   } else {
     throw new Error("value or values is required.")
   }
+}
+
+export function select(checker, action){
+  const values = action.value ? [action.value] : action.values
+  return checker.waitElement(action.select, action.timeout)
+    .then(elem => elem.findElements(By.css('option')))
+    .then(elems => {
+      if(elems.length === 0){
+        throw new Error("Missing option in " + action.select)
+      }
+
+      return elems
+    })
+    .then(elems => Promise.map(
+      elems,
+      elem => elem.getAttribute('value').then(value => ({elem: elem, value: value})))
+    )
+    .then(composits => composits.filter(composit => values.indexOf(composit.value) >= 0).map(composit => composit.elem))
+    .then(elems => Promise.map(
+      elems,
+      elem => elem.click())
+    )
 }
 
 export function clear(checker, action){

@@ -881,7 +881,33 @@ test.describe('SSC', () => {
     })
   })
 
-  test.it('should be able to handle select tag.', () => {
-
+  test.it('should be able to handle non multiple select tag.', () => {
+    const checker = new Checker(driver)
+    return Promise.resolve().then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/options.html"},
+        {checks: [
+          {equals: 'option1', type: 'select', by: By.css(".select-single")},
+          {equals: 'option2', type: 'select', by: By.css(".select-single")},
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("select By(css selector, .select-single) is not `option2` actual `option1`.") >= 0)
+      })
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/options.html"},
+        {actions: [
+          {select: By.css(".select-single"), value: 'option3'},
+        ]},
+        {checks: [
+          {equals: 'option3', type: 'select', by: By.css(".select-single")},
+          {equals: 'option2', type: 'select', by: By.css(".select-single")},
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("select By(css selector, .select-single) is not `option2` actual `option3`.") >= 0)
+      })
+    })
   })
 })

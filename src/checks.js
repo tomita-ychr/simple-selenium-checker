@@ -25,6 +25,9 @@ function createPromise(checker, check){
       .then(composits => composits.filter(composit => composit.selected).map(composit => composit.elem))
       .then(elems => Promise.map(elems, elem => elem.getAttribute("value")))
       .then(values => values[0])
+  } else if(check.type == 'select'){
+    return checker.waitElement(check.by, check.timeout)
+      .then(elem => elem.getAttribute('value'))
   } else if(check.type == 'url'){
     return checker.driver.getCurrentUrl()
   } else if(check.type.hasOwnProperty('attr')) {
@@ -46,6 +49,8 @@ function createErrorMessage(check, predicate, expect, actual){
     return util.format("Url %s `%s`%s.", predicate, expect, actual ? util.format(' actual `%s`', actual) : '')
   } else if(check.type.hasOwnProperty('attr')) {
     return util.format("%s of %s %s `%s`%s.", check.type.attr, check.by, predicate, expect, actual ? util.format(' actual `%s`', actual) : '')
+  } else if(check.type === 'select'){
+    return util.format("select %s %s `%s`%s.", check.by, predicate, expect, actual ? util.format(' actual `%s`', actual) : '')
   } else {
     throw new Error('Illegal checker directive type ' + JSON.stringify(check))
   }

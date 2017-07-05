@@ -512,6 +512,10 @@ function createPromise(checker, check) {
     }).then(function (values) {
       return values[0];
     });
+  } else if (check.type == 'select') {
+    return checker.waitElement(check.by, check.timeout).then(function (elem) {
+      return elem.getAttribute('value');
+    });
   } else if (check.type == 'url') {
     return checker.driver.getCurrentUrl();
   } else if (check.type.hasOwnProperty('attr')) {
@@ -534,6 +538,8 @@ function createErrorMessage(check, predicate, expect, actual) {
     return _util2.default.format("Url %s `%s`%s.", predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
   } else if (check.type.hasOwnProperty('attr')) {
     return _util2.default.format("%s of %s %s `%s`%s.", check.type.attr, check.by, predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
+  } else if (check.type === 'select') {
+    return _util2.default.format("select %s %s `%s`%s.", check.by, predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
   } else {
     throw new Error('Illegal checker directive type ' + JSON.stringify(check));
   }
@@ -624,6 +630,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.click = click;
 exports.sendKeys = sendKeys;
 exports.check = check;
+exports.select = select;
 exports.clear = clear;
 
 var _seleniumWebdriver = __webpack_require__(0);
@@ -636,6 +643,7 @@ var _util2 = _interopRequireDefault(_util);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var By = _seleniumWebdriver2.default.By;
 var Promise = _seleniumWebdriver2.default.promise;
 
 function click(checker, action) {
@@ -696,6 +704,35 @@ function check(checker, action) {
   } else {
     throw new Error("value or values is required.");
   }
+}
+
+function select(checker, action) {
+  var values = action.value ? [action.value] : action.values;
+  return checker.waitElement(action.select, action.timeout).then(function (elem) {
+    return elem.findElements(By.css('option'));
+  }).then(function (elems) {
+    if (elems.length === 0) {
+      throw new Error("Missing option in " + action.select);
+    }
+
+    return elems;
+  }).then(function (elems) {
+    return Promise.map(elems, function (elem) {
+      return elem.getAttribute('value').then(function (value) {
+        return { elem: elem, value: value };
+      });
+    });
+  }).then(function (composits) {
+    return composits.filter(function (composit) {
+      return values.indexOf(composit.value) >= 0;
+    }).map(function (composit) {
+      return composit.elem;
+    });
+  }).then(function (elems) {
+    return Promise.map(elems, function (elem) {
+      return elem.click();
+    });
+  });
 }
 
 function clear(checker, action) {
