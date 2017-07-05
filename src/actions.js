@@ -47,6 +47,7 @@ export function check(checker, action){
   }
 }
 
+
 export function select(checker, action){
   const values = action.value ? [action.value] : action.values
   return checker.waitElement(action.select, action.timeout)
@@ -104,4 +105,8 @@ export function clear(checker, action){
       return elem.clear()
     })
   }
+}
+
+export function alert(checker, action){
+  return checker.driver.switchTo().alert()[action.alert]()
 }

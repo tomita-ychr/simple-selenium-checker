@@ -684,6 +684,7 @@ exports.check = check;
 exports.select = select;
 exports.unselect = unselect;
 exports.clear = clear;
+exports.alert = alert;
 
 var _seleniumWebdriver = __webpack_require__(0);
 
@@ -845,6 +846,10 @@ function clear(checker, action) {
       return elem.clear();
     });
   }
+}
+
+function alert(checker, action) {
+  return checker.driver.switchTo().alert()[action.alert]();
 }
 
 /***/ }),

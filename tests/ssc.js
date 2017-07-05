@@ -966,4 +966,20 @@ test.describe('SSC', () => {
       ])
     })
   })
+
+  test.it('should be able to handle alert and confirm.', () => {
+    const checker = new Checker(driver)
+    return Promise.resolve().then(() => {
+       return checker.run([
+        {url: "http://127.0.0.1:8080/alert.html"},
+        {actions: [
+          {click: By.css("#alert")},
+          {alert: "accept"}
+        ]},
+        {checks: [
+          {equals: "Alert", by: By.css("#display"), timeout: 3000},
+        ]},
+       ])
+    })
+  })
 })
