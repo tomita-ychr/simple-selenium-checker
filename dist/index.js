@@ -511,7 +511,7 @@ function createPromise(checker, check) {
     return checker.driver.findElement(By.css('html')).then(function (elem) {
       return elem.getAttribute('outerHTML');
     });
-  } else if (check.type == 'checkbox') {
+  } else if (check.type == 'checkbox' || check.type == 'radio') {
     return checker.waitElements(check.by, check.count, check.timeout).then(function (elems) {
       return checker.assembleFromElements(elems, {
         value: function value(elem) {
@@ -527,25 +527,6 @@ function createPromise(checker, check) {
       }).map(function (composit) {
         return composit.value;
       });
-    });
-  } else if (check.type == 'radio') {
-    return checker.waitElements(check.by, check.count, check.timeout).then(function (elems) {
-      return checker.assembleFromElements(elems, {
-        value: function value(elem) {
-          return elem.getAttribute('value');
-        },
-        selected: function selected(elem) {
-          return elem.isSelected();
-        }
-      });
-    }).then(function (composits) {
-      return composits.filter(function (composit) {
-        return composit.selected;
-      }).map(function (composit) {
-        return composit.value;
-      });
-    }).then(function (values) {
-      return values[0];
     });
   } else if (check.type == 'select') {
     return checker.waitElement(check.by, check.timeout).then(function (elem) {
@@ -616,21 +597,28 @@ function likes(checker, check) {
 }
 
 function equals(checker, check) {
-  return createPromise(checker, check).then(function (values) {
-    if (Array.isArray(values)) {
-      var expects = Array.isArray(check.equals) ? check.equals : [check.equals];
-      if (!compareArray(values, expects)) {
+  if (Array.isArray(check.equals)) {
+    return createPromise(checker, check).then(function (values) {
+      // const expects = Array.isArray(check.equals) ? check.equals : [check.equals]
+      if (!compareArray(values, check.equals)) {
         throw new Error(createErrorMessage(check, 'is not', check.equals, values));
       }
-    } else {
-      if (values !== check.equals) {
-        throw new Error(createErrorMessage(check, 'is not', check.equals, values));
+    });
+  } else {
+    return createPromise(checker, check).then(function (text) {
+      if (Array.isArray(text)) {
+        if (text.length > 1) throw new Error(_util2.default.format("%s has multiple values `%s`"), check.by, text);
+        text = text[0];
       }
-    }
-  });
+      if (text !== check.equals) {
+        throw new Error(createErrorMessage(check, 'is not', check.equals, text));
+      }
+    });
+  }
 }
 
 function unchecked(checker, check) {
+  //unchecked use only for checkbox. use equals for radio.
   check = Object.assign(check, { type: 'checkbox' });
   return createPromise(checker, check).then(function (values) {
     check.unchecked.forEach(function (uncheckedValue) {
@@ -642,6 +630,7 @@ function unchecked(checker, check) {
 }
 
 function checked(checker, check) {
+  //checked use only for checkbox. use equals for radio.
   check = Object.assign(check, { type: 'checkbox' });
   return createPromise(checker, check).then(function (values) {
     check.checked.forEach(function (checkedValue) {

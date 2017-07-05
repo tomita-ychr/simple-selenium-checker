@@ -9,7 +9,7 @@ function createPromise(checker, check){
   } else if(check.type === 'html'){
     return checker.driver.findElement(By.css('html'))
       .then(elem => elem.getAttribute('outerHTML'))
-  } else if(check.type == 'checkbox'){
+  } else if(check.type == 'checkbox' || check.type == 'radio'){
     return checker.waitElements(check.by, check.count, check.timeout)
       .then(elems => checker.assembleFromElements(
         elems, {
@@ -17,15 +17,6 @@ function createPromise(checker, check){
           selected: elem => elem.isSelected()
       }))
       .then(composits => composits.filter(composit => composit.selected).map(composit => composit.value))
-  } else if(check.type == 'radio'){
-    return checker.waitElements(check.by, check.count, check.timeout)
-      .then(elems => checker.assembleFromElements(
-        elems, {
-          value: elem => elem.getAttribute('value'),
-          selected: elem => elem.isSelected()
-      }))
-      .then(composits => composits.filter(composit => composit.selected).map(composit => composit.value))
-      .then(values => values[0])
   } else if(check.type == 'select'){
     return checker.waitElement(check.by, check.timeout)
       .then(elem => checker.waitElementsIn(elem, By.css("option")))
@@ -85,21 +76,28 @@ export function likes(checker, check){
 
 
 export function equals(checker, check){
-  return createPromise(checker, check).then(values => {
-    if(Array.isArray(values)){
-      const expects = Array.isArray(check.equals) ? check.equals : [check.equals]
-      if(!compareArray(values, expects)){
+  if(Array.isArray(check.equals)){
+    return createPromise(checker, check).then(values => {
+      // const expects = Array.isArray(check.equals) ? check.equals : [check.equals]
+      if(!compareArray(values, check.equals)){
         throw new Error(createErrorMessage(check, 'is not', check.equals, values))
       }
-    } else {
-      if(values !== check.equals){
-        throw new Error(createErrorMessage(check, 'is not', check.equals, values))
+    })
+  } else {
+    return createPromise(checker, check).then(text => {
+      if(Array.isArray(text)){
+        if(text.length > 1) throw new Error(util.format("%s has multiple values `%s`"), check.by, text)
+        text = text[0]
       }
-    }
-  })
+      if(text !== check.equals){
+        throw new Error(createErrorMessage(check, 'is not', check.equals, text))
+      }
+    })
+  }
 }
 
 export function unchecked(checker, check){
+  //unchecked use only for checkbox. use equals for radio.
   check = Object.assign(check, {type: 'checkbox'})
   return createPromise(checker, check).then(values => {
     check.unchecked.forEach(uncheckedValue => {
@@ -111,6 +109,7 @@ export function unchecked(checker, check){
 }
 
 export function checked(checker, check){
+  //checked use only for checkbox. use equals for radio.
   check = Object.assign(check, {type: 'checkbox'})
   return createPromise(checker, check).then(values => {
     check.checked.forEach(checkedValue => {
