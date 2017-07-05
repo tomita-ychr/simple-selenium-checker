@@ -67,71 +67,69 @@ export function notExists(checker, check){
 }
 
 export function likes(checker, check){
-  return createPromise(checker, check).then(text => {
-    if(text.indexOf(check.likes) === -1){
-      throw new Error(createErrorMessage(check, 'dose not contain', check.likes, text))
-    }
-  })
+  return checker.waitFor(createErrorMessage(check, 'dose not contain', check.likes), () => {
+    return createPromise(checker, check).then(text => text.indexOf(check.likes) >= 0)
+  }, check.timeout)
 }
 
 
 export function equals(checker, check){
   if(Array.isArray(check.equals)){
-    return createPromise(checker, check).then(values => {
-      // const expects = Array.isArray(check.equals) ? check.equals : [check.equals]
-      if(!compareArray(values, check.equals)){
-        throw new Error(createErrorMessage(check, 'is not', check.equals, values))
-      }
-    })
+    return checker.waitFor(createErrorMessage(check, 'is', check.equals), () => {
+      return createPromise(checker, check).then(values => compareArray(values, check.equals))
+    }, check.timeout)
   } else {
-    return createPromise(checker, check).then(text => {
-      if(Array.isArray(text)){
-        if(text.length > 1) throw new Error(util.format("%s has multiple values `%s`"), check.by, text)
-        text = text[0]
-      }
-      if(text !== check.equals){
-        throw new Error(createErrorMessage(check, 'is not', check.equals, text))
-      }
-    })
+    return checker.waitFor(createErrorMessage(check, 'is', check.equals), () => {
+      return createPromise(checker, check).then(text => {
+        if(Array.isArray(text)){
+          if(text.length > 1) throw new Error(util.format("%s has multiple values `%s`"), check.by, text)
+          text = text[0]
+        }
+        return text === check.equals
+      })
+    }, check.timeout)
   }
 }
 
 export function unchecked(checker, check){
   //unchecked use only for checkbox. use equals for radio.
   check = Object.assign(check, {type: 'checkbox'})
-  return createPromise(checker, check).then(values => {
-    check.unchecked.forEach(uncheckedValue => {
-      if(values.indexOf(uncheckedValue) >= 0){
-        throw new Error(createErrorMessage(check, 'is checked', check.unchecked))
-      }
+  return checker.waitFor(createErrorMessage(check, 'is not checked', check.unchecked), () => {
+    return createPromise(checker, check).then(values => {
+      check.unchecked.forEach(uncheckedValue => {
+        if(values.indexOf(uncheckedValue) >= 0){
+          return false
+        }
+      })
+      return true
     })
-  })
+  }, check.timeout)
 }
 
 export function checked(checker, check){
   //checked use only for checkbox. use equals for radio.
   check = Object.assign(check, {type: 'checkbox'})
-  return createPromise(checker, check).then(values => {
-    check.checked.forEach(checkedValue => {
-      if(values.indexOf(checkedValue) === -1){
-        throw new Error(createErrorMessage(check, 'is not checked', check.checked, values))
-      }
+  return checker.waitFor(createErrorMessage(check, 'is not checked', check.checked), () => {
+    return createPromise(checker, check).then(values => {
+      check.checked.forEach(checkedValue => {
+        if(values.indexOf(checkedValue) === -1){
+          return false
+        }
+      })
+
+      return true
     })
-  })
+  }, check.timeout)
 }
 
 export function notEquals(checker, check){
-  return createPromise(checker, check).then(text => {
-    if(text === check.notEquals){
-      throw new Error(createErrorMessage(check, 'is', check.notEquals))
-    }
-  })
+  return checker.waitFor(createErrorMessage(check, 'is not', check.notEquals), () => {
+    return createPromise(checker, check).then(text => text !== check.notEquals)
+  }, check.timeout) 
 }
 
 export function notLikes(checker, check){
-  return createPromise(checker, check).then(text => {
-    if(text.indexOf(check.notLikes) >= 0){
-      throw new Error(createErrorMessage(check, 'contains', check.notLikes))
-    }
-  })
+  return checker.waitFor(createErrorMessage(check, 'dose not contains', check.notLikes), () => {
+    return createPromise(checker, check).then(text => text.indexOf(check.notLikes) === -1)
+  }, check.timeout)
 }

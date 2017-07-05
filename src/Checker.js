@@ -2,6 +2,7 @@ import webdriver from 'selenium-webdriver';
 import util from 'util';
 import * as checks from './checks'
 import * as actions from './actions'
+import * as errors from './errors'
 const until = webdriver.until;
 const By = webdriver.By;
 const Key = webdriver.Key;
@@ -27,12 +28,27 @@ export default class Checker
     return promise
   }
 
+  waitFor(message, action, timeout){
+    if(timeout === undefined) timeout = Checker.DefaultTimeout
+    return this.driver
+      .wait(new webdriver.Condition(message, () => action()), timeout)
+      .catch(err => {
+        if(err.name == 'TimeoutError'){
+          throw new errors.NotMatchError(err.message)
+        }
+      })
+  }
+
   waitDissapearElements(locator, timeout){
     if(timeout === undefined) timeout = Checker.DefaultTimeout;
     const cond = new webdriver.Condition(locator + ' disappear from the screen.', () => {
       return this.driver.findElements(locator).then(elems => elems.length === 0)
     })
-    return this.driver.wait(cond, timeout)
+    return this.driver.wait(cond, timeout).catch(err => {
+      if(err.name == 'TimeoutError'){
+        throw new errors.ElementExistsError(err.message)
+      }
+    })
   }
 
   waitElementsIn(element, locator, count, timeout){
@@ -47,7 +63,12 @@ export default class Checker
         return false
       })
     })
-    return this.driver.wait(cond, timeout)
+
+    return this.driver.wait(cond, timeout).catch(err => {
+      if(err.name == 'TimeoutError'){
+        throw new errors.NotSuchElementError(err.message)
+      }
+    })
   }
 
   waitElements(locator, count, timeout){
@@ -62,7 +83,12 @@ export default class Checker
         return false
       })
     })
-    return this.driver.wait(cond, timeout)
+
+    return this.driver.wait(cond, timeout).catch(err => {
+      if(err.name == 'TimeoutError'){
+        throw new errors.NotSuchElementError(err.message)
+      }
+    })
   }
 
   waitElement(locator, timeout){
@@ -102,7 +128,7 @@ export default class Checker
     } else if(condition.bool !== undefined){
       return Promise.resolve(condition.bool)
     } else {
-      throw new Error("Invalid exexif condition " + JSON.stringify(condition))
+      throw new Error("Invalid execif condition " + JSON.stringify(condition))
     }
   }
 
@@ -187,7 +213,7 @@ export default class Checker
                 logs.forEach(log => {
                   //javascript
                   if(Checker.JsErrorStrings.some(err => log.message.indexOf(err) >= 0)){
-                    throw new Error("Javascript error was detected: " + log.message)
+                    throw new errors.JavascriptError(log.message)
                   }
 
                   //response
@@ -195,7 +221,7 @@ export default class Checker
                     const msg = log.message.split(url).join("")
                     for(let i = 400;i <= 599; i++){
                       if(msg.indexOf(" " + i + " ") >= 0){
-                        throw new Error("The response error was detected: " + log.message)
+                        throw new errors.StatusCodeError(log.message)
                       }
                     }
                   }
@@ -215,12 +241,12 @@ export default class Checker
                 return this.driver.getCurrentUrl().then(url => {
                   const data = Object.assign({}, this.data)
                   delete data.next
-                  throw new Error(
-                    url + "\n" +
+                  const message = url + "\n" +
                     "JSON: " + JSON.stringify(item) + "\n" +
+                    "Name: " + err.name + "\n" +
                     "Message: " + err.message + "\n" +
                     html
-                  )
+                  throw new errors.VerboseError(message, err)
                 })
               })
           })

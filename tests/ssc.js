@@ -73,7 +73,7 @@ test.describe('SSC', () => {
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
-        assert(err.message.indexOf("Waiting for element to be located By(css selector, #foo)") >= 0)
+        assert(err.name == "NotSuchElementError")
       })
     }).then(() => {
       const scenario = [{
@@ -91,7 +91,7 @@ test.describe('SSC', () => {
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
-        assert(err.message.indexOf("Waiting for element to be located By(css selector, #home)") >= 0)
+        assert(err.name == "NotSuchElementError")
       })
     })
   })
@@ -109,7 +109,7 @@ test.describe('SSC', () => {
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
-        assert(err.message.indexOf("Text in By(css selector, .main .col-sm-6:nth-child(2) h3) is not `Hoge 002` actual `Home 002`") >= 0)
+        assert(err.name == "NotMatchError")
       })
     }).then(() => {
       const scenario = [{
@@ -127,7 +127,7 @@ test.describe('SSC', () => {
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
-        assert(err.message.indexOf("Text in By(css selector, .main .col-sm-6:nth-child(3) h3) is not `Bar 003` actual `Foo 003") >= 0)
+        assert(err.name == "NotMatchError")
       })
     })
   })
@@ -145,7 +145,7 @@ test.describe('SSC', () => {
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
-        assert(err.message.indexOf("Response body dose not contain `<title>Simple selenium checker - Hoge</title>`") >= 0)
+        assert(err.name == "NotMatchError")
       })
     }).then(() => {
       const scenario = [{
@@ -163,7 +163,7 @@ test.describe('SSC', () => {
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
-        assert(err.message.indexOf("Response body dose not contain `<title>Simple selenium checker - Bar</title>`.") >= 0)
+        assert(err.name == "NotMatchError")
       })
     })
   })
@@ -177,7 +177,7 @@ test.describe('SSC', () => {
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
-        assert(err.message.indexOf("Uncaught ReferenceError: foobar is not defined") >= 0)
+        assert(err.name == "JavascriptError")
       })
     })
   })
@@ -191,7 +191,7 @@ test.describe('SSC', () => {
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
-        assert(err.message.indexOf("the server responded with a status of 404 (Not Found)") >= 0)
+        assert(err.name == "StatusCodeError")
       })
     })
   })
@@ -245,7 +245,7 @@ test.describe('SSC', () => {
         ]
       }]).catch(err => err).then(err => {
         assert(err != undefined)
-        assert(err.message.indexOf("Url is not `http://127.0.0.1:8080/hoge.html` actual `http://127.0.0.1:8080/`") >= 0)
+        assert(err.name == "NotMatchError")
       })
     }).then(() => {
       return checker.run([{
@@ -256,7 +256,7 @@ test.describe('SSC', () => {
         ]
       }]).catch(err => err).then(err => {
         assert(err != undefined)
-        assert(err.message.indexOf("Url dose not contain `hoge.html` actual `http://127.0.0.1:8080/`.") >= 0)
+        assert(err.name == "NotMatchError")
       })
     }).then(() => {
       return checker.run([{
@@ -267,7 +267,7 @@ test.describe('SSC', () => {
         ]
       }]).catch(err => err).then(err => {
         assert(err != undefined)
-        assert(err.message.indexOf("Url is `http://127.0.0.1:8080/`.") >= 0)
+        assert(err.name == "NotMatchError")
       })
     }).then(() => {
       return checker.run([{
@@ -278,7 +278,7 @@ test.describe('SSC', () => {
         ]
       }]).catch(err => err).then(err => {
         assert(err != undefined)
-        assert(err.message.indexOf("Url contains `127.0.0.1`.") >= 0)
+        assert(err.name == "NotMatchError")
       })
     })
   })
@@ -297,8 +297,8 @@ test.describe('SSC', () => {
       checker.debug = true;
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
-        assert(err.message.indexOf("Url is not `http://127.0.0.1:8080/hoge.html` actual `http://127.0.0.1:8080/`") >= 0)
-        assert(err.message.indexOf('<html lang="en">') === -1)
+        assert(err.name == "NotMatchError")
+        assert(err.name == "NotMatchError")
       })
     })
   })
@@ -329,7 +329,7 @@ test.describe('SSC', () => {
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
-        assert(err.message.indexOf("Text in By(css selector, .main .col-sm-6:nth-child(1) h3) dose not contain `bar` actual `Home 001`") >= 0)
+        assert(err.name == "NotMatchError")
       })
     })
   })
@@ -474,7 +474,7 @@ test.describe('SSC', () => {
         ]
       }]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("Waiting for element to be located By(css selector, #fail-on-execute-url)") >= 0)
+        assert(err.name == "NotSuchElementError")
       })
     }).then(() => {
       // ignore url
@@ -493,7 +493,7 @@ test.describe('SSC', () => {
         ]
       }]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("Waiting for element to be located By(css selector, #fail-on-ignore-url)") >= 0)
+        assert(err.name == "NotSuchElementError")
       })
     }).then(() => {
       // execute action
@@ -514,7 +514,7 @@ test.describe('SSC', () => {
         ]
       }]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("Waiting for element to be located By(css selector, #fail-on-execute-action)") >= 0)
+        assert(err.name == "NotSuchElementError")
       })
     }).then(() => {
       // ignore action
@@ -536,7 +536,7 @@ test.describe('SSC', () => {
         ]
       }]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("Waiting for element to be located By(css selector, #fail-on-ignore-action)") >= 0)
+        assert(err.name == "NotSuchElementError")
       })
     })
 
@@ -561,7 +561,7 @@ test.describe('SSC', () => {
         }]
       }]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("Waiting for element to be located By(css selector, #nothing2)") >= 0)
+        assert(err.name == "NotSuchElementError")
       })
     }).then(() => {
       // third level
@@ -584,7 +584,7 @@ test.describe('SSC', () => {
         }]
       }]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("Waiting for element to be located By(css selector, #nothing3)") >= 0)
+        assert(err.name == "NotSuchElementError")
       })
     }).then(() => {
       //execif third level
@@ -612,7 +612,7 @@ test.describe('SSC', () => {
         checks: [{exists: By.css("#foo")}]
       }]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("Waiting for element to be located By(css selector, #foo)") >= 0)
+        assert(err.name == "NotSuchElementError")
       })
     })
   })
@@ -630,7 +630,7 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("class of By(css selector, .nav) is not `nav` actual `nav nav-pills`") >= 0)
+        assert(err.name == "NotMatchError")
       })
     }).then(() => {
       return checker.run([
@@ -643,7 +643,7 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("class of By(css selector, .nav) dose not contain `foooo` actual `nav nav-pills`") >= 0)
+        assert(err.name == "NotMatchError")
       })
     })
   })
@@ -668,7 +668,7 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("Text in By(css selector, .nav > li:nth-child(1) > a) is `Home`.") >= 0)
+        assert(err.name == "NotMatchError")
       })
     }).then(() => {
       return checker.run([
@@ -678,7 +678,7 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("href of By(css selector, .nav > li:nth-child(2) > a) is `http://127.0.0.1:8080/foo.html`.") >= 0)
+        assert(err.name == "NotMatchError")
       })
     }).then(() => {
       return checker.run([
@@ -699,7 +699,7 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("Text in By(css selector, .nav > li:nth-child(2) > a) contains `Foo`.") >= 0)
+        assert(err.name == "NotMatchError")
       })
     }).then(() => {
       return checker.run([
@@ -709,7 +709,7 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("class of By(css selector, header) contains `page-header`.") >= 0)
+        assert(err.name == "NotMatchError")
       })
     }).then(() => {
       return checker.run([
@@ -719,7 +719,7 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("Response body contains `Simple selenium cheker`.") >= 0)
+        assert(err.name == "NotMatchError")
       })
     }).then(() => {
       return checker.run([
@@ -736,7 +736,7 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("Waiting By(css selector, body) disappear from the screen.") >= 0)
+        assert(err.name == "ElementExistsError")
       })
     })
   })
@@ -758,7 +758,7 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("checkbox By(css selector, .checkbox-inline input[name=checkbox]) is not `checkbox1,checkbox2` actual `checkbox2`.") >= 0)
+        assert(err.name == "NotMatchError")
       })
     }).then(() => {
       return checker.run([
@@ -807,7 +807,7 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("checkbox By(css selector, .checkbox-inline input[name=checkbox]) is checked `checkbox1`.") >= 0)
+        assert(err.name == "NotMatchError")
       })
     }).then(() => {
       return checker.run([
@@ -824,7 +824,7 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("checkbox By(css selector, .checkbox-inline input[name=checkbox]) is not checked `checkbox2` actual `checkbox1`.") >= 0)
+        assert(err.name == "NotMatchError")
       })
     })
   })
@@ -846,7 +846,7 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("radio By(css selector, .radio-inline input[name=radio]) is not `radio1` actual `radio2`.") >= 0)
+        assert(err.name == "NotMatchError")
       })
     }).then(() => {
       return checker.run([
@@ -862,7 +862,7 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("Radio button with `radio99` were not found in By(css selector, .radio-inline input[name=radio]).") >= 0)
+        assert(err.name == "NotSuchElementError")
       })
     }).then(() => {
       return checker.run([
@@ -876,7 +876,7 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("radio By(css selector, .radio-inline input[name=radio]) is `radio1`.") >= 0)
+        assert(err.name == "NotMatchError")
       })
     })
   })
@@ -892,7 +892,7 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("select By(css selector, .select-single) is not `option2` actual `option1`.") >= 0)
+        assert(err.name == "NotMatchError")
       })
     }).then(() => {
       return checker.run([
@@ -906,7 +906,7 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("select By(css selector, .select-single) is not `option2` actual `option3`.") >= 0)
+        assert(err.name == "NotMatchError")
       })
     })
   })
@@ -922,7 +922,7 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => {
         assert(err !== undefined)
-        assert(err.message.indexOf("select By(css selector, .select-multiple) is not `option1` actual `option2,option3`.") >= 0)
+        assert(err.name == "NotMatchError")
       })
     }).then(() => {
       return checker.run([

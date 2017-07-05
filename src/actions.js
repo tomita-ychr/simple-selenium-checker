@@ -1,6 +1,7 @@
 import webdriver from 'selenium-webdriver';
 import util from 'util';
 import Checker from './Checker'
+import * as errors from './errors'
 const By = webdriver.By;
 
 export function click(checker, action){
@@ -37,7 +38,7 @@ export function check(checker, action){
       .then(composits => composits.filter(composit => composit.value == action.value))
       .then(composits => {
         if(composits.length == 0){
-          throw new Error(util.format("Radio button with `%s` were not found in %s.", action.value, action.check))
+          throw new errors.NotSuchElementError(util.format("Radio button with `%s` were not found in %s.", action.value, action.check))
         }
 
         return composits[0].elem.click()

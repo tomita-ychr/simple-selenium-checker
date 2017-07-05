@@ -134,6 +134,10 @@ var _actions = __webpack_require__(4);
 
 var actions = _interopRequireWildcard(_actions);
 
+var _errors = __webpack_require__(11);
+
+var errors = _interopRequireWildcard(_errors);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -174,6 +178,18 @@ var Checker = function () {
       return promise;
     }
   }, {
+    key: 'waitFor',
+    value: function waitFor(message, action, timeout) {
+      if (timeout === undefined) timeout = Checker.DefaultTimeout;
+      return this.driver.wait(new _seleniumWebdriver2.default.Condition(message, function () {
+        return action();
+      }), timeout).catch(function (err) {
+        if (err.name == 'TimeoutError') {
+          throw new errors.NotMatchError(err.message);
+        }
+      });
+    }
+  }, {
     key: 'waitDissapearElements',
     value: function waitDissapearElements(locator, timeout) {
       var _this = this;
@@ -184,7 +200,11 @@ var Checker = function () {
           return elems.length === 0;
         });
       });
-      return this.driver.wait(cond, timeout);
+      return this.driver.wait(cond, timeout).catch(function (err) {
+        if (err.name == 'TimeoutError') {
+          throw new errors.ElementExistsError(err.message);
+        }
+      });
     }
   }, {
     key: 'waitElementsIn',
@@ -200,7 +220,12 @@ var Checker = function () {
           return false;
         });
       });
-      return this.driver.wait(cond, timeout);
+
+      return this.driver.wait(cond, timeout).catch(function (err) {
+        if (err.name == 'TimeoutError') {
+          throw new errors.NotSuchElementError(err.message);
+        }
+      });
     }
   }, {
     key: 'waitElements',
@@ -218,7 +243,12 @@ var Checker = function () {
           return false;
         });
       });
-      return this.driver.wait(cond, timeout);
+
+      return this.driver.wait(cond, timeout).catch(function (err) {
+        if (err.name == 'TimeoutError') {
+          throw new errors.NotSuchElementError(err.message);
+        }
+      });
     }
   }, {
     key: 'waitElement',
@@ -267,7 +297,7 @@ var Checker = function () {
       } else if (condition.bool !== undefined) {
         return Promise.resolve(condition.bool);
       } else {
-        throw new Error("Invalid exexif condition " + JSON.stringify(condition));
+        throw new Error("Invalid execif condition " + JSON.stringify(condition));
       }
     }
   }, {
@@ -365,7 +395,7 @@ var Checker = function () {
                     if (Checker.JsErrorStrings.some(function (err) {
                       return log.message.indexOf(err) >= 0;
                     })) {
-                      throw new Error("Javascript error was detected: " + log.message);
+                      throw new errors.JavascriptError(log.message);
                     }
 
                     //response
@@ -373,7 +403,7 @@ var Checker = function () {
                       var msg = log.message.split(url).join("");
                       for (var i = 400; i <= 599; i++) {
                         if (msg.indexOf(" " + i + " ") >= 0) {
-                          throw new Error("The response error was detected: " + log.message);
+                          throw new errors.StatusCodeError(log.message);
                         }
                       }
                     }
@@ -393,7 +423,8 @@ var Checker = function () {
                 return _this6.driver.getCurrentUrl().then(function (url) {
                   var data = Object.assign({}, _this6.data);
                   delete data.next;
-                  throw new Error(url + "\n" + "JSON: " + JSON.stringify(item) + "\n" + "Message: " + err.message + "\n" + html);
+                  var message = url + "\n" + "JSON: " + JSON.stringify(item) + "\n" + "Name: " + err.name + "\n" + "Message: " + err.message + "\n" + html;
+                  throw new errors.VerboseError(message, err);
                 });
               });
             });
@@ -589,72 +620,78 @@ function notExists(checker, check) {
 }
 
 function likes(checker, check) {
-  return createPromise(checker, check).then(function (text) {
-    if (text.indexOf(check.likes) === -1) {
-      throw new Error(createErrorMessage(check, 'dose not contain', check.likes, text));
-    }
-  });
+  return checker.waitFor(createErrorMessage(check, 'dose not contain', check.likes), function () {
+    return createPromise(checker, check).then(function (text) {
+      return text.indexOf(check.likes) >= 0;
+    });
+  }, check.timeout);
 }
 
 function equals(checker, check) {
   if (Array.isArray(check.equals)) {
-    return createPromise(checker, check).then(function (values) {
-      // const expects = Array.isArray(check.equals) ? check.equals : [check.equals]
-      if (!compareArray(values, check.equals)) {
-        throw new Error(createErrorMessage(check, 'is not', check.equals, values));
-      }
-    });
+    return checker.waitFor(createErrorMessage(check, 'is', check.equals), function () {
+      return createPromise(checker, check).then(function (values) {
+        return compareArray(values, check.equals);
+      });
+    }, check.timeout);
   } else {
-    return createPromise(checker, check).then(function (text) {
-      if (Array.isArray(text)) {
-        if (text.length > 1) throw new Error(_util2.default.format("%s has multiple values `%s`"), check.by, text);
-        text = text[0];
-      }
-      if (text !== check.equals) {
-        throw new Error(createErrorMessage(check, 'is not', check.equals, text));
-      }
-    });
+    return checker.waitFor(createErrorMessage(check, 'is', check.equals), function () {
+      return createPromise(checker, check).then(function (text) {
+        if (Array.isArray(text)) {
+          if (text.length > 1) throw new Error(_util2.default.format("%s has multiple values `%s`"), check.by, text);
+          text = text[0];
+        }
+        return text === check.equals;
+      });
+    }, check.timeout);
   }
 }
 
 function unchecked(checker, check) {
   //unchecked use only for checkbox. use equals for radio.
   check = Object.assign(check, { type: 'checkbox' });
-  return createPromise(checker, check).then(function (values) {
-    check.unchecked.forEach(function (uncheckedValue) {
-      if (values.indexOf(uncheckedValue) >= 0) {
-        throw new Error(createErrorMessage(check, 'is checked', check.unchecked));
-      }
+  return checker.waitFor(createErrorMessage(check, 'is not checked', check.unchecked), function () {
+    return createPromise(checker, check).then(function (values) {
+      check.unchecked.forEach(function (uncheckedValue) {
+        if (values.indexOf(uncheckedValue) >= 0) {
+          return false;
+        }
+      });
+      return true;
     });
-  });
+  }, check.timeout);
 }
 
 function checked(checker, check) {
   //checked use only for checkbox. use equals for radio.
   check = Object.assign(check, { type: 'checkbox' });
-  return createPromise(checker, check).then(function (values) {
-    check.checked.forEach(function (checkedValue) {
-      if (values.indexOf(checkedValue) === -1) {
-        throw new Error(createErrorMessage(check, 'is not checked', check.checked, values));
-      }
+  return checker.waitFor(createErrorMessage(check, 'is not checked', check.checked), function () {
+    return createPromise(checker, check).then(function (values) {
+      check.checked.forEach(function (checkedValue) {
+        if (values.indexOf(checkedValue) === -1) {
+          return false;
+        }
+      });
+
+      return true;
     });
-  });
+  }, check.timeout);
 }
 
 function notEquals(checker, check) {
-  return createPromise(checker, check).then(function (text) {
-    if (text === check.notEquals) {
-      throw new Error(createErrorMessage(check, 'is', check.notEquals));
-    }
-  });
+  return checker.waitFor(createErrorMessage(check, 'is not', check.notEquals), function () {
+    return createPromise(checker, check).then(function (text) {
+      return text !== check.notEquals;
+    });
+  }, check.timeout);
 }
 
 function notLikes(checker, check) {
-  return createPromise(checker, check).then(function (text) {
-    if (text.indexOf(check.notLikes) >= 0) {
-      throw new Error(createErrorMessage(check, 'contains', check.notLikes));
-    }
-  });
+  return checker.waitFor(createErrorMessage(check, 'dose not contains', check.notLikes), function () {
+    return createPromise(checker, check).then(function (text) {
+      return text.indexOf(check.notLikes) === -1;
+    });
+  }, check.timeout);
 }
 
 /***/ }),
@@ -686,6 +723,12 @@ var _util2 = _interopRequireDefault(_util);
 var _Checker = __webpack_require__(2);
 
 var _Checker2 = _interopRequireDefault(_Checker);
+
+var _errors = __webpack_require__(11);
+
+var errors = _interopRequireWildcard(_errors);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -736,7 +779,7 @@ function check(checker, action) {
       });
     }).then(function (composits) {
       if (composits.length == 0) {
-        throw new Error(_util2.default.format("Radio button with `%s` were not found in %s.", action.value, action.check));
+        throw new errors.NotSuchElementError(_util2.default.format("Radio button with `%s` were not found in %s.", action.value, action.check));
       }
 
       return composits[0].elem.click();
@@ -1744,6 +1787,113 @@ if (typeof Object.create === 'function') {
   }
 }
 
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var NotMatchError = exports.NotMatchError = function (_Error) {
+  _inherits(NotMatchError, _Error);
+
+  function NotMatchError(message, fileName, lineNumber) {
+    _classCallCheck(this, NotMatchError);
+
+    var _this = _possibleConstructorReturn(this, (NotMatchError.__proto__ || Object.getPrototypeOf(NotMatchError)).call(this, message, fileName, lineNumber));
+
+    _this.name = "NotMatchError";
+    return _this;
+  }
+
+  return NotMatchError;
+}(Error);
+
+var NotSuchElementError = exports.NotSuchElementError = function (_Error2) {
+  _inherits(NotSuchElementError, _Error2);
+
+  function NotSuchElementError(message, fileName, lineNumber) {
+    _classCallCheck(this, NotSuchElementError);
+
+    var _this2 = _possibleConstructorReturn(this, (NotSuchElementError.__proto__ || Object.getPrototypeOf(NotSuchElementError)).call(this, message, fileName, lineNumber));
+
+    _this2.name = "NotSuchElementError";
+    return _this2;
+  }
+
+  return NotSuchElementError;
+}(Error);
+
+var ElementExistsError = exports.ElementExistsError = function (_Error3) {
+  _inherits(ElementExistsError, _Error3);
+
+  function ElementExistsError(message, fileName, lineNumber) {
+    _classCallCheck(this, ElementExistsError);
+
+    var _this3 = _possibleConstructorReturn(this, (ElementExistsError.__proto__ || Object.getPrototypeOf(ElementExistsError)).call(this, message, fileName, lineNumber));
+
+    _this3.name = "ElementExistsError";
+    return _this3;
+  }
+
+  return ElementExistsError;
+}(Error);
+
+var JavascriptError = exports.JavascriptError = function (_Error4) {
+  _inherits(JavascriptError, _Error4);
+
+  function JavascriptError(message, fileName, lineNumber) {
+    _classCallCheck(this, JavascriptError);
+
+    var _this4 = _possibleConstructorReturn(this, (JavascriptError.__proto__ || Object.getPrototypeOf(JavascriptError)).call(this, message, fileName, lineNumber));
+
+    _this4.name = "JavascriptError";
+    return _this4;
+  }
+
+  return JavascriptError;
+}(Error);
+
+var StatusCodeError = exports.StatusCodeError = function (_Error5) {
+  _inherits(StatusCodeError, _Error5);
+
+  function StatusCodeError(message, fileName, lineNumber) {
+    _classCallCheck(this, StatusCodeError);
+
+    var _this5 = _possibleConstructorReturn(this, (StatusCodeError.__proto__ || Object.getPrototypeOf(StatusCodeError)).call(this, message, fileName, lineNumber));
+
+    _this5.name = "StatusCodeError";
+    return _this5;
+  }
+
+  return StatusCodeError;
+}(Error);
+
+var VerboseError = exports.VerboseError = function (_Error6) {
+  _inherits(VerboseError, _Error6);
+
+  function VerboseError(message, error) {
+    _classCallCheck(this, VerboseError);
+
+    var _this6 = _possibleConstructorReturn(this, (VerboseError.__proto__ || Object.getPrototypeOf(VerboseError)).call(this, message));
+
+    _this6.name = error.name;
+    return _this6;
+  }
+
+  return VerboseError;
+}(Error);
 
 /***/ })
 /******/ ]);
