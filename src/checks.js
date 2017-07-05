@@ -51,8 +51,12 @@ function createErrorMessage(check, predicate, expect, actual){
   }
 }
 
+function compareArray(array1, array2){
+  return JSON.stringify(array1.sort()) === JSON.stringify(array2.sort())
+}
+
 export function exists(checker, check){
-  return checker.waitElement(check.exists, check.timeout)
+  return checker.waitElements(check.exists, check.count, check.timeout)
 }
 
 export function notExists(checker, check){
@@ -67,9 +71,6 @@ export function likes(checker, check){
   })
 }
 
-function compareArray(array1, array2){
-  return JSON.stringify(array1.sort()) === JSON.stringify(array2.sort())
-}
 
 export function equals(checker, check){
   return createPromise(checker, check).then(values => {

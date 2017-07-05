@@ -15,7 +15,7 @@ export function sendKeys(checker, action){
 }
 
 export function check(checker, action){
-  if(action.type == 'checkbox'){
+  if(action.hasOwnProperty('values')){//checkbox
     return checker.waitElements(action.check, action.count, action.timeout)
       .then(elems => Promise.map(
         elems, 
@@ -30,7 +30,7 @@ export function check(checker, action){
         composits,
         composit => composit.elem.click())
       )
-  } else if(action.type == 'radio'){
+  } else if(action.hasOwnProperty('value')){//radio
     return checker.waitElements(action.check, action.count, action.timeout)
       .then(elems => Promise.map(
         elems, 
@@ -44,6 +44,8 @@ export function check(checker, action){
 
         return composits[0].elem.click()
       })
+  } else {
+    throw new Error("value or values is required.")
   }
 }
 

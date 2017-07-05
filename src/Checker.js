@@ -1,4 +1,5 @@
 import webdriver from 'selenium-webdriver';
+import util from 'util';
 import * as checks from './checks'
 import * as actions from './actions'
 const until = webdriver.until;
@@ -22,7 +23,7 @@ export default class Checker
   waitElements(locator, count, timeout){
     if(count === undefined) count = 1
     if(timeout === undefined) timeout = Checker.DefaultTimeout
-    const cond = new webdriver.Condition(count + ' ' + locator + ' ' + count === 1 ? 'is' : 'are' + ' found.', () => {
+    const cond = new webdriver.Condition(util.format('for %s to be located %s', count > 1 ? count + " elements" : 'element', locator), () => {
       return this.driver.findElements(locator).then(elems => {
         if(elems.length >= count){
           return elems

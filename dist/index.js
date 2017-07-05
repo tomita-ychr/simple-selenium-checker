@@ -122,6 +122,10 @@ var _seleniumWebdriver = __webpack_require__(0);
 
 var _seleniumWebdriver2 = _interopRequireDefault(_seleniumWebdriver);
 
+var _util = __webpack_require__(6);
+
+var _util2 = _interopRequireDefault(_util);
+
 var _checks = __webpack_require__(3);
 
 var checks = _interopRequireWildcard(_checks);
@@ -167,7 +171,7 @@ var Checker = function () {
 
       if (count === undefined) count = 1;
       if (timeout === undefined) timeout = Checker.DefaultTimeout;
-      var cond = new _seleniumWebdriver2.default.Condition(count + ' ' + locator + ' ' + count === 1 ? 'is' : 'are' + ' found.', function () {
+      var cond = new _seleniumWebdriver2.default.Condition(_util2.default.format('for %s to be located %s', count > 1 ? count + " elements" : 'element', locator), function () {
         return _this2.driver.findElements(locator).then(function (elems) {
           if (elems.length >= count) {
             return elems;
@@ -535,8 +539,12 @@ function createErrorMessage(check, predicate, expect, actual) {
   }
 }
 
+function compareArray(array1, array2) {
+  return JSON.stringify(array1.sort()) === JSON.stringify(array2.sort());
+}
+
 function exists(checker, check) {
-  return checker.waitElement(check.exists, check.timeout);
+  return checker.waitElements(check.exists, check.count, check.timeout);
 }
 
 function notExists(checker, check) {
@@ -549,10 +557,6 @@ function likes(checker, check) {
       throw new Error(createErrorMessage(check, 'dose not contain', check.likes, text));
     }
   });
-}
-
-function compareArray(array1, array2) {
-  return JSON.stringify(array1.sort()) === JSON.stringify(array2.sort());
 }
 
 function equals(checker, check) {
@@ -647,7 +651,8 @@ function sendKeys(checker, action) {
 }
 
 function check(checker, action) {
-  if (action.type == 'checkbox') {
+  if (action.hasOwnProperty('values')) {
+    //checkbox
     return checker.waitElements(action.check, action.count, action.timeout).then(function (elems) {
       return Promise.map(elems, function (elem) {
         return elem.getAttribute('value').then(function (value) {
@@ -669,7 +674,8 @@ function check(checker, action) {
         return composit.elem.click();
       });
     });
-  } else if (action.type == 'radio') {
+  } else if (action.hasOwnProperty('value')) {
+    //radio
     return checker.waitElements(action.check, action.count, action.timeout).then(function (elems) {
       return Promise.map(elems, function (elem) {
         return elem.getAttribute('value').then(function (value) {
@@ -687,6 +693,8 @@ function check(checker, action) {
 
       return composits[0].elem.click();
     });
+  } else {
+    throw new Error("value or values is required.");
   }
 }
 

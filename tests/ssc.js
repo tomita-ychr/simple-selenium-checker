@@ -741,7 +741,7 @@ test.describe('SSC', () => {
     })
   })
 
-  test.it('should handle checkboxes.', () => {
+  test.it('should be able to handle checkboxes.', () => {
     const checker = new Checker(driver)
     return Promise.resolve().then(() => {
       return checker.run([
@@ -777,7 +777,8 @@ test.describe('SSC', () => {
           {equals: ['checkbox1', 'checkbox3'], type: 'checkbox', by: By.css(".checkbox-inline input[name=checkbox]")},
           {checked: ['checkbox1'], by: By.css(".checkbox-inline input[name=checkbox]")},
           {checked: ['checkbox3'], by: By.css(".checkbox-inline input[name=checkbox]")}
-        ]},
+        ]}
+        ,
         {actions: [
           {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox2']},
         ]},
@@ -828,7 +829,7 @@ test.describe('SSC', () => {
     })
   })
 
-    test.it('should handle radio buttons.', () => {
+  test.it('should be able to handle radio buttons.', () => {
     const checker = new Checker(driver)
     return Promise.resolve().then(() => {
       return checker.run([
@@ -851,13 +852,13 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {actions: [
-          {check: By.css(".radio-inline input[name=radio]"), type: 'radio', value: 'radio1'},
+          {check: By.css(".radio-inline input[name=radio]"), value: 'radio1'},
         ]},
         {checks: [
           {equals: 'radio1', type: 'radio', by: By.css(".radio-inline input[name=radio]")},
         ]},
         {actions: [
-          {check: By.css(".radio-inline input[name=radio]"), type: 'radio', value: 'radio99'},
+          {check: By.css(".radio-inline input[name=radio]"), value: 'radio99'},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -867,7 +868,7 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {actions: [
-          {check: By.css(".radio-inline input[name=radio]"), type: 'radio', value: 'radio1'},
+          {check: By.css(".radio-inline input[name=radio]"), value: 'radio1'},
         ]},
         {checks: [
           {notEquals: 'radio2', type: 'radio', by: By.css(".radio-inline input[name=radio]")},
@@ -878,5 +879,9 @@ test.describe('SSC', () => {
         assert(err.message.indexOf("radio By(css selector, .radio-inline input[name=radio]) is `radio1`.") >= 0)
       })
     })
+  })
+
+  test.it('should be able to handle select tag.', () => {
+
   })
 })
