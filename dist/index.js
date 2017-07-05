@@ -142,6 +142,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var until = _seleniumWebdriver2.default.until;
 var By = _seleniumWebdriver2.default.By;
+var Key = _seleniumWebdriver2.default.Key;
 
 var Checker = function () {
   function Checker(driver) {
@@ -152,6 +153,27 @@ var Checker = function () {
   }
 
   _createClass(Checker, [{
+    key: 'assembleFromElements',
+    value: function assembleFromElements(elems, values) {
+      var promise = _seleniumWebdriver2.default.promise.map(elems, function (elem) {
+        return { elem: elem };
+      });
+
+      Object.keys(values).forEach(function (key) {
+        var func = values[key];
+        promise = promise.then(function (composits) {
+          return _seleniumWebdriver2.default.promise.map(composits, function (composit) {
+            return func(composit.elem).then(function (value) {
+              composit[key] = value;
+              return composit;
+            });
+          });
+        });
+      });
+
+      return promise;
+    }
+  }, {
     key: 'waitDissapearElements',
     value: function waitDissapearElements(locator, timeout) {
       var _this = this;
@@ -160,6 +182,22 @@ var Checker = function () {
       var cond = new _seleniumWebdriver2.default.Condition(locator + ' disappear from the screen.', function () {
         return _this.driver.findElements(locator).then(function (elems) {
           return elems.length === 0;
+        });
+      });
+      return this.driver.wait(cond, timeout);
+    }
+  }, {
+    key: 'waitElementsIn',
+    value: function waitElementsIn(element, locator, count, timeout) {
+      if (count === undefined) count = 1;
+      if (timeout === undefined) timeout = Checker.DefaultTimeout;
+      var cond = new _seleniumWebdriver2.default.Condition(_util2.default.format('for %s to be located %s in specified element', count > 1 ? count + " elements" : 'element', locator), function () {
+        return element.findElements(locator).then(function (elems) {
+          if (elems.length >= count) {
+            return elems;
+          }
+
+          return false;
         });
       });
       return this.driver.wait(cond, timeout);
@@ -463,7 +501,6 @@ var _util2 = _interopRequireDefault(_util);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var By = _seleniumWebdriver2.default.By;
-var Promise = _seleniumWebdriver2.default.promise;
 
 function createPromise(checker, check) {
   if (check.type === undefined) {
@@ -476,45 +513,58 @@ function createPromise(checker, check) {
     });
   } else if (check.type == 'checkbox') {
     return checker.waitElements(check.by, check.count, check.timeout).then(function (elems) {
-      return Promise.map(elems, function (elem) {
-        return elem.isSelected().then(function (selected) {
-          return { elem: elem, selected: selected };
-        });
+      return checker.assembleFromElements(elems, {
+        value: function value(elem) {
+          return elem.getAttribute('value');
+        },
+        selected: function selected(elem) {
+          return elem.isSelected();
+        }
       });
     }).then(function (composits) {
       return composits.filter(function (composit) {
         return composit.selected;
       }).map(function (composit) {
-        return composit.elem;
-      });
-    }).then(function (elems) {
-      return Promise.map(elems, function (elem) {
-        return elem.getAttribute("value");
+        return composit.value;
       });
     });
   } else if (check.type == 'radio') {
     return checker.waitElements(check.by, check.count, check.timeout).then(function (elems) {
-      return Promise.map(elems, function (elem) {
-        return elem.isSelected().then(function (selected) {
-          return { elem: elem, selected: selected };
-        });
+      return checker.assembleFromElements(elems, {
+        value: function value(elem) {
+          return elem.getAttribute('value');
+        },
+        selected: function selected(elem) {
+          return elem.isSelected();
+        }
       });
     }).then(function (composits) {
       return composits.filter(function (composit) {
         return composit.selected;
       }).map(function (composit) {
-        return composit.elem;
-      });
-    }).then(function (elems) {
-      return Promise.map(elems, function (elem) {
-        return elem.getAttribute("value");
+        return composit.value;
       });
     }).then(function (values) {
       return values[0];
     });
   } else if (check.type == 'select') {
     return checker.waitElement(check.by, check.timeout).then(function (elem) {
-      return elem.getAttribute('value');
+      return checker.waitElementsIn(elem, By.css("option"));
+    }).then(function (elems) {
+      return checker.assembleFromElements(elems, {
+        value: function value(elem) {
+          return elem.getAttribute('value');
+        },
+        isSelected: function isSelected(elem) {
+          return elem.isSelected();
+        }
+      });
+    }).then(function (composits) {
+      return composits.filter(function (composit) {
+        return composit.isSelected;
+      }).map(function (composit) {
+        return composit.value;
+      });
     });
   } else if (check.type == 'url') {
     return checker.driver.getCurrentUrl();
@@ -567,8 +617,9 @@ function likes(checker, check) {
 
 function equals(checker, check) {
   return createPromise(checker, check).then(function (values) {
-    if (check.type == 'checkbox') {
-      if (!compareArray(values, check.equals)) {
+    if (Array.isArray(values)) {
+      var expects = Array.isArray(check.equals) ? check.equals : [check.equals];
+      if (!compareArray(values, expects)) {
         throw new Error(createErrorMessage(check, 'is not', check.equals, values));
       }
     } else {
@@ -631,6 +682,7 @@ exports.click = click;
 exports.sendKeys = sendKeys;
 exports.check = check;
 exports.select = select;
+exports.unselect = unselect;
 exports.clear = clear;
 
 var _seleniumWebdriver = __webpack_require__(0);
@@ -641,10 +693,13 @@ var _util = __webpack_require__(6);
 
 var _util2 = _interopRequireDefault(_util);
 
+var _Checker = __webpack_require__(2);
+
+var _Checker2 = _interopRequireDefault(_Checker);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var By = _seleniumWebdriver2.default.By;
-var Promise = _seleniumWebdriver2.default.promise;
 
 function click(checker, action) {
   return checker.waitElement(action.click, action.timeout).then(function (elem) {
@@ -662,34 +717,29 @@ function check(checker, action) {
   if (action.hasOwnProperty('values')) {
     //checkbox
     return checker.waitElements(action.check, action.count, action.timeout).then(function (elems) {
-      return Promise.map(elems, function (elem) {
-        return elem.getAttribute('value').then(function (value) {
-          return { elem: elem, value: value };
-        });
-      });
-    }).then(function (composits) {
-      return Promise.map(composits, function (composit) {
-        return composit.elem.isSelected().then(function (isSelected) {
-          return { elem: composit.elem, value: composit.value, isSelected: isSelected };
-        });
+      return checker.assembleFromElements(elems, {
+        value: function value(elem) {
+          return elem.getAttribute('value');
+        },
+        isSelected: function isSelected(elem) {
+          return elem.isSelected();
+        }
       });
     }).then(function (composits) {
       return composits.filter(function (composit) {
         return !composit.isSelected && action.values.indexOf(composit.value) >= 0;
       });
     }).then(function (composits) {
-      return Promise.map(composits, function (composit) {
+      return _seleniumWebdriver2.default.promise.map(composits, function (composit) {
         return composit.elem.click();
       });
     });
   } else if (action.hasOwnProperty('value')) {
     //radio
     return checker.waitElements(action.check, action.count, action.timeout).then(function (elems) {
-      return Promise.map(elems, function (elem) {
-        return elem.getAttribute('value').then(function (value) {
-          return { elem: elem, value: value };
-        });
-      });
+      return checker.assembleFromElements(elems, { value: function value(elem) {
+          return elem.getAttribute('value');
+        } });
     }).then(function (composits) {
       return composits.filter(function (composit) {
         return composit.value == action.value;
@@ -709,27 +759,49 @@ function check(checker, action) {
 function select(checker, action) {
   var values = action.value ? [action.value] : action.values;
   return checker.waitElement(action.select, action.timeout).then(function (elem) {
-    return elem.findElements(By.css('option'));
+    return checker.waitElementsIn(elem, By.css('option'));
   }).then(function (elems) {
-    if (elems.length === 0) {
-      throw new Error("Missing option in " + action.select);
-    }
-
-    return elems;
-  }).then(function (elems) {
-    return Promise.map(elems, function (elem) {
-      return elem.getAttribute('value').then(function (value) {
-        return { elem: elem, value: value };
-      });
+    return checker.assembleFromElements(elems, {
+      value: function value(elem) {
+        return elem.getAttribute('value');
+      },
+      isSelected: function isSelected(elem) {
+        return elem.isSelected();
+      }
     });
   }).then(function (composits) {
     return composits.filter(function (composit) {
-      return values.indexOf(composit.value) >= 0;
+      return !composit.isSelected && values.indexOf(composit.value) >= 0;
     }).map(function (composit) {
       return composit.elem;
     });
   }).then(function (elems) {
-    return Promise.map(elems, function (elem) {
+    return _seleniumWebdriver2.default.promise.map(elems, function (elem) {
+      return elem.click();
+    });
+  });
+}
+
+function unselect(checker, action) {
+  return checker.waitElement(action.unselect, action.timeout).then(function (elem) {
+    return checker.waitElementsIn(elem, By.css('option'));
+  }).then(function (elems) {
+    return checker.assembleFromElements(elems, {
+      value: function value(elem) {
+        return elem.getAttribute('value');
+      },
+      isSelected: function isSelected(elem) {
+        return elem.isSelected();
+      }
+    });
+  }).then(function (composits) {
+    return composits.filter(function (composit) {
+      return composit.isSelected && action.values.indexOf(composit.value) >= 0;
+    }).map(function (composit) {
+      return composit.elem;
+    });
+  }).then(function (elems) {
+    return _seleniumWebdriver2.default.promise.map(elems, function (elem) {
       return elem.click();
     });
   });
@@ -738,18 +810,34 @@ function select(checker, action) {
 function clear(checker, action) {
   if (action.type == 'checkbox') {
     return checker.waitElements(action.clear, action.count, action.timeout).then(function (elems) {
-      return Promise.map(elems, function (elem) {
-        return elem.isSelected().then(function (isSelected) {
-          return { elem: elem, isSelected: isSelected };
-        });
-      });
+      return checker.assembleFromElements(elems, { isSelected: function isSelected(elem) {
+          return elem.isSelected();
+        } });
     }).then(function (composits) {
       return composits.filter(function (composit) {
         return composit.isSelected;
       });
     }).then(function (composits) {
-      return Promise.map(composits, function (composit) {
+      return _seleniumWebdriver2.default.promise.map(composits, function (composit) {
         return composit.elem.click();
+      });
+    });
+  } else if (action.type == 'select') {
+    return checker.waitElement(action.clear, check.timeout).then(function (elem) {
+      return checker.waitElementsIn(elem, By.css("option"));
+    }).then(function (elems) {
+      return checker.assembleFromElements(elems, { isSelected: function isSelected(elem) {
+          return elem.isSelected();
+        } });
+    }).then(function (composits) {
+      return composits.filter(function (composit) {
+        return composit.isSelected;
+      }).map(function (composit) {
+        return composit.elem;
+      });
+    }).then(function (elems) {
+      return _seleniumWebdriver2.default.promise.map(elems, function (elem) {
+        return elem.click();
       });
     });
   } else {

@@ -910,4 +910,60 @@ test.describe('SSC', () => {
       })
     })
   })
+
+  test.it('should be able to handle multiple select tag.', () => {
+    const checker = new Checker(driver)
+    return Promise.resolve().then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/options.html"},
+        {checks: [
+          {equals: ['option2', 'option3'], type: 'select', by: By.css(".select-multiple")},
+          {equals: ['option1'], type: 'select', by: By.css(".select-multiple")},
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.message.indexOf("select By(css selector, .select-multiple) is not `option1` actual `option2,option3`.") >= 0)
+      })
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/options.html"},
+        {actions: [
+          {clear: By.css(".select-multiple"), type: 'select'},
+        ]},
+        {checks: [
+          {equals: [], type: 'select', by: By.css(".select-multiple")},
+        ]},
+        {actions: [
+          {select: By.css(".select-multiple"), values: ['option1', 'option3']},
+        ]},
+        {checks: [
+          {equals: ['option1', 'option3'], type: 'select', by: By.css(".select-multiple")},
+        ]},
+        {actions: [
+          {select: By.css(".select-multiple"), values: ['option2', 'option3']},
+        ]},
+        {checks: [
+          {equals: ['option1', 'option2', 'option3'], type: 'select', by: By.css(".select-multiple")},
+        ]},
+        {actions: [
+          {unselect: By.css(".select-multiple"), values: ['option3']},
+        ]},
+        {checks: [
+          {equals: ['option1', 'option2'], type: 'select', by: By.css(".select-multiple")},
+        ]},
+        {actions: [
+          {unselect: By.css(".select-multiple"), values: ['option3']},
+        ]},
+        {checks: [
+          {equals: ['option1', 'option2'], type: 'select', by: By.css(".select-multiple")},
+        ]},
+        {actions: [
+          {unselect: By.css(".select-multiple"), values: ['option1', 'option2']},
+        ]},
+        {checks: [
+          {equals: [], type: 'select', by: By.css(".select-multiple")},
+        ]},
+      ])
+    })
+  })
 })

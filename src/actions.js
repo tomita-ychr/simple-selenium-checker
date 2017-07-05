@@ -1,7 +1,7 @@
 import webdriver from 'selenium-webdriver';
 import util from 'util';
+import Checker from './Checker'
 const By = webdriver.By;
-const Promise = webdriver.promise;
 
 export function click(checker, action){
   return checker.waitElement(action.click, action.timeout).then(elem => {
@@ -18,25 +18,22 @@ export function sendKeys(checker, action){
 export function check(checker, action){
   if(action.hasOwnProperty('values')){//checkbox
     return checker.waitElements(action.check, action.count, action.timeout)
-      .then(elems => Promise.map(
-        elems, 
-        elem => elem.getAttribute('value').then(value => ({elem: elem, value: value})))
-      )
-      .then(composits => Promise.map(
-        composits,
-        composit => composit.elem.isSelected().then(isSelected => ({elem: composit.elem, value: composit.value, isSelected: isSelected})))
-      )
+      .then(elems => checker.assembleFromElements(
+        elems, {
+          value: elem => elem.getAttribute('value'),
+          isSelected: elem => elem.isSelected()
+      }))
       .then(composits => composits.filter(composit => !composit.isSelected && action.values.indexOf(composit.value) >= 0))
-      .then(composits => Promise.map(
+      .then(composits => webdriver.promise.map(
         composits,
-        composit => composit.elem.click())
-      )
+        composit => composit.elem.click()
+      ))
   } else if(action.hasOwnProperty('value')){//radio
     return checker.waitElements(action.check, action.count, action.timeout)
-      .then(elems => Promise.map(
-        elems, 
-        elem => elem.getAttribute('value').then(value => ({elem: elem, value: value})))
-      )
+      .then(elems => checker.assembleFromElements(
+        elems,
+        {value: elem => elem.getAttribute('value')}
+      ))
       .then(composits => composits.filter(composit => composit.value == action.value))
       .then(composits => {
         if(composits.length == 0){
@@ -53,34 +50,55 @@ export function check(checker, action){
 export function select(checker, action){
   const values = action.value ? [action.value] : action.values
   return checker.waitElement(action.select, action.timeout)
-    .then(elem => elem.findElements(By.css('option')))
-    .then(elems => {
-      if(elems.length === 0){
-        throw new Error("Missing option in " + action.select)
-      }
+    .then(elem => checker.waitElementsIn(elem, By.css('option')))
+    .then(elems => checker.assembleFromElements(
+      elems, {
+        value: elem => elem.getAttribute('value'),
+        isSelected: elem => elem.isSelected()
+    }))
+    .then(composits => composits.filter(composit => !composit.isSelected && values.indexOf(composit.value) >= 0).map(composit => composit.elem))
+    .then(elems => webdriver.promise.map(
+      elems,
+      elem => elem.click()
+    ))
+}
 
-      return elems
-    })
-    .then(elems => Promise.map(
+export function unselect(checker, action){
+  return checker.waitElement(action.unselect, action.timeout)
+    .then(elem => checker.waitElementsIn(elem, By.css('option')))
+    .then(elems => checker.assembleFromElements(
+      elems, {
+        value: elem => elem.getAttribute('value'),
+        isSelected: elem => elem.isSelected()
+    }))
+    .then(composits => composits.filter(composit => composit.isSelected && action.values.indexOf(composit.value) >= 0).map(composit => composit.elem))
+    .then(elems => webdriver.promise.map(
       elems,
-      elem => elem.getAttribute('value').then(value => ({elem: elem, value: value})))
-    )
-    .then(composits => composits.filter(composit => values.indexOf(composit.value) >= 0).map(composit => composit.elem))
-    .then(elems => Promise.map(
-      elems,
-      elem => elem.click())
-    )
+      elem => elem.click()
+    ))
 }
 
 export function clear(checker, action){
   if(action.type == 'checkbox'){
     return checker.waitElements(action.clear, action.count, action.timeout)
-    .then(elems => Promise.map(
+    .then(elems => checker.assembleFromElements(
       elems,
-      elem => elem.isSelected().then(isSelected => ({elem: elem, isSelected: isSelected})))
-    )
+      {isSelected: elem => elem.isSelected()}
+    ))
     .then(composits => composits.filter(composit => composit.isSelected))
-    .then(composits => Promise.map(composits, composit => composit.elem.click()))
+    .then(composits => webdriver.promise.map(composits, composit => composit.elem.click()))
+  } else if(action.type == 'select'){
+    return checker.waitElement(action.clear, check.timeout)
+      .then(elem => checker.waitElementsIn(elem, By.css("option")))
+      .then(elems => checker.assembleFromElements(
+        elems,
+        {isSelected: elem => elem.isSelected()}
+      ))
+      .then(composits => composits.filter(composit => composit.isSelected).map(composit => composit.elem))
+      .then(elems => webdriver.promise.map(
+        elems,
+        elem => elem.click()
+      ))
   } else {
     return checker.waitElement(action.clear, action.timeout).then(elem => {
       return elem.clear()

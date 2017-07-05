@@ -4,6 +4,7 @@ import * as checks from './checks'
 import * as actions from './actions'
 const until = webdriver.until;
 const By = webdriver.By;
+const Key = webdriver.Key;
 
 export default class Checker
 {
@@ -12,10 +13,39 @@ export default class Checker
     this.debug = Checker.Debug
   }
 
+  assembleFromElements(elems, values){
+    let promise = webdriver.promise.map(elems, elem => ({elem: elem}))
+
+    Object.keys(values).forEach(key => {
+      const func = values[key]
+      promise = promise.then(composits => webdriver.promise.map(composits, composit => func(composit.elem).then(value => {
+        composit[key] = value
+        return composit
+      })))
+    })
+
+    return promise
+  }
+
   waitDissapearElements(locator, timeout){
     if(timeout === undefined) timeout = Checker.DefaultTimeout;
     const cond = new webdriver.Condition(locator + ' disappear from the screen.', () => {
       return this.driver.findElements(locator).then(elems => elems.length === 0)
+    })
+    return this.driver.wait(cond, timeout)
+  }
+
+  waitElementsIn(element, locator, count, timeout){
+    if(count === undefined) count = 1
+    if(timeout === undefined) timeout = Checker.DefaultTimeout
+    const cond = new webdriver.Condition(util.format('for %s to be located %s in specified element', count > 1 ? count + " elements" : 'element', locator), () => {
+      return element.findElements(locator).then(elems => {
+        if(elems.length >= count){
+          return elems
+        }
+
+        return false
+      })
     })
     return this.driver.wait(cond, timeout)
   }

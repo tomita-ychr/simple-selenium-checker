@@ -1,7 +1,6 @@
 import webdriver from 'selenium-webdriver';
 import util from 'util';
 const By = webdriver.By;
-const Promise = webdriver.promise;
 
 function createPromise(checker, check){
   if(check.type === undefined){
@@ -12,22 +11,30 @@ function createPromise(checker, check){
       .then(elem => elem.getAttribute('outerHTML'))
   } else if(check.type == 'checkbox'){
     return checker.waitElements(check.by, check.count, check.timeout)
-      .then(elems => Promise.map(elems, elem => elem.isSelected().then(selected => {
-        return {elem: elem, selected: selected}
-      })))
-      .then(composits => composits.filter(composit => composit.selected).map(composit => composit.elem))
-      .then(elems => Promise.map(elems, elem => elem.getAttribute("value")))
+      .then(elems => checker.assembleFromElements(
+        elems, {
+          value: elem => elem.getAttribute('value'),
+          selected: elem => elem.isSelected()
+      }))
+      .then(composits => composits.filter(composit => composit.selected).map(composit => composit.value))
   } else if(check.type == 'radio'){
     return checker.waitElements(check.by, check.count, check.timeout)
-      .then(elems => Promise.map(elems, elem => elem.isSelected().then(selected => {
-        return {elem: elem, selected: selected}
-      })))
-      .then(composits => composits.filter(composit => composit.selected).map(composit => composit.elem))
-      .then(elems => Promise.map(elems, elem => elem.getAttribute("value")))
+      .then(elems => checker.assembleFromElements(
+        elems, {
+          value: elem => elem.getAttribute('value'),
+          selected: elem => elem.isSelected()
+      }))
+      .then(composits => composits.filter(composit => composit.selected).map(composit => composit.value))
       .then(values => values[0])
   } else if(check.type == 'select'){
     return checker.waitElement(check.by, check.timeout)
-      .then(elem => elem.getAttribute('value'))
+      .then(elem => checker.waitElementsIn(elem, By.css("option")))
+      .then(elems => checker.assembleFromElements(
+        elems, {
+          value: elem => elem.getAttribute('value'),
+          isSelected: elem => elem.isSelected()
+      }))
+      .then(composits => composits.filter(composit => composit.isSelected).map(composit => composit.value))
   } else if(check.type == 'url'){
     return checker.driver.getCurrentUrl()
   } else if(check.type.hasOwnProperty('attr')) {
@@ -79,8 +86,9 @@ export function likes(checker, check){
 
 export function equals(checker, check){
   return createPromise(checker, check).then(values => {
-    if(check.type == 'checkbox'){
-      if(!compareArray(values, check.equals)){
+    if(Array.isArray(values)){
+      const expects = Array.isArray(check.equals) ? check.equals : [check.equals]
+      if(!compareArray(values, expects)){
         throw new Error(createErrorMessage(check, 'is not', check.equals, values))
       }
     } else {
