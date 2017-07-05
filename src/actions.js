@@ -109,5 +109,5 @@ export function clear(checker, action){
 }
 
 export function alert(checker, action){
-  return checker.driver.switchTo().alert()[action.alert]()
+  return checker.handleAlert(action.alert, action.timeout)
 }

@@ -974,10 +974,32 @@ test.describe('SSC', () => {
         {url: "http://127.0.0.1:8080/alert.html"},
         {actions: [
           {click: By.css("#alert")},
-          {alert: "accept"}
+          {alert: "accept", timeout: 3000}
         ]},
         {checks: [
           {equals: "Alert", by: By.css("#display"), timeout: 3000},
+        ]},
+       ])
+    }).then(() => {
+       return checker.run([
+        {url: "http://127.0.0.1:8080/alert.html"},
+        {actions: [
+          {click: By.css("#confirm")},
+          {alert: "accept", timeout: 3000}
+        ]},
+        {checks: [
+          {equals: "Confirm OK", by: By.css("#display"), timeout: 3000},
+        ]},
+       ])
+    }).then(() => {
+       return checker.run([
+        {url: "http://127.0.0.1:8080/alert.html"},
+        {actions: [
+          {click: By.css("#confirm")},
+          {alert: "dismiss", timeout: 3000}
+        ]},
+        {checks: [
+          {equals: "Confirm Cancel", by: By.css("#display"), timeout: 3000},
         ]},
        ])
     })

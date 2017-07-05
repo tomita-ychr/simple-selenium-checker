@@ -14,6 +14,17 @@ export default class Checker
     this.debug = Checker.Debug
   }
 
+  handleAlert(alertAction, timeout){
+    if(timeout === undefined) timeout = Checker.DefaultTimeout
+    return this.driver.wait(until.alertIsPresent(), timeout).then(() => {
+      const alert = this.driver.switchTo().alert()
+      if(!alert[alertAction]){
+        throw new Error("Missing " + alertAction + " action in alert.")
+      }
+      return alert[alertAction]()
+    })
+  }
+
   assembleFromElements(elems, values){
     let promise = webdriver.promise.map(elems, elem => ({elem: elem}))
 

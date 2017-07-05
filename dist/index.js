@@ -157,6 +157,20 @@ var Checker = function () {
   }
 
   _createClass(Checker, [{
+    key: 'handleAlert',
+    value: function handleAlert(alertAction, timeout) {
+      var _this = this;
+
+      if (timeout === undefined) timeout = Checker.DefaultTimeout;
+      return this.driver.wait(until.alertIsPresent(), timeout).then(function () {
+        var alert = _this.driver.switchTo().alert();
+        if (!alert[alertAction]) {
+          throw new Error("Missing " + alertAction + " action in alert.");
+        }
+        return alert[alertAction]();
+      });
+    }
+  }, {
     key: 'assembleFromElements',
     value: function assembleFromElements(elems, values) {
       var promise = _seleniumWebdriver2.default.promise.map(elems, function (elem) {
@@ -192,11 +206,11 @@ var Checker = function () {
   }, {
     key: 'waitDissapearElements',
     value: function waitDissapearElements(locator, timeout) {
-      var _this = this;
+      var _this2 = this;
 
       if (timeout === undefined) timeout = Checker.DefaultTimeout;
       var cond = new _seleniumWebdriver2.default.Condition(locator + ' disappear from the screen.', function () {
-        return _this.driver.findElements(locator).then(function (elems) {
+        return _this2.driver.findElements(locator).then(function (elems) {
           return elems.length === 0;
         });
       });
@@ -230,12 +244,12 @@ var Checker = function () {
   }, {
     key: 'waitElements',
     value: function waitElements(locator, count, timeout) {
-      var _this2 = this;
+      var _this3 = this;
 
       if (count === undefined) count = 1;
       if (timeout === undefined) timeout = Checker.DefaultTimeout;
       var cond = new _seleniumWebdriver2.default.Condition(_util2.default.format('for %s to be located %s', count > 1 ? count + " elements" : 'element', locator), function () {
-        return _this2.driver.findElements(locator).then(function (elems) {
+        return _this3.driver.findElements(locator).then(function (elems) {
           if (elems.length >= count) {
             return elems;
           }
@@ -253,11 +267,11 @@ var Checker = function () {
   }, {
     key: 'waitElement',
     value: function waitElement(locator, timeout) {
-      var _this3 = this;
+      var _this4 = this;
 
       if (timeout === undefined) timeout = Checker.DefaultTimeout;
       return this.driver.wait(until.elementLocated(locator), timeout).then(function (elem) {
-        return _this3.driver.wait(until.elementIsVisible(elem), timeout);
+        return _this4.driver.wait(until.elementIsVisible(elem), timeout);
       });
     }
   }, {
@@ -303,13 +317,13 @@ var Checker = function () {
   }, {
     key: '_testGroup',
     value: function _testGroup(conditions) {
-      var _this4 = this;
+      var _this5 = this;
 
       var promise = Promise.resolve(false);
       conditions.forEach(function (item) {
         promise = promise.then(function (res) {
           if (res === true) return true; //OR
-          return _this4._testItem(item);
+          return _this5._testItem(item);
         });
       });
 
@@ -318,14 +332,14 @@ var Checker = function () {
   }, {
     key: '_testExecif',
     value: function _testExecif(conditions) {
-      var _this5 = this;
+      var _this6 = this;
 
       var promise = Promise.resolve(true);
       if (conditions) {
         conditions.forEach(function (group) {
           promise = promise.then(function (res) {
             if (res === false) return false; //AND
-            return _this5._testGroup(group);
+            return _this6._testGroup(group);
           });
         });
       }
@@ -335,7 +349,7 @@ var Checker = function () {
   }, {
     key: 'run',
     value: function run(scenario, promise) {
-      var _this6 = this;
+      var _this7 = this;
 
       if (!promise) {
         promise = Promise.resolve();
@@ -343,7 +357,7 @@ var Checker = function () {
 
       scenario.forEach(function (item) {
         if (item.scenario) {
-          promise = _this6.run(item.scenario, promise);
+          promise = _this7.run(item.scenario, promise);
         } else {
           //directive count check.
           var directives = Object.keys(item);
@@ -356,30 +370,30 @@ var Checker = function () {
             throw new Error("Illegal directive object. " + JSON.stringify(item));
           }
 
-          item = _this6._applyPlaceholder(item);
+          item = _this7._applyPlaceholder(item);
 
           //execif
           if (item.execif) {
             promise = promise.then(function () {
-              return _this6._testExecif(item.execif);
+              return _this7._testExecif(item.execif);
             });
           } else if (item.url) {
             promise = promise.then(function (res) {
               if (res === false) return false;
-              return _this6.driver.get(item.url);
+              return _this7.driver.get(item.url);
             });
           } else if (item.actions) {
             item.actions.forEach(function (action) {
               promise = promise.then(function (res) {
                 if (res === false) return false;
-                return _this6._detectFunction(actions, action)(_this6, action);
+                return _this7._detectFunction(actions, action)(_this7, action);
               });
             });
           } else if (item.checks) {
             item.checks.forEach(function (check) {
               promise = promise.then(function (res) {
                 if (res === false) return false;
-                return _this6._detectFunction(checks, check)(_this6, check);
+                return _this7._detectFunction(checks, check)(_this7, check);
               });
             });
           }
@@ -387,9 +401,9 @@ var Checker = function () {
           //Check javascript and response errors using browser logs.
           promise = promise.then(function (res) {
             if (res === false) return false;
-            return _this6.driver.getCurrentUrl().then(function (url) {
+            return _this7.driver.getCurrentUrl().then(function (url) {
               return new Promise(function (resolve) {
-                _this6.driver.manage().logs().get('browser').then(function (logs) {
+                _this7.driver.manage().logs().get('browser').then(function (logs) {
                   logs.forEach(function (log) {
                     //javascript
                     if (Checker.JsErrorStrings.some(function (err) {
@@ -415,13 +429,13 @@ var Checker = function () {
           });
 
           //Format the error.
-          if (_this6.debug === false) {
+          if (_this7.debug === false) {
             promise = promise.catch(function (err) {
-              return _this6.driver.findElement(By.css('html')).then(function (elem) {
+              return _this7.driver.findElement(By.css('html')).then(function (elem) {
                 return elem.getAttribute('outerHTML');
               }).then(function (html) {
-                return _this6.driver.getCurrentUrl().then(function (url) {
-                  var data = Object.assign({}, _this6.data);
+                return _this7.driver.getCurrentUrl().then(function (url) {
+                  var data = Object.assign({}, _this7.data);
                   delete data.next;
                   var message = url + "\n" + "JSON: " + JSON.stringify(item) + "\n" + "Name: " + err.name + "\n" + "Message: " + err.message + "\n" + html;
                   throw new errors.VerboseError(message, err);
@@ -452,16 +466,16 @@ var Checker = function () {
   }, {
     key: '_applyPlaceholderToArray',
     value: function _applyPlaceholderToArray(elems) {
-      var _this7 = this;
+      var _this8 = this;
 
       var newElems = [];
       elems.forEach(function (elem) {
         if (elem.forEach) {
-          newElems.push(_this7._applyPlaceholderToArray(elem));
+          newElems.push(_this8._applyPlaceholderToArray(elem));
         } else {
           var newElem = {};
           for (var elemKey in elem) {
-            newElem[elemKey] = _this7._applyPlaceholderToValue(elem[elemKey]);
+            newElem[elemKey] = _this8._applyPlaceholderToValue(elem[elemKey]);
           }
           newElems.push(newElem);
         }
@@ -881,7 +895,7 @@ function clear(checker, action) {
 }
 
 function alert(checker, action) {
-  return checker.driver.switchTo().alert()[action.alert]();
+  return checker.handleAlert(action.alert, action.timeout);
 }
 
 /***/ }),

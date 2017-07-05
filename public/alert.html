@@ -14,20 +14,24 @@
       function display(text){
         setTimeout(function(){
           $('#display').text(text)          
-        }, 500)
+        }, 300)
       }
 
       $("#alert").on('click', function(e){
-        alert("Alert")
-        display('Alert')
+        setTimeout(function(){
+          alert("Alert")
+          display('Alert')
+        }, 300)
       })
 
       $("#confirm").on('click', function(e){
-        if(confirm('Confirm')){
-          display('Confirm OK')
-        } else {
-          display('Confirm Cancel')
-        }
+        setTimeout(function(){
+          if(confirm('Confirm')){
+            display('Confirm OK')
+          } else {
+            display('Confirm Cancel')
+          }
+        }, 300)
       })
     })
   </script>
