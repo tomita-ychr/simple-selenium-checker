@@ -128,18 +128,18 @@ export default class Checker
   }
 
   _testItem(condition){
-    if(condition.exists){
-      return this.waitElement(condition.exists, condition.wait)
-        .then(() => true)
-        .catch(() => false)
-    } else if(condition.notExists){
-      return this.waitElement(condition.notExists, condition.wait)
-        .then(() => false)
-        .catch(() => true)
-    } else if(condition.bool !== undefined){
+    if(condition.bool !== undefined){
       return Promise.resolve(condition.bool)
     } else {
-      throw new Error("Invalid execif condition " + JSON.stringify(condition))
+      return this._detectFunction(checks, condition)(this, condition)
+        .then(() => true)
+        .catch(err => {
+          if(['NotMatchError', 'NotSuchElementError', 'ElementExistsError'].indexOf(err.name) >= 0){
+            return false
+          }
+
+          throw err
+        })
     }
   }
 

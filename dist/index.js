@@ -296,22 +296,18 @@ var Checker = function () {
   }, {
     key: '_testItem',
     value: function _testItem(condition) {
-      if (condition.exists) {
-        return this.waitElement(condition.exists, condition.wait).then(function () {
-          return true;
-        }).catch(function () {
-          return false;
-        });
-      } else if (condition.notExists) {
-        return this.waitElement(condition.notExists, condition.wait).then(function () {
-          return false;
-        }).catch(function () {
-          return true;
-        });
-      } else if (condition.bool !== undefined) {
+      if (condition.bool !== undefined) {
         return Promise.resolve(condition.bool);
       } else {
-        throw new Error("Invalid execif condition " + JSON.stringify(condition));
+        return this._detectFunction(checks, condition)(this, condition).then(function () {
+          return true;
+        }).catch(function (err) {
+          if (['NotMatchError', 'NotSuchElementError', 'ElementExistsError'].indexOf(err.name) >= 0) {
+            return false;
+          }
+
+          throw err;
+        });
       }
     }
   }, {
