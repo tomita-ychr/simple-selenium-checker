@@ -14,8 +14,12 @@ test.describe('SSC', () => {
     Checker.Debug = isDebug
     Checker.DefaultTimeout = 1
     const chromeCapabilities = webdriver.Capabilities.chrome();
+    const args = ["--window-size=1024,768"]
+    if(isDebug){
+      args.push('--headless', '--disable-gpu')
+    }
     chromeCapabilities.set('chromeOptions', {
-      // 'args': ['--headless', '--disable-gpu']
+      'args': args
     });
     driver = new webdriver.Builder()
       .usingServer('http://localhost:4444/wd/hub')
@@ -1002,6 +1006,47 @@ test.describe('SSC', () => {
           {equals: "Confirm Cancel", by: By.css("#display"), timeout: 3000},
         ]},
        ])
+    })
+  })
+
+  test.it('should be able to handle frame.', () => {
+    const checker = new Checker(driver)
+    return Promise.resolve().then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/frame.html"},
+        {actions: [
+          {switchTo: By.css("#index_frame")},
+        ]},
+        {checks: [
+          {equals: "Home", by: By.css("h2")},
+          {equals: "FooBar", by: By.css("h2")},
+        ]},
+       ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.name == "NotMatchError")
+        assert(err.message.indexOf("FooBar") >= 0)
+      })
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/frame.html"},
+        {actions: [
+          {switchTo: By.css("#index_frame")},
+        ]},
+        {checks: [
+          {equals: "Home", by: By.css("h2")},
+        ]},
+        {actions: [
+          {switchTo: 'default'},
+        ]},
+        {checks: [
+          {equals: "Frame", by: By.css("h2")},
+          {equals: "FooBar", by: By.css("h2")},
+        ]},
+       ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.name == "NotMatchError")
+        assert(err.message.indexOf("FooBar") >= 0)
+      })
     })
   })
 })

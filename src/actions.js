@@ -111,3 +111,13 @@ export function clear(checker, action){
 export function alert(checker, action){
   return checker.handleAlert(action.alert, action.timeout)
 }
+
+export function switchTo(checker, action){
+  if(action.switchTo === 'default' || !action.switchTo){
+    return checker.driver.switchTo().frame(null)
+  } else {
+    return checker.waitElement(action.switchTo, action.timeout)
+      .then(elem => checker.driver.switchTo().frame(elem))
+  }
+
+}
