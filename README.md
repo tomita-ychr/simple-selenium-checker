@@ -25,20 +25,21 @@ const driver = new webdriver.Builder()
 const checker = new Checker(driver)
 ```
 
-Pass the scenario as an array of objects to the run() method to launch the test.
+Call run() method with the scenario as an array of objects.
 
 ```js
 const checker = new Checker(driver)
 
 const scenario = [
   {url: "https://www.google.com/"}
-  {checks: [{by: By.css("#searchform")}]}
+  {checks: [{exists: By.css("input#lst-ib")}]}
+  {actions:[{}]}
 ]
 
 checker.run(scenario)
 ```
 
-In the above scenario, first open `https: // www.google.com /` and check if there is a `#searchform` element on the page.
+In the above scenario, first open `https://www.google.com/`, and check if there is a `#searchform` element on the page.
 
 
 Below are all the supported directives of the scenario.
@@ -70,10 +71,10 @@ const scenario = [
     {equals: "Home 002", by: By.css(".main .col-sm-6:nth-child(2) h3"), timeout: 1000},
     //Compare the text contained in the element with partial match.
     {likes: "Home 002", by: By.css(".main .col-sm-6:nth-child(2) h3")},
-    //If the callback returns Promise with the resolved value true, it succeeds and fails if it returns Promise with false.
-    {callback: elem => elem.getAttribute("alt").then(alt => alt == "Home alt 003"), by: By.css(".main .col-sm-6:nth-child(3) img")},
     //Search the entire body of the response with partial match.
-    {likes: "<title>Simple selenium checker - Home</title>"}
+    {likes: "<title>Simple selenium checker - Home</title>", type: 'html'}
+    //Html attribute
+    {equals: "foobar", type: {attr: 'alt'}, by: By.css('img#foobar')}
   ]},
 
   {actions: [
