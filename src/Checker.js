@@ -47,6 +47,7 @@ export default class Checker
         if(err.name == 'TimeoutError'){
           throw new errors.NotMatchError(err.message)
         }
+        throw err
       })
   }
 

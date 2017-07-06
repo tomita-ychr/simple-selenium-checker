@@ -121,11 +121,13 @@ export function unchecked(checker, check){
   check = normalizeDirective(check, 'unchecked', 'checkbox')
   return checker.waitFor(createErrorMessage(check, 'is not checked'), () => {
     return createPromise(checker, check).then(values => {
-      check.values.forEach(uncheckedValue => {
-        if(values.indexOf(uncheckedValue) >= 0){
+      for (var i = 0; i < check.values.length; i++) {
+        var expected = check.values[i];
+        if(values.indexOf(expected) >= 0){
           return false
         }
-      })
+      }
+
       return true
     })
   }, check.timeout)
@@ -133,13 +135,14 @@ export function unchecked(checker, check){
 
 export function checked(checker, check){
   check = normalizeDirective(check, 'checked', 'checkbox')
-  return checker.waitFor(createErrorMessage(check, 'is not checked'), () => {
+  return checker.waitFor(createErrorMessage(check, 'is checked'), () => {
     return createPromise(checker, check).then(values => {
-      check.values.forEach(checkedValue => {
-        if(values.indexOf(checkedValue) === -1){
+      for (var i = 0; i < check.values.length; i++) {
+        var expected = check.values[i];
+        if(values.indexOf(expected) === -1){
           return false
         }
-      })
+      }
 
       return true
     })

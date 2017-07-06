@@ -419,6 +419,46 @@ test.describe('SSC', () => {
         [{notExists: By.css('header')}]
       ]).then(res => assert(res === false))
     }).then(() => {
+      //equals true
+      return checker._testExecif([
+        [{equals: By.css('h2'), value: "Home"}]
+      ]).then(res => assert(res === true))
+    }).then(() => {
+      //equals false
+      return checker._testExecif([
+        [{equals: By.css('h2'), value: "Foo"}]
+      ]).then(res => assert(res === false))
+    }).then(() => {
+      //notEquals true
+      return checker._testExecif([
+        [{notEquals: By.css('h2'), value: "Foo"}]
+      ]).then(res => assert(res === true))
+    }).then(() => {
+      //notEquals false
+      return checker._testExecif([
+        [{notEquals: By.css('h2'), value: "Home"}]
+      ]).then(res => assert(res === false))
+    }).then(() => {
+      //likes true
+      return checker._testExecif([
+        [{likes: By.css('h2'), value: "om"}]
+      ]).then(res => assert(res === true))
+    }).then(() => {
+      //likes false
+      return checker._testExecif([
+        [{likes: By.css('h2'), value: "Foo"}]
+      ]).then(res => assert(res === false))
+    }).then(() => {
+      //notLikes true
+      return checker._testExecif([
+        [{notLikes: By.css('h2'), value: "Foo"}]
+      ]).then(res => assert(res === true))
+    }).then(() => {
+      //notLikes false
+      return checker._testExecif([
+        [{notLikes: By.css('h2'), value: "om"}]
+      ]).then(res => assert(res === false))
+    }).then(() => {
       // bool true
       return checker._testExecif([
         [{bool: true}]
@@ -438,6 +478,48 @@ test.describe('SSC', () => {
       return checker._testExecif([
         [{exists: By.css('header')}],
         [{notExists: By.css('header')}]
+      ]).then(res => assert(res === false))
+    }).then(() => {
+      return driver.get('http://127.0.0.1:8080/options.html')
+    }).then(() => {
+      //checked true
+      return checker._testExecif([
+        [{checked: By.css('.checkbox-inline input'), values: ["checkbox2"]}]
+      ]).then(res => assert(res === true))
+    }).then(() => {
+      //checked false
+      return checker._testExecif([
+        [{checked: By.css('.checkbox-inline input'), values: ["checkbox1"]}]
+      ]).then(res => assert(res === false))
+    }).then(() => {
+      //unchecked true
+      return checker._testExecif([
+        [{unchecked: By.css('.checkbox-inline input'), values: ["checkbox1"]}]
+      ]).then(res => assert(res === true))
+    }).then(() => {
+      //unchecked false
+      return checker._testExecif([
+        [{unchecked: By.css('.checkbox-inline input'), values: ["checkbox2"]}]
+      ]).then(res => assert(res === false))
+    }).then(() => {
+      //selected true
+      return checker._testExecif([
+        [{selected: By.css('.select-multiple'), values: ["option2"]}]
+      ]).then(res => assert(res === true))
+    }).then(() => {
+      //selected false
+      return checker._testExecif([
+        [{selected: By.css('.select-multiple'), values: ["option1"]}]
+      ]).then(res => assert(res === false))
+    }).then(() => {
+      //unselected true
+      return checker._testExecif([
+        [{unselected: By.css('.select-multiple'), values: ["option1"]}]
+      ]).then(res => assert(res === true))
+    }).then(() => {
+      //unselected false
+      return checker._testExecif([
+        [{unselected: By.css('.select-multiple'), values: ["option2"]}]
       ]).then(res => assert(res === false))
     })
 

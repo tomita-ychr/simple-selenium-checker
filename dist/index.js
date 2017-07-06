@@ -201,6 +201,7 @@ var Checker = function () {
         if (err.name == 'TimeoutError') {
           throw new errors.NotMatchError(err.message);
         }
+        throw err;
       });
     }
   }, {
@@ -686,11 +687,13 @@ function unchecked(checker, check) {
   check = normalizeDirective(check, 'unchecked', 'checkbox');
   return checker.waitFor(createErrorMessage(check, 'is not checked'), function () {
     return createPromise(checker, check).then(function (values) {
-      check.values.forEach(function (uncheckedValue) {
-        if (values.indexOf(uncheckedValue) >= 0) {
+      for (var i = 0; i < check.values.length; i++) {
+        var expected = check.values[i];
+        if (values.indexOf(expected) >= 0) {
           return false;
         }
-      });
+      }
+
       return true;
     });
   }, check.timeout);
@@ -698,13 +701,14 @@ function unchecked(checker, check) {
 
 function checked(checker, check) {
   check = normalizeDirective(check, 'checked', 'checkbox');
-  return checker.waitFor(createErrorMessage(check, 'is not checked'), function () {
+  return checker.waitFor(createErrorMessage(check, 'is checked'), function () {
     return createPromise(checker, check).then(function (values) {
-      check.values.forEach(function (checkedValue) {
-        if (values.indexOf(checkedValue) === -1) {
+      for (var i = 0; i < check.values.length; i++) {
+        var expected = check.values[i];
+        if (values.indexOf(expected) === -1) {
           return false;
         }
-      });
+      }
 
       return true;
     });
