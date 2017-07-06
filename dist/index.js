@@ -547,7 +547,7 @@ var By = _seleniumWebdriver2.default.By;
 
 function createPromise(checker, check) {
   if (check.type === undefined) {
-    return checker.waitElement(check.by, check.timeout).then(function (elem) {
+    return checker.waitElement(check.locator, check.timeout).then(function (elem) {
       return elem.getText();
     });
   } else if (check.type === 'html') {
@@ -555,7 +555,7 @@ function createPromise(checker, check) {
       return elem.getAttribute('outerHTML');
     });
   } else if (check.type == 'checkbox' || check.type == 'radio') {
-    return checker.waitElements(check.by, check.count, check.timeout).then(function (elems) {
+    return checker.waitElements(check.locator, check.count, check.timeout).then(function (elems) {
       return checker.assembleFromElements(elems, {
         value: function value(elem) {
           return elem.getAttribute('value');
@@ -572,7 +572,7 @@ function createPromise(checker, check) {
       });
     });
   } else if (check.type == 'select') {
-    return checker.waitElement(check.by, check.timeout).then(function (elem) {
+    return checker.waitElement(check.locator, check.timeout).then(function (elem) {
       return checker.waitElementsIn(elem, By.css("option"));
     }).then(function (elems) {
       return checker.assembleFromElements(elems, {
@@ -593,7 +593,7 @@ function createPromise(checker, check) {
   } else if (check.type == 'url') {
     return checker.driver.getCurrentUrl();
   } else if (check.type.hasOwnProperty('attr')) {
-    return checker.waitElement(check.by, check.timeout).then(function (elem) {
+    return checker.waitElement(check.locator, check.timeout).then(function (elem) {
       return elem.getAttribute(check.type.attr);
     });
   } else {
@@ -601,19 +601,19 @@ function createPromise(checker, check) {
   }
 }
 
-function createErrorMessage(check, predicate, expect, actual) {
+function createErrorMessage(check, predicate) {
   if (check.type === undefined) {
-    return _util2.default.format("Text in %s %s `%s`%s.", check.by, predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
+    return _util2.default.format("Text in %s %s `%s`.", check.locator, predicate, check.value || check.values);
   } else if (check.type === 'html') {
-    return _util2.default.format("Response body %s `%s`.", predicate, expect);
+    return _util2.default.format("Response body %s `%s`.", predicate, check.value || check.values);
   } else if (check.type == 'checkbox' || check.type == 'radio') {
-    return _util2.default.format("%s[%s] %s `%s`%s.", check.by, check.type, predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
+    return _util2.default.format("%s[%s] %s `%s`.", check.locator, check.type, predicate, check.value || check.values);
   } else if (check.type == 'url') {
-    return _util2.default.format("Url %s `%s`%s.", predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
+    return _util2.default.format("Url %s `%s`.", predicate, check.value || check.values);
   } else if (check.type.hasOwnProperty('attr')) {
-    return _util2.default.format("%s of %s %s `%s`%s.", check.type.attr, check.by, predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
+    return _util2.default.format("%s of %s %s `%s`.", check.type.attr, check.locator, predicate, check.value || check.values);
   } else if (check.type === 'select') {
-    return _util2.default.format("%s[select] %s `%s`%s.", check.by, predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
+    return _util2.default.format("%s[select] %s `%s`.", check.locator, predicate, check.value || check.values);
   } else {
     throw new Error('Illegal checker directive type ' + JSON.stringify(check));
   }
@@ -623,48 +623,70 @@ function compareArray(array1, array2) {
   return JSON.stringify(array1.sort()) === JSON.stringify(array2.sort());
 }
 
+function normalizeDirective(check, name, forceType) {
+  check = Object.assign({}, check);
+
+  if (forceType !== undefined) {
+    check.type = forceType;
+  }
+
+  if (typeof check[name] == 'string') {
+    if (check.type !== undefined) {
+      throw new Error('When target is string, type must be undefined.');
+    }
+    check.type = check[name];
+  } else {
+    check.locator = check[name];
+  }
+
+  return check;
+}
+
 function exists(checker, check) {
+  check = normalizeDirective(check, 'exists');
   return checker.waitElements(check.exists, check.count, check.timeout);
 }
 
 function notExists(checker, check) {
+  check = normalizeDirective(check, 'notExists');
   return checker.waitDissapearElements(check.notExists, check.timeout);
 }
 
 function likes(checker, check) {
-  return checker.waitFor(createErrorMessage(check, 'dose not contain', check.likes), function () {
+  check = normalizeDirective(check, 'likes');
+  return checker.waitFor(createErrorMessage(check, 'dose not contain'), function () {
     return createPromise(checker, check).then(function (text) {
-      return text.indexOf(check.likes) >= 0;
+      return text.indexOf(check.value) >= 0;
     });
   }, check.timeout);
 }
 
 function equals(checker, check) {
-  if (Array.isArray(check.equals)) {
-    return checker.waitFor(createErrorMessage(check, 'is', check.equals), function () {
+  check = normalizeDirective(check, 'equals');
+  if (check.values) {
+    return checker.waitFor(createErrorMessage(check, 'is'), function () {
       return createPromise(checker, check).then(function (values) {
-        return compareArray(values, check.equals);
+        return compareArray(values, check.values);
       });
     }, check.timeout);
   } else {
-    return checker.waitFor(createErrorMessage(check, 'is', check.equals), function () {
+    return checker.waitFor(createErrorMessage(check, 'is'), function () {
       return createPromise(checker, check).then(function (text) {
         if (Array.isArray(text)) {
           if (text.length > 1) throw new Error(_util2.default.format("%s has multiple values `%s`"), check.by, text);
           text = text[0];
         }
-        return text === check.equals;
+        return text === check.value;
       });
     }, check.timeout);
   }
 }
 
 function unchecked(checker, check) {
-  //unchecked use only for checkbox. use equals for radio.
-  check = Object.assign(check, { type: 'checkbox' });
-  return checker.waitFor(createErrorMessage(check, 'is not checked', check.unchecked), function () {
+  check = normalizeDirective(check, 'unchecked', 'checkbox');
+  return checker.waitFor(createErrorMessage(check, 'is not checked'), function () {
     return createPromise(checker, check).then(function (values) {
-      check.unchecked.forEach(function (uncheckedValue) {
+      check.values.forEach(function (uncheckedValue) {
         if (values.indexOf(uncheckedValue) >= 0) {
           return false;
         }
@@ -675,11 +697,10 @@ function unchecked(checker, check) {
 }
 
 function checked(checker, check) {
-  //checked use only for checkbox. use equals for radio.
-  check = Object.assign(check, { type: 'checkbox' });
-  return checker.waitFor(createErrorMessage(check, 'is not checked', check.checked), function () {
+  check = normalizeDirective(check, 'checked', 'checkbox');
+  return checker.waitFor(createErrorMessage(check, 'is not checked'), function () {
     return createPromise(checker, check).then(function (values) {
-      check.checked.forEach(function (checkedValue) {
+      check.values.forEach(function (checkedValue) {
         if (values.indexOf(checkedValue) === -1) {
           return false;
         }
@@ -691,9 +712,9 @@ function checked(checker, check) {
 }
 
 function selected(checker, check) {
-  var expectedList = Array.isArray(check.selected) ? check.selected : [check.selected];
-  check.type = "select";
-  return checker.waitFor(createErrorMessage(check, 'select', check.selected), function () {
+  check = normalizeDirective(check, 'selected', 'select');
+  var expectedList = check.values || [check.value];
+  return checker.waitFor(createErrorMessage(check, 'select'), function () {
     return createPromise(checker, check).then(function (values) {
       for (var i = 0; i < expectedList.length; i++) {
         var expected = expectedList[i];
@@ -708,9 +729,9 @@ function selected(checker, check) {
 }
 
 function unselected(checker, check) {
-  var expectedList = Array.isArray(check.unselected) ? check.unselected : [check.unselected];
-  check.type = "select";
-  return checker.waitFor(createErrorMessage(check, 'dose not select', check.unselected), function () {
+  check = normalizeDirective(check, 'unselected', 'select');
+  var expectedList = check.values || [check.value];
+  return checker.waitFor(createErrorMessage(check, 'dose not select'), function () {
     return createPromise(checker, check).then(function (values) {
       for (var i = 0; i < expectedList.length; i++) {
         var expected = expectedList[i];
@@ -725,17 +746,19 @@ function unselected(checker, check) {
 }
 
 function notEquals(checker, check) {
-  return checker.waitFor(createErrorMessage(check, 'is not', check.notEquals), function () {
+  check = normalizeDirective(check, 'notEquals');
+  return checker.waitFor(createErrorMessage(check, 'is not'), function () {
     return createPromise(checker, check).then(function (text) {
-      return text !== check.notEquals;
+      return text !== check.value;
     });
   }, check.timeout);
 }
 
 function notLikes(checker, check) {
-  return checker.waitFor(createErrorMessage(check, 'dose not contains', check.notLikes), function () {
+  check = normalizeDirective(check, 'notLikes');
+  return checker.waitFor(createErrorMessage(check, 'dose not contains'), function () {
     return createPromise(checker, check).then(function (text) {
-      return text.indexOf(check.notLikes) === -1;
+      return text.indexOf(check.value) === -1;
     });
   }, check.timeout);
 }

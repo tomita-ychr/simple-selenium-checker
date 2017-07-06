@@ -42,9 +42,9 @@ test.describe('SSC', () => {
       },{
         checks: [
           {exists: By.css(".delay-content"), timeout: 8000},
-          {equals: "Home 002", by: By.css(".main .col-sm-6:nth-child(2) h3")},
-          {equals: "Home alt 003", type: {attr: 'alt'}, by: By.css(".main .col-sm-6:nth-child(3) img")},
-          {likes: "<title>Simple selenium checker - Home</title>", type: "html"}
+          {equals: By.css(".main .col-sm-6:nth-child(2) h3"), value: "Home 002"},
+          {equals: By.css(".main .col-sm-6:nth-child(3) img"), type: {attr: 'alt'}, value: "Home alt 003"},
+          {likes: "html", value: "<title>Simple selenium checker - Home</title>"} 
         ]
       },{
         actions:[
@@ -53,9 +53,9 @@ test.describe('SSC', () => {
       },{
         checks: [
           {exists: By.css(".delay-content"), timeout: 8000},
-          {equals: "Foo 002", by: By.css(".main .col-sm-6:nth-child(2) h3")},
-          {equals: "Foo alt 003", type: {attr: "alt"}, by: By.css(".main .col-sm-6:nth-child(3) img")},
-          {likes: "<title>Simple selenium checker - Foo", type: "html"},
+          {equals: By.css(".main .col-sm-6:nth-child(2) h3"), value: "Foo 002"},
+          {equals: By.css(".main .col-sm-6:nth-child(3) img"), type: {attr: "alt"}, value: "Foo alt 003"},
+          {likes: "html", value: "<title>Simple selenium checker - Foo"} ,
         ],
       }]
 
@@ -106,7 +106,7 @@ test.describe('SSC', () => {
         url: "http://127.0.0.1:8080/",
       }, {
         checks: [
-          {equals: "Hoge 002", by: By.css(".main .col-sm-6:nth-child(2) h3")},
+          {equals: By.css(".main .col-sm-6:nth-child(2) h3"), value: "Hoge 002"},
         ]
       }]
 
@@ -125,7 +125,7 @@ test.describe('SSC', () => {
         ],
       },{
         checks: [
-          {equals: "Bar 003", by: By.css(".main .col-sm-6:nth-child(3) h3")},
+          {equals: By.css(".main .col-sm-6:nth-child(3) h3"), value: "Bar 003"},
         ],
       }]
 
@@ -144,7 +144,7 @@ test.describe('SSC', () => {
         url: "http://127.0.0.1:8080/"
       },{
         checks: [
-          {likes: "<title>Simple selenium checker - Hoge</title>" , type: "html"}
+          {likes: "html", value: "<title>Simple selenium checker - Hoge</title>"} 
         ]
       }]
 
@@ -163,7 +163,7 @@ test.describe('SSC', () => {
         ],
       },{
         checks: [ 
-          {likes: "<title>Simple selenium checker - Bar</title>", type: "html"}
+          {likes: "html", value: "<title>Simple selenium checker - Bar</title>"} 
         ],
       }]
 
@@ -220,7 +220,7 @@ test.describe('SSC', () => {
       },{
         checks: [
           {exists: By.css(".main .col-sm-6:nth-child(1) h3")},
-          {equals: "http://127.0.0.1:8080/index.html?name=fooBarTest&send=send", type: "url"},
+          {equals: "url", value: "http://127.0.0.1:8080/index.html?name=fooBarTest&send=send"} ,
         ],
       }]
 
@@ -236,10 +236,10 @@ test.describe('SSC', () => {
         url: "http://127.0.0.1:8080/",
       },{
         checks: [
-          {equals: "http://127.0.0.1:8080/", type: 'url'},
-          {likes: "127.0.0.1", type: 'url'},
-          {notEquals: "http://127.0.0.1:8080/foobar.html", type: 'url'},
-          {notLikes: "foobar", type: 'url'},
+          {equals: 'url', value: "http://127.0.0.1:8080/"} ,
+          {likes: 'url', value: "127.0.0.1"} ,
+          {notEquals: 'url', value: "http://127.0.0.1:8080/foobar.html"} ,
+          {notLikes: 'url', value: "foobar"} ,
         ]
       }]
 
@@ -249,7 +249,7 @@ test.describe('SSC', () => {
         url: "http://127.0.0.1:8080/",
       },{
         checks: [
-          {equals: "http://127.0.0.1:8080/hoge.html", type: 'url'},
+          {equals: 'url', value: "http://127.0.0.1:8080/hoge.html"} ,
         ]
       }]).catch(err => err).then(err => {
         assert(err != undefined)
@@ -261,7 +261,7 @@ test.describe('SSC', () => {
         url: "http://127.0.0.1:8080/",
       },{
         checks: [
-          {likes: "hoge.html", type: 'url'},
+          {likes: 'url', value: "hoge.html"} ,
         ]
       }]).catch(err => err).then(err => {
         assert(err != undefined)
@@ -273,7 +273,7 @@ test.describe('SSC', () => {
         url: "http://127.0.0.1:8080/",
       },{
         checks: [
-          {notEquals: "http://127.0.0.1:8080/", type: 'url'},
+          {notEquals: 'url', value: "http://127.0.0.1:8080/"} ,
         ]
       }]).catch(err => err).then(err => {
         assert(err != undefined)
@@ -285,7 +285,7 @@ test.describe('SSC', () => {
         url: "http://127.0.0.1:8080/",
       },{
         checks: [
-          {notLikes: "127.0.0.1", type: 'url'},
+          {notLikes: 'url', value: "127.0.0.1"} ,
         ]
       }]).catch(err => err).then(err => {
         assert(err != undefined)
@@ -301,7 +301,7 @@ test.describe('SSC', () => {
         url: "http://127.0.0.1:8080/",
       },{
         checks: [
-          {equals: "http://127.0.0.1:8080/hoge.html", type: 'url'},
+          {equals: 'url', value: "http://127.0.0.1:8080/hoge.html"} ,
         ]
       }]
 
@@ -321,9 +321,9 @@ test.describe('SSC', () => {
         url: "http://127.0.0.1:8080/",
       },{
         checks: [
-          {likes: "ome 00", by: By.css(".main .col-sm-6:nth-child(1) h3")},
-          {likes: "ome 00", by: By.css(".main .col-sm-6:nth-child(2) h3")},
-          {likes: "ome 00", by: By.css(".main .col-sm-6:nth-child(3) h3")}
+          {likes: By.css(".main .col-sm-6:nth-child(1) h3"), value: "ome 00"},
+          {likes: By.css(".main .col-sm-6:nth-child(2) h3"), value: "ome 00"},
+          {likes: By.css(".main .col-sm-6:nth-child(3) h3"), value: "ome 00"}
         ]
       }]
 
@@ -334,7 +334,7 @@ test.describe('SSC', () => {
         url: "http://127.0.0.1:8080/",
       },{
         checks: [
-          {likes: "bar", by: By.css(".main .col-sm-6:nth-child(1) h3")},
+          {likes: By.css(".main .col-sm-6:nth-child(1) h3"), value: "bar"},
         ]
       }]
 
@@ -358,9 +358,9 @@ test.describe('SSC', () => {
       },{
         checks: [
           {exists: placeholder('checks_by')},
-          {equals: placeholder('checks_equals'), by: By.css(".main .col-sm-6:nth-child(1) h3")},
-          {likes: placeholder('checks_likes'), by: By.css(".main .col-sm-6:nth-child(2) h3")},
-          {equals: placeholder('checks_attr_value'), type: {attr:"value"}, by: By.css(".main .col-sm-6:nth-child(3) h3")}
+          {equals: By.css(".main .col-sm-6:nth-child(1) h3"), value: placeholder('checks_equals')},
+          {likes: By.css(".main .col-sm-6:nth-child(2) h3"), value: placeholder('checks_likes')},
+          {equals: By.css(".main .col-sm-6:nth-child(3) h3"), type: {attr:"value"}, value: placeholder('checks_attr_value')}
         ],
       },{
         url: placeholder('url').append('/form.html'),
@@ -372,7 +372,7 @@ test.describe('SSC', () => {
         ]
       },{
         checks: [
-          {equals: 'placeholdercheck', type: {attr: 'value'}, by: By.css(".input")}
+          {equals: By.css(".input"), type: {attr: 'value'}, value: 'placeholdercheck'}
         ]
       }]
 
@@ -393,10 +393,10 @@ test.describe('SSC', () => {
       assert(resScenario[0].url === 'http://127.0.0.1:8080/')
       assert(resScenario[1].actions[0].click.toString() === By.css(".nav > li:nth-child(2) > a").toString())
       assert(resScenario[2].checks[0].exists.toString() === By.css(".main .col-sm-6:nth-child(2) h3").toString())
-      assert(resScenario[2].checks[1].equals === 'Foo 001')
-      assert(resScenario[2].checks[2].likes === 'oo 00')
+      assert(resScenario[2].checks[1].value === 'Foo 001')
+      assert(resScenario[2].checks[2].value === 'oo 00')
       // https://gist.github.com/gomo/474b14bbf8955e0a20d56902eafd0fb8
-      assert(resScenario[2].checks[3].equals === null)
+      assert(resScenario[2].checks[3].value === null)
       assert(resScenario[3].url === 'http://127.0.0.1:8080/form.html')
       assert(resScenario[4].actions[0].sendKeys.toString() === By.css(".input").toString())
 
@@ -636,10 +636,10 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {checks: [
-          {equals: 'http://127.0.0.1:8080/foo.html', type: {attr: "href"}, by: By.css(".nav > li:nth-child(2) > a")},
-          {equals: 'page-header', type: {attr: "class"}, by: By.css("header")},
-          {equals: 'nav nav-pills', type: {attr: "class"}, by: By.css(".nav")},
-          {equals: 'nav', type: {attr: "class"}, by: By.css(".nav")},
+          {equals: By.css(".nav > li:nth-child(2) > a"), type: {attr: "href"}, value: 'http://127.0.0.1:8080/foo.html'},
+          {equals: By.css("header"), type: {attr: "class"}, value: 'page-header'},
+          {equals: By.css(".nav"), type: {attr: "class"}, value: 'nav nav-pills'},
+          {equals: By.css(".nav"), type: {attr: "class"}, value: 'nav'},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -650,10 +650,10 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {checks: [
-          {likes: '/foo.html', type: {attr: "href"}, by: By.css(".nav > li:nth-child(2) > a")},
-          {likes: 'ge-head', type: {attr: "class"}, by: By.css("header")},
-          {likes: 'nav-pil', type: {attr: "class"}, by: By.css(".nav")},
-          {likes: 'foooo', type: {attr: "class"}, by: By.css(".nav")},
+          {likes: By.css(".nav > li:nth-child(2) > a"), type: {attr: "href"}, value: '/foo.html'},
+          {likes: By.css("header"), type: {attr: "class"}, value: 'ge-head'},
+          {likes: By.css(".nav"), type: {attr: "class"}, value: 'nav-pil'},
+          {likes: By.css(".nav"), type: {attr: "class"}, value: 'foooo'},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -669,17 +669,17 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {checks: [
-          {notEquals: 'Bar', by: By.css(".nav > li:nth-child(1) > a")},
-          {notEquals: 'Bar', by: By.css(".nav > li:nth-child(2) > a")},
-          {notEquals: 'http://127.0.0.1:8080/bar.html', type: {attr: "href"}, by: By.css(".nav > li:nth-child(2) > a")},
-          {notEquals: 'page-footer', type: {attr: "class"}, by: By.css("header")},
+          {notEquals: By.css(".nav > li:nth-child(1) > a"), value: 'Bar'},
+          {notEquals: By.css(".nav > li:nth-child(2) > a"), value: 'Bar'},
+          {notEquals: By.css(".nav > li:nth-child(2) > a"), type: {attr: "href"}, value: 'http://127.0.0.1:8080/bar.html'},
+          {notEquals: By.css("header"), type: {attr: "class"}, value: 'page-footer'},
         ]},
       ])
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {checks: [
-          {notEquals: 'Home', by: By.css(".nav > li:nth-child(1) > a")}
+          {notEquals: By.css(".nav > li:nth-child(1) > a"), value: 'Home'}
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -690,7 +690,7 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {checks: [
-          {notEquals: 'http://127.0.0.1:8080/foo.html', type: {attr: "href"}, by: By.css(".nav > li:nth-child(2) > a")},
+          {notEquals: By.css(".nav > li:nth-child(2) > a"), type: {attr: "href"}, value: 'http://127.0.0.1:8080/foo.html'},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -701,18 +701,18 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {checks: [
-          {notLikes: 'Bar', by: By.css(".nav > li:nth-child(1) > a")},
-          {notLikes: 'Bar', by: By.css(".nav > li:nth-child(2) > a")},
-          {notLikes: 'http://127.0.0.1:8080/bar.html', type: {attr: "href"}, by: By.css(".nav > li:nth-child(2) > a")},
-          {notLikes: 'page-footer', type: {attr: "class"}, by: By.css("header")},
-          {notLikes: 'foobarfoobar', type: 'html'}
+          {notLikes: By.css(".nav > li:nth-child(1) > a"), value: 'Bar'},
+          {notLikes: By.css(".nav > li:nth-child(2) > a"), value: 'Bar'},
+          {notLikes: By.css(".nav > li:nth-child(2) > a"), type: {attr: "href"}, value: 'http://127.0.0.1:8080/bar.html'},
+          {notLikes: By.css("header"), type: {attr: "class"}, value: 'page-footer'},
+          {notLikes: 'html', value: 'foobarfoobar'} 
         ]},
       ])
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {checks: [
-          {notLikes: 'Foo', by: By.css(".nav > li:nth-child(2) > a")},
+          {notLikes: By.css(".nav > li:nth-child(2) > a"), value: 'Foo'},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -723,7 +723,7 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {checks: [
-          {notLikes: 'page-header', type: {attr: "class"}, by: By.css("header")},
+          {notLikes: By.css("header"), type: {attr: "class"}, value: 'page-header'},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -734,7 +734,7 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {checks: [
-          {notLikes: 'Simple selenium checker', type: 'html'},
+          {notLikes: 'html', value: 'Simple selenium checker'} ,
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -767,14 +767,14 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {checks: [
-          {equals: ['checkbox2'], type: 'checkbox', by: By.css(".checkbox-inline input[name=checkbox]")},
+          {equals: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox', values: ['checkbox2']},
         ]},
       ])
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {checks: [
-          {equals: ['checkbox1', 'checkbox2'], type: 'checkbox', by: By.css(".checkbox-inline input[name=checkbox]")},
+          {equals: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox', values: ['checkbox1', 'checkbox2']},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -788,29 +788,29 @@ test.describe('SSC', () => {
           {clear: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox'},
         ]},
         {checks: [
-          {equals: [], type: 'checkbox', by: By.css(".checkbox-inline input[name=checkbox]")},
-          {unchecked: ['checkbox1'], by: By.css(".checkbox-inline input[name=checkbox]")}
+          {equals: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox', values: []},
+          {unchecked: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']} 
         ]},
         {actions: [
           {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox3']},
         ]},
         {checks: [
-          {equals: ['checkbox1', 'checkbox3'], type: 'checkbox', by: By.css(".checkbox-inline input[name=checkbox]")},
-          {checked: ['checkbox1'], by: By.css(".checkbox-inline input[name=checkbox]")},
-          {checked: ['checkbox3'], by: By.css(".checkbox-inline input[name=checkbox]")}
+          {equals: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox', values: ['checkbox1', 'checkbox3']},
+          {checked: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']} ,
+          {checked: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox3']} 
         ]}
         ,
         {actions: [
           {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox2']},
         ]},
         {checks: [
-          {equals: ['checkbox1', 'checkbox2', 'checkbox3'], type: 'checkbox', by: By.css(".checkbox-inline input[name=checkbox]")},
+          {equals: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox', values: ['checkbox1', 'checkbox2', 'checkbox3']},
         ]},
         {actions: [
           {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']},
         ]},
         {checks: [
-          {equals: ['checkbox1', 'checkbox2', 'checkbox3'], type: 'checkbox', by: By.css(".checkbox-inline input[name=checkbox]")},
+          {equals: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox', values: ['checkbox1', 'checkbox2', 'checkbox3']},
         ]},
       ])
     }).then(() => {
@@ -824,7 +824,7 @@ test.describe('SSC', () => {
           {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']},
         ]},
         {checks: [
-          {unchecked: ['checkbox1'], by: By.css(".checkbox-inline input[name=checkbox]")}
+          {unchecked: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']} 
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -842,7 +842,7 @@ test.describe('SSC', () => {
           {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']},
         ]},
         {checks: [
-          {checked: ['checkbox2'], by: By.css(".checkbox-inline input[name=checkbox]")}
+          {checked: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox2']} 
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -858,14 +858,14 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {checks: [
-          {equals: 'radio2', type: 'radio', by: By.css(".radio-inline input[name=radio]")},
+          {equals: By.css(".radio-inline input[name=radio]"), value: 'radio2', type: 'radio'},
         ]},
       ])
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {checks: [
-          {equals: 'radio1', type: 'radio', by: By.css(".radio-inline input[name=radio]")},
+          {equals: By.css(".radio-inline input[name=radio]"), value: 'radio1', type: 'radio'},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -879,7 +879,7 @@ test.describe('SSC', () => {
           {check: By.css(".radio-inline input[name=radio]"), value: 'radio1'},
         ]},
         {checks: [
-          {equals: 'radio1', type: 'radio', by: By.css(".radio-inline input[name=radio]")},
+          {equals: By.css(".radio-inline input[name=radio]"), value: 'radio1', type: 'radio'},
         ]},
         {actions: [
           {check: By.css(".radio-inline input[name=radio]"), value: 'radio99'},
@@ -895,8 +895,8 @@ test.describe('SSC', () => {
           {check: By.css(".radio-inline input[name=radio]"), value: 'radio1'},
         ]},
         {checks: [
-          {notEquals: 'radio2', type: 'radio', by: By.css(".radio-inline input[name=radio]")},
-          {notEquals: 'radio1', type: 'radio', by: By.css(".radio-inline input[name=radio]")},
+          {notEquals: By.css(".radio-inline input[name=radio]"), value: 'radio2', type: 'radio'},
+          {notEquals: By.css(".radio-inline input[name=radio]"), value: 'radio1', type: 'radio'},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -912,8 +912,8 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {checks: [
-          {equals: 'option1', type: 'select', by: By.css(".select-single")},
-          {equals: 'option2', type: 'select', by: By.css(".select-single")},
+          {equals: By.css(".select-single"), value: 'option1', type: 'select'},
+          {equals: By.css(".select-single"), value: 'option2', type: 'select'},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -927,8 +927,8 @@ test.describe('SSC', () => {
           {select: By.css(".select-single"), value: 'option3'},
         ]},
         {checks: [
-          {equals: 'option3', type: 'select', by: By.css(".select-single")},
-          {equals: 'option2', type: 'select', by: By.css(".select-single")},
+          {equals: By.css(".select-single"), value: 'option3', type: 'select'},
+          {equals: By.css(".select-single"), value: 'option2', type: 'select'},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -939,8 +939,8 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {checks: [
-          {selected: ['option1'], by: By.css(".select-single")},
-          {selected: ['option2'], by: By.css(".select-single")},
+          {selected: By.css(".select-single"), value: 'option1'} ,
+          {selected: By.css(".select-single"), value: 'option2'} ,
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -952,9 +952,9 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {checks: [
-          {unselected: ['option2'], by: By.css(".select-single")},
-          {unselected: ['option3'], by: By.css(".select-single")},
-          {unselected: ['option1'], by: By.css(".select-single")},
+          {unselected: By.css(".select-single"), value: 'option2'} ,
+          {unselected: By.css(".select-single"), value: 'option3'} ,
+          {unselected: By.css(".select-single"), value: 'option1'} ,
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -970,8 +970,8 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {checks: [
-          {equals: ['option2', 'option3'], type: 'select', by: By.css(".select-multiple")},
-          {equals: ['option1'], type: 'select', by: By.css(".select-multiple")},
+          {equals: By.css(".select-multiple"), type: 'select', values: ['option2', 'option3']},
+          {equals: By.css(".select-multiple"), type: 'select', values: ['option1']},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -982,9 +982,9 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {checks: [
-          {selected: ['option2'], by: By.css(".select-multiple")},
-          {selected: ['option3'], by: By.css(".select-multiple")},
-          {selected: ['option1'], by: By.css(".select-multiple")},
+          {selected: By.css(".select-multiple"), values: ['option2']} ,
+          {selected: By.css(".select-multiple"), values: ['option3']} ,
+          {selected: By.css(".select-multiple"), values: ['option1']} ,
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -999,9 +999,9 @@ test.describe('SSC', () => {
           {select: By.css(".select-multiple"), values: ['option2']},
         ]},
         {checks: [
-          {unselected: ['option1'], by: By.css(".select-multiple")},
-          {unselected: ['option3'], by: By.css(".select-multiple")},
-          {unselected: ['option2'], by: By.css(".select-multiple")},
+          {unselected: By.css(".select-multiple"), values: ['option1']} ,
+          {unselected: By.css(".select-multiple"), values: ['option3']} ,
+          {unselected: By.css(".select-multiple"), values: ['option2']} ,
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -1015,37 +1015,37 @@ test.describe('SSC', () => {
           {clear: By.css(".select-multiple"), type: 'select'},
         ]},
         {checks: [
-          {equals: [], type: 'select', by: By.css(".select-multiple")},
+          {equals: By.css(".select-multiple"), type: 'select', values: []},
         ]},
         {actions: [
           {select: By.css(".select-multiple"), values: ['option1', 'option3']},
         ]},
         {checks: [
-          {equals: ['option1', 'option3'], type: 'select', by: By.css(".select-multiple")},
+          {equals: By.css(".select-multiple"), type: 'select', values: ['option1', 'option3']},
         ]},
         {actions: [
           {select: By.css(".select-multiple"), values: ['option2', 'option3']},
         ]},
         {checks: [
-          {equals: ['option1', 'option2', 'option3'], type: 'select', by: By.css(".select-multiple")},
+          {equals: By.css(".select-multiple"), type: 'select', values: ['option1', 'option2', 'option3']},
         ]},
         {actions: [
           {unselect: By.css(".select-multiple"), values: ['option3']},
         ]},
         {checks: [
-          {equals: ['option1', 'option2'], type: 'select', by: By.css(".select-multiple")},
+          {equals: By.css(".select-multiple"), type: 'select', values: ['option1', 'option2']},
         ]},
         {actions: [
           {unselect: By.css(".select-multiple"), values: ['option3']},
         ]},
         {checks: [
-          {equals: ['option1', 'option2'], type: 'select', by: By.css(".select-multiple")},
+          {equals: By.css(".select-multiple"), type: 'select', values: ['option1', 'option2']},
         ]},
         {actions: [
           {unselect: By.css(".select-multiple"), values: ['option1', 'option2']},
         ]},
         {checks: [
-          {equals: [], type: 'select', by: By.css(".select-multiple")},
+          {equals: By.css(".select-multiple"), type: 'select', values: []},
         ]},
       ])
     })
@@ -1061,7 +1061,7 @@ test.describe('SSC', () => {
           {alert: "accept", timeout: 3000}
         ]},
         {checks: [
-          {equals: "Alert", by: By.css("#display"), timeout: 3000},
+          {equals: By.css("#display"), value: "Alert", timeout: 3000},
         ]},
        ])
     }).then(() => {
@@ -1072,7 +1072,7 @@ test.describe('SSC', () => {
           {alert: "accept", timeout: 3000}
         ]},
         {checks: [
-          {equals: "Confirm OK", by: By.css("#display"), timeout: 3000},
+          {equals: By.css("#display"), value: "Confirm OK", timeout: 3000},
         ]},
        ])
     }).then(() => {
@@ -1083,7 +1083,7 @@ test.describe('SSC', () => {
           {alert: "dismiss", timeout: 3000}
         ]},
         {checks: [
-          {equals: "Confirm Cancel", by: By.css("#display"), timeout: 3000},
+          {equals: By.css("#display"), value: "Confirm Cancel", timeout: 3000},
         ]},
        ])
     })
@@ -1098,8 +1098,8 @@ test.describe('SSC', () => {
           {switchTo: By.css("#index_frame")},
         ]},
         {checks: [
-          {equals: "Home", by: By.css("h2")},
-          {equals: "FooBar", by: By.css("h2")},
+          {equals: By.css("h2"), value: "Home"},
+          {equals: By.css("h2"), value: "FooBar"},
         ]},
        ]).catch(err => {
         assert(err !== undefined)
@@ -1113,14 +1113,14 @@ test.describe('SSC', () => {
           {switchTo: By.css("#index_frame")},
         ]},
         {checks: [
-          {equals: "Home", by: By.css("h2")},
+          {equals: By.css("h2"), value: "Home"},
         ]},
         {actions: [
           {switchTo: 'default'},
         ]},
         {checks: [
-          {equals: "Frame", by: By.css("h2")},
-          {equals: "FooBar", by: By.css("h2")},
+          {equals: By.css("h2"), value: "Frame"},
+          {equals: By.css("h2"), value: "FooBar"},
         ]},
        ]).catch(err => {
         assert(err !== undefined)
