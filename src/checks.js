@@ -42,13 +42,13 @@ function createErrorMessage(check, predicate, expect, actual){
   } else if(check.type === 'html'){
     return util.format("Response body %s `%s`.", predicate, expect)
   } else if(check.type == 'checkbox' || check.type == 'radio'){
-    return util.format("%s %s %s `%s`%s.", check.type, check.by, predicate, expect, actual ? util.format(' actual `%s`', actual) : '')
+    return util.format("%s[%s] %s `%s`%s.", check.by, check.type, predicate, expect, actual ? util.format(' actual `%s`', actual) : '')
   } else if(check.type == 'url'){
     return util.format("Url %s `%s`%s.", predicate, expect, actual ? util.format(' actual `%s`', actual) : '')
   } else if(check.type.hasOwnProperty('attr')) {
     return util.format("%s of %s %s `%s`%s.", check.type.attr, check.by, predicate, expect, actual ? util.format(' actual `%s`', actual) : '')
   } else if(check.type === 'select'){
-    return util.format("select %s %s `%s`%s.", check.by, predicate, expect, actual ? util.format(' actual `%s`', actual) : '')
+    return util.format("%s[select] %s `%s`%s.", check.by, predicate, expect, actual ? util.format(' actual `%s`', actual) : '')
   } else {
     throw new Error('Illegal checker directive type ' + JSON.stringify(check))
   }
@@ -116,6 +116,40 @@ export function checked(checker, check){
           return false
         }
       })
+
+      return true
+    })
+  }, check.timeout)
+}
+
+export function selected(checker, check){
+  const expectedList = Array.isArray(check.selected) ? check.selected : [check.selected]
+  check.type = "select"
+  return checker.waitFor(createErrorMessage(check, 'select', check.selected), () => {
+    return createPromise(checker, check).then(values => {
+      for (var i = 0; i < expectedList.length; i++) {
+        var expected = expectedList[i];
+        if(values.indexOf(expected) >= 0){
+          return true
+        }
+      }
+
+      return false
+    })
+  }, check.timeout)
+}
+
+export function unselected(checker, check){
+  const expectedList = Array.isArray(check.unselected) ? check.unselected : [check.unselected]
+  check.type = "select"
+  return checker.waitFor(createErrorMessage(check, 'dose not select', check.unselected), () => {
+    return createPromise(checker, check).then(values => {
+      for (var i = 0; i < expectedList.length; i++) {
+        var expected = expectedList[i];
+        if(values.indexOf(expected) >= 0){
+          return false
+        }
+      }
 
       return true
     })

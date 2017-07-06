@@ -15,8 +15,8 @@ test.describe('SSC', () => {
     Checker.DefaultTimeout = 1
     const chromeCapabilities = webdriver.Capabilities.chrome();
     const args = ["--window-size=1024,768"]
-    if(isDebug){
-      args.push('--headless', '--disable-gpu')
+    if(!isDebug){
+      // args.push('--headless', '--disable-gpu')
     }
     chromeCapabilities.set('chromeOptions', {
       'args': args
@@ -114,6 +114,7 @@ test.describe('SSC', () => {
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('Hoge 002') >= 0)
       })
     }).then(() => {
       const scenario = [{
@@ -132,6 +133,7 @@ test.describe('SSC', () => {
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('Bar 003') >= 0)
       })
     })
   })
@@ -150,6 +152,7 @@ test.describe('SSC', () => {
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('<title>Simple selenium checker - Hoge</title>') >= 0)
       })
     }).then(() => {
       const scenario = [{
@@ -168,6 +171,7 @@ test.describe('SSC', () => {
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('<title>Simple selenium checker - Bar</title>') >= 0)
       })
     })
   })
@@ -250,6 +254,7 @@ test.describe('SSC', () => {
       }]).catch(err => err).then(err => {
         assert(err != undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('http://127.0.0.1:8080/hoge.html') >= 0)
       })
     }).then(() => {
       return checker.run([{
@@ -261,6 +266,7 @@ test.describe('SSC', () => {
       }]).catch(err => err).then(err => {
         assert(err != undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('hoge.html') >= 0)
       })
     }).then(() => {
       return checker.run([{
@@ -272,6 +278,7 @@ test.describe('SSC', () => {
       }]).catch(err => err).then(err => {
         assert(err != undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('http://127.0.0.1:8080/') >= 0)
       })
     }).then(() => {
       return checker.run([{
@@ -283,6 +290,7 @@ test.describe('SSC', () => {
       }]).catch(err => err).then(err => {
         assert(err != undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('127.0.0.1') >= 0)
       })
     })
   })
@@ -302,7 +310,7 @@ test.describe('SSC', () => {
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
         assert(err.name == "NotMatchError")
-        assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('http://127.0.0.1:8080/hoge.html') >= 0)
       })
     })
   })
@@ -334,6 +342,7 @@ test.describe('SSC', () => {
       return checker.run(scenario).catch(err => err).then(err => {
         assert(err != undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('bar') >= 0)
       })
     })
   })
@@ -635,6 +644,7 @@ test.describe('SSC', () => {
       ]).catch(err => {
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('`nav`') >= 0)
       })
     }).then(() => {
       return checker.run([
@@ -648,6 +658,7 @@ test.describe('SSC', () => {
       ]).catch(err => {
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('foooo') >= 0)
       })
     })
   })
@@ -673,6 +684,7 @@ test.describe('SSC', () => {
       ]).catch(err => {
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('Home') >= 0)
       })
     }).then(() => {
       return checker.run([
@@ -683,6 +695,7 @@ test.describe('SSC', () => {
       ]).catch(err => {
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('http://127.0.0.1:8080/foo.html') >= 0)
       })
     }).then(() => {
       return checker.run([
@@ -704,6 +717,7 @@ test.describe('SSC', () => {
       ]).catch(err => {
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('Foo') >= 0)
       })
     }).then(() => {
       return checker.run([
@@ -714,16 +728,18 @@ test.describe('SSC', () => {
       ]).catch(err => {
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('page-header') >= 0)
       })
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {checks: [
-          {notLikes: 'Simple selenium cheker', type: 'html'},
+          {notLikes: 'Simple selenium checker', type: 'html'},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('Simple selenium checker') >= 0)
       })
     }).then(() => {
       return checker.run([
@@ -763,6 +779,7 @@ test.describe('SSC', () => {
       ]).catch(err => {
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('checkbox1,checkbox2') >= 0)
       })
     }).then(() => {
       return checker.run([
@@ -812,6 +829,7 @@ test.describe('SSC', () => {
       ]).catch(err => {
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('checkbox1') >= 0)
       })
     }).then(() => {
       return checker.run([
@@ -829,6 +847,7 @@ test.describe('SSC', () => {
       ]).catch(err => {
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('checkbox2') >= 0)
       })
     })
   })
@@ -851,6 +870,7 @@ test.describe('SSC', () => {
       ]).catch(err => {
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('radio1') >= 0)
       })
     }).then(() => {
       return checker.run([
@@ -881,6 +901,7 @@ test.describe('SSC', () => {
       ]).catch(err => {
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('radio1') >= 0)
       })
     })
   })
@@ -897,6 +918,7 @@ test.describe('SSC', () => {
       ]).catch(err => {
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('option2') >= 0)
       })
     }).then(() => {
       return checker.run([
@@ -911,6 +933,33 @@ test.describe('SSC', () => {
       ]).catch(err => {
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('option2') >= 0)
+      })
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/options.html"},
+        {checks: [
+          {selected: ['option1'], by: By.css(".select-single")},
+          {selected: ['option2'], by: By.css(".select-single")},
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('option2') >= 0)
+      })
+    })
+    .then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/options.html"},
+        {checks: [
+          {unselected: ['option2'], by: By.css(".select-single")},
+          {unselected: ['option3'], by: By.css(".select-single")},
+          {unselected: ['option1'], by: By.css(".select-single")},
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('option1') >= 0)
       })
     })
   })
@@ -927,6 +976,37 @@ test.describe('SSC', () => {
       ]).catch(err => {
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('option1') >= 0)
+      })
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/options.html"},
+        {checks: [
+          {selected: ['option2'], by: By.css(".select-multiple")},
+          {selected: ['option3'], by: By.css(".select-multiple")},
+          {selected: ['option1'], by: By.css(".select-multiple")},
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('option1') >= 0)
+      })
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/options.html"},
+        {actions: [
+          {clear: By.css(".select-multiple"), type: 'select'},
+          {select: By.css(".select-multiple"), values: ['option2']},
+        ]},
+        {checks: [
+          {unselected: ['option1'], by: By.css(".select-multiple")},
+          {unselected: ['option3'], by: By.css(".select-multiple")},
+          {unselected: ['option2'], by: By.css(".select-multiple")},
+        ]},
+      ]).catch(err => {
+        assert(err !== undefined)
+        assert(err.name == "NotMatchError")
+        assert(err.message.indexOf('option2') >= 0)
       })
     }).then(() => {
       return checker.run([

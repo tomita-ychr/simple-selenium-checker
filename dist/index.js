@@ -532,6 +532,8 @@ exports.likes = likes;
 exports.equals = equals;
 exports.unchecked = unchecked;
 exports.checked = checked;
+exports.selected = selected;
+exports.unselected = unselected;
 exports.notEquals = notEquals;
 exports.notLikes = notLikes;
 
@@ -609,13 +611,13 @@ function createErrorMessage(check, predicate, expect, actual) {
   } else if (check.type === 'html') {
     return _util2.default.format("Response body %s `%s`.", predicate, expect);
   } else if (check.type == 'checkbox' || check.type == 'radio') {
-    return _util2.default.format("%s %s %s `%s`%s.", check.type, check.by, predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
+    return _util2.default.format("%s[%s] %s `%s`%s.", check.by, check.type, predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
   } else if (check.type == 'url') {
     return _util2.default.format("Url %s `%s`%s.", predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
   } else if (check.type.hasOwnProperty('attr')) {
     return _util2.default.format("%s of %s %s `%s`%s.", check.type.attr, check.by, predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
   } else if (check.type === 'select') {
-    return _util2.default.format("select %s %s `%s`%s.", check.by, predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
+    return _util2.default.format("%s[select] %s `%s`%s.", check.by, predicate, expect, actual ? _util2.default.format(' actual `%s`', actual) : '');
   } else {
     throw new Error('Illegal checker directive type ' + JSON.stringify(check));
   }
@@ -686,6 +688,40 @@ function checked(checker, check) {
           return false;
         }
       });
+
+      return true;
+    });
+  }, check.timeout);
+}
+
+function selected(checker, check) {
+  var expectedList = Array.isArray(check.selected) ? check.selected : [check.selected];
+  check.type = "select";
+  return checker.waitFor(createErrorMessage(check, 'select', check.selected), function () {
+    return createPromise(checker, check).then(function (values) {
+      for (var i = 0; i < expectedList.length; i++) {
+        var expected = expectedList[i];
+        if (values.indexOf(expected) >= 0) {
+          return true;
+        }
+      }
+
+      return false;
+    });
+  }, check.timeout);
+}
+
+function unselected(checker, check) {
+  var expectedList = Array.isArray(check.unselected) ? check.unselected : [check.unselected];
+  check.type = "select";
+  return checker.waitFor(createErrorMessage(check, 'dose not select', check.unselected), function () {
+    return createPromise(checker, check).then(function (values) {
+      for (var i = 0; i < expectedList.length; i++) {
+        var expected = expectedList[i];
+        if (values.indexOf(expected) >= 0) {
+          return false;
+        }
+      }
 
       return true;
     });
