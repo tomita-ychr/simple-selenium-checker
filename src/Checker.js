@@ -39,7 +39,8 @@ export default class Checker
     return promise
   }
 
-  waitFor(check, action, timeout){
+  waitForValueCheck(check, action){
+    let timeout = check.timeout
     if(timeout === undefined) timeout = Checker.DefaultTimeout
     return this.driver
       .wait(new webdriver.Condition('', () => action()), timeout)

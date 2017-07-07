@@ -759,8 +759,9 @@ var Checker = function () {
       return promise;
     }
   }, {
-    key: 'waitFor',
-    value: function waitFor(check, action, timeout) {
+    key: 'waitForValueCheck',
+    value: function waitForValueCheck(check, action) {
+      var timeout = check.timeout;
       if (timeout === undefined) timeout = Checker.DefaultTimeout;
       return this.driver.wait(new _seleniumWebdriver2.default.Condition('', function () {
         return action();
@@ -1640,7 +1641,7 @@ function notExists(checker, check) {
 
 function likes(checker, check) {
   check = normalizeDirective(check, 'likes');
-  return checker.waitFor(check, function () {
+  return checker.waitForValueCheck(check, function () {
     return createPromise(checker, check).then(function (data) {
       check.actual_values = data.values;
       check.type = data.type;
@@ -1648,12 +1649,12 @@ function likes(checker, check) {
       if (data.values.length > 1) throw new Error('Multiple values were detected `' + data.values + '`.');
       return data.values[0].indexOf(check.value) >= 0;
     });
-  }, check.timeout);
+  });
 }
 
 function equals(checker, check) {
   check = normalizeDirective(check, 'equals');
-  return checker.waitFor(check, function () {
+  return checker.waitForValueCheck(check, function () {
     return createPromise(checker, check).then(function (data) {
       check.type = data.type;
       check.actual_values = data.values;
@@ -1665,12 +1666,12 @@ function equals(checker, check) {
         throw new Error("Missing value or values.");
       }
     });
-  }, check.timeout);
+  });
 }
 
 function unchecked(checker, check) {
   check = normalizeDirective(check, 'unchecked');
-  return checker.waitFor(check, function () {
+  return checker.waitForValueCheck(check, function () {
     return createPromise(checker, check).then(function (data) {
       check.type = data.type;
       check.actual_values = data.values;
@@ -1683,12 +1684,12 @@ function unchecked(checker, check) {
 
       return true;
     });
-  }, check.timeout);
+  });
 }
 
 function checked(checker, check) {
   check = normalizeDirective(check, 'checked');
-  return checker.waitFor(check, function () {
+  return checker.waitForValueCheck(check, function () {
     return createPromise(checker, check).then(function (data) {
       check.actual_values = data.values;
       check.type = data.type;
@@ -1701,12 +1702,12 @@ function checked(checker, check) {
 
       return true;
     });
-  }, check.timeout);
+  });
 }
 
 function selected(checker, check) {
   check = normalizeDirective(check, 'selected');
-  return checker.waitFor(check, function () {
+  return checker.waitForValueCheck(check, function () {
     return createPromise(checker, check).then(function (data) {
       check.actual_values = data.values;
       check.type = data.type;
@@ -1719,12 +1720,12 @@ function selected(checker, check) {
 
       return true;
     });
-  }, check.timeout);
+  });
 }
 
 function unselected(checker, check) {
   check = normalizeDirective(check, 'unselected');
-  return checker.waitFor(check, function () {
+  return checker.waitForValueCheck(check, function () {
     return createPromise(checker, check).then(function (data) {
       check.actual_values = data.values;
       check.type = data.type;
@@ -1737,12 +1738,12 @@ function unselected(checker, check) {
 
       return true;
     });
-  }, check.timeout);
+  });
 }
 
 function notEquals(checker, check) {
   check = normalizeDirective(check, 'notEquals');
-  return checker.waitFor(check, function () {
+  return checker.waitForValueCheck(check, function () {
     return createPromise(checker, check).then(function (data) {
       check.actual_values = data.values;
       check.type = data.type;
@@ -1754,12 +1755,12 @@ function notEquals(checker, check) {
         throw new Error("Missing value or values.");
       }
     });
-  }, check.timeout);
+  });
 }
 
 function notLikes(checker, check) {
   check = normalizeDirective(check, 'notLikes');
-  return checker.waitFor(check, function () {
+  return checker.waitForValueCheck(check, function () {
     return createPromise(checker, check).then(function (data) {
       check.type = data.type;
       check.actual_values = data.values;
@@ -1767,7 +1768,7 @@ function notLikes(checker, check) {
       if (data.values.length > 1) throw new Error('Multiple values were detected `' + data.values + '`.');
       return data.values[0].indexOf(check.value) === -1;
     });
-  }, check.timeout);
+  });
 }
 
 /***/ }),

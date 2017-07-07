@@ -93,7 +93,7 @@ export function notExists(checker, check){
 
 export function likes(checker, check){
   check = normalizeDirective(check, 'likes')
-  return checker.waitFor(
+  return checker.waitForValueCheck(
     check,
     () => createPromise(checker, check).then(data => {
       check.actual_values = data.values
@@ -101,14 +101,13 @@ export function likes(checker, check){
       if(check.values !== undefined) throw new Error('`likes` can only value.')
       if(data.values.length > 1) throw new Error('Multiple values were detected `' + data.values + '`.')
       return data.values[0].indexOf(check.value) >= 0
-    }),
-    check.timeout
+    })
   )
 }
 
 export function equals(checker, check){
   check = normalizeDirective(check, 'equals')
-  return checker.waitFor(
+  return checker.waitForValueCheck(
     check,
     () => createPromise(checker, check).then(data => {
       check.type = data.type
@@ -120,14 +119,13 @@ export function equals(checker, check){
       } else {
         throw new Error("Missing value or values.")
       }
-    }),
-    check.timeout
+    })
   )
 }
 
 export function unchecked(checker, check){
   check = normalizeDirective(check, 'unchecked')
-  return checker.waitFor(
+  return checker.waitForValueCheck(
     check,
     () => createPromise(checker, check).then(data => {
       check.type = data.type
@@ -140,14 +138,13 @@ export function unchecked(checker, check){
       }
 
       return true
-    }),
-    check.timeout
+    })
   )
 }
 
 export function checked(checker, check){
   check = normalizeDirective(check, 'checked')
-  return checker.waitFor(
+  return checker.waitForValueCheck(
     check,
     () => createPromise(checker, check).then(data => {
       check.actual_values = data.values
@@ -160,14 +157,13 @@ export function checked(checker, check){
       }
 
       return true
-    }),
-    check.timeout
+    })
   )
 }
 
 export function selected(checker, check){
   check = normalizeDirective(check, 'selected')
-  return checker.waitFor(
+  return checker.waitForValueCheck(
     check,
     () => createPromise(checker, check).then(data => {
       check.actual_values = data.values
@@ -180,14 +176,13 @@ export function selected(checker, check){
       }
 
       return true
-    }),
-    check.timeout
+    })
   )
 }
 
 export function unselected(checker, check){
   check = normalizeDirective(check, 'unselected')
-  return checker.waitFor(
+  return checker.waitForValueCheck(
     check,
     () => createPromise(checker, check).then(data => {
       check.actual_values = data.values
@@ -200,14 +195,13 @@ export function unselected(checker, check){
       }
 
       return true
-    }),
-    check.timeout
+    })
   )
 }
 
 export function notEquals(checker, check){
   check = normalizeDirective(check, 'notEquals')
-  return checker.waitFor(
+  return checker.waitForValueCheck(
     check,
     () => createPromise(checker, check).then(data => {
       check.actual_values = data.values
@@ -219,14 +213,13 @@ export function notEquals(checker, check){
       } else {
         throw new Error("Missing value or values.")
       }
-    }),
-    check.timeout
+    })
   )
 }
 
 export function notLikes(checker, check){
   check = normalizeDirective(check, 'notLikes')
-    return checker.waitFor(
+    return checker.waitForValueCheck(
     check,
     () => createPromise(checker, check).then(data => {
       check.type = data.type
@@ -234,7 +227,6 @@ export function notLikes(checker, check){
       if(check.values !== undefined) throw new Error('`likes` can only value.')
       if(data.values.length > 1) throw new Error('Multiple values were detected `' + data.values + '`.')
       return data.values[0].indexOf(check.value) === -1
-    }),
-    check.timeout
+    })
   )
 }
