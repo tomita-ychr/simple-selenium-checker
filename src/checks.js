@@ -3,36 +3,44 @@ import util from 'util';
 const By = webdriver.By;
 
 function createPromise(checker, check){
-  if(check.type === undefined){
-    return checker.waitElement(check.locator, check.timeout)
-      .then(elem => elem.getText())
-  } else if(check.type === 'html'){
+  if(check.locator){
+    return checker.waitElements(check.locator, check.count, check.timeout)
+      .then(elems => checker.assembleFromElements(elems, {
+        tag_name: elem => elem.getTagName(),
+        type: elem => elem.getAttribute('type'),
+        value: elem => elem.getAttribute('value'),
+        multiple: elem => elem.getAttribute('multiple'),
+        selected: elem => elem.isSelected(),
+        inner_text: elem => elem.getText(),
+        attr: elem => check.type && check.type.hasOwnProperty('attr') ? elem.getAttribute(check.type.attr) : Promise.resolve(false)
+      }))
+      .then(composits => {
+        if(composits[0].tag_name == 'select'){
+          return checker.waitElementsIn(composits[0].elem, By.css('option'), check.count, check.timeout)
+            .then(elems => checker.assembleFromElements(elems, {
+              value: elem => elem.getAttribute('value'),
+              selected: elem => elem.isSelected()
+            }))
+            .then(sComposits => sComposits.filter(sComposit => sComposit.selected))
+            .then(sComposits => sComposits.map(sComposit => sComposit.value))
+        } else if(composits[0].attr !== false) {
+          return composits.map(composit => composit.attr)
+        } else if(composits[0].type == "checkbox" || composits[0].type == "radio"){
+          return composits.filter(composit => composit.selected).map(composit => composit.value)
+        } else if(composits[0].tag_name == "input"){
+          return composits.map(composit => composit.value)
+        } else {
+          return composits.map(composit => composit.inner_text)
+        }
+      })
+  } else if(check.type == 'html') {
     return checker.driver.findElement(By.css('html'))
       .then(elem => elem.getAttribute('outerHTML'))
-  } else if(check.type == 'checkbox' || check.type == 'radio'){
-    return checker.waitElements(check.locator, check.count, check.timeout)
-      .then(elems => checker.assembleFromElements(
-        elems, {
-          value: elem => elem.getAttribute('value'),
-          selected: elem => elem.isSelected()
-      }))
-      .then(composits => composits.filter(composit => composit.selected).map(composit => composit.value))
-  } else if(check.type == 'select'){
-    return checker.waitElement(check.locator, check.timeout)
-      .then(elem => checker.waitElementsIn(elem, By.css("option")))
-      .then(elems => checker.assembleFromElements(
-        elems, {
-          value: elem => elem.getAttribute('value'),
-          isSelected: elem => elem.isSelected()
-      }))
-      .then(composits => composits.filter(composit => composit.isSelected).map(composit => composit.value))
-  } else if(check.type == 'url'){
-    return checker.driver.getCurrentUrl()
-  } else if(check.type.hasOwnProperty('attr')) {
-    return checker.waitElement(check.locator, check.timeout)
-      .then(elem => elem.getAttribute(check.type.attr))
+      .then(html => [html])
+  } else if(check.type == 'url') {
+    return checker.driver.getCurrentUrl().then(url => [url])
   } else {
-    throw new Error('Illegal checker directive type ' + JSON.stringify(check))
+    throw Error("Illegal directive is specified " + JSON.stringify(check) + '.')
   }
 }
 
@@ -52,10 +60,6 @@ function createErrorMessage(check, predicate){
   } else {
     throw new Error('Illegal checker directive type ' + JSON.stringify(check))
   }
-}
-
-function compareArray(array1, array2){
-  return JSON.stringify(array1.sort()) === JSON.stringify(array2.sort())
 }
 
 function normalizeDirective(check, name, forceType){
@@ -80,6 +84,10 @@ function normalizeDirective(check, name, forceType){
   return check
 }
 
+function compareArray(array1, array2){
+  return JSON.stringify(array1.sort()) === JSON.stringify(array2.sort())
+}
+
 export function exists(checker, check){
   check = normalizeDirective(check, 'exists')
   return checker.waitElements(check.exists, check.count, check.timeout)
@@ -92,107 +100,132 @@ export function notExists(checker, check){
 
 export function likes(checker, check){
   check = normalizeDirective(check, 'likes')
-  return checker.waitFor(createErrorMessage(check, 'dose not contain'), () => {
-    return createPromise(checker, check).then(text => text.indexOf(check.value) >= 0)
-  }, check.timeout)
+  return checker.waitFor(
+    createErrorMessage(check, 'contains'), 
+    () => createPromise(checker, check).then(values => {
+      if(check.values !== undefined) throw new Error('`likes` can only value.')
+      if(values.length > 1) throw new Error('Multiple values were detected `' + values + '`.')
+      return values[0].indexOf(check.value) >= 0
+    }),
+    check.timeout
+  )
 }
-
 
 export function equals(checker, check){
   check = normalizeDirective(check, 'equals')
-  if(check.values){
-    return checker.waitFor(createErrorMessage(check, 'is'), () => {
-      return createPromise(checker, check).then(values => compareArray(values, check.values))
-    }, check.timeout)
-  } else {
-    return checker.waitFor(createErrorMessage(check, 'is'), () => {
-      return createPromise(checker, check).then(text => {
-        if(Array.isArray(text)){
-          if(text.length > 1) throw new Error(util.format("%s has multiple values `%s`"), check.by, text)
-          text = text[0]
-        }
-        return text === check.value
-      })
-    }, check.timeout)
-  }
+  return checker.waitFor(
+    createErrorMessage(check, 'is'), 
+    () => createPromise(checker, check).then(values => {
+      if(check.hasOwnProperty('values')){
+        return compareArray(values, check.values)
+      } else if(check.hasOwnProperty('value')) {
+        return values[0] === check.value
+      } else {
+        throw new Error("Missing value or values.")
+      }
+    }),
+    check.timeout
+  )
 }
 
 export function unchecked(checker, check){
   check = normalizeDirective(check, 'unchecked', 'checkbox')
-  return checker.waitFor(createErrorMessage(check, 'is not checked'), () => {
-    return createPromise(checker, check).then(values => {
-      for (var i = 0; i < check.values.length; i++) {
-        var expected = check.values[i];
-        if(values.indexOf(expected) >= 0){
-          return false
-        }
+  return checker.waitFor(
+    createErrorMessage(check, 'dose not contain'), 
+    () => createPromise(checker, check).then(values => {
+      if(check.value === undefined && check.values === undefined) throw new Error("Missing value or values.")
+      const expectedList = check.values ? check.values : [check.value]
+      for (var i = 0; i < expectedList.length; i++) {
+        var expected = expectedList[i];
+        if(values.indexOf(expected) >= 0) return false
       }
 
       return true
-    })
-  }, check.timeout)
+    }),
+    check.timeout
+  )
 }
 
 export function checked(checker, check){
   check = normalizeDirective(check, 'checked', 'checkbox')
-  return checker.waitFor(createErrorMessage(check, 'is checked'), () => {
-    return createPromise(checker, check).then(values => {
-      for (var i = 0; i < check.values.length; i++) {
-        var expected = check.values[i];
-        if(values.indexOf(expected) === -1){
-          return false
-        }
+  return checker.waitFor(
+    createErrorMessage(check, 'contains'), 
+    () => createPromise(checker, check).then(values => {
+      if(check.value === undefined && check.values === undefined) throw new Error("Missing value or values.")
+      const expectedList = check.values ? check.values : [check.value]
+      for (var i = 0; i < expectedList.length; i++) {
+        var expected = expectedList[i];
+        if(values.indexOf(expected) === -1) return false
       }
 
       return true
-    })
-  }, check.timeout)
+    }),
+    check.timeout
+  )
 }
 
 export function selected(checker, check){
   check = normalizeDirective(check, 'selected', 'select')
-  const expectedList = check.values || [check.value]
-  return checker.waitFor(createErrorMessage(check, 'select'), () => {
-    return createPromise(checker, check).then(values => {
+  return checker.waitFor(
+    createErrorMessage(check, 'contains'), 
+    () => createPromise(checker, check).then(values => {
+      if(check.value === undefined && check.values === undefined) throw new Error("Missing value or values.")
+      const expectedList = check.values ? check.values : [check.value]
       for (var i = 0; i < expectedList.length; i++) {
         var expected = expectedList[i];
-        if(values.indexOf(expected) >= 0){
-          return true
-        }
+        if(values.indexOf(expected) === -1) return false
       }
 
-      return false
-    })
-  }, check.timeout)
+      return true
+    }),
+    check.timeout
+  )
 }
 
 export function unselected(checker, check){
   check = normalizeDirective(check, 'unselected', 'select')
-  const expectedList = check.values || [check.value]
-  return checker.waitFor(createErrorMessage(check, 'dose not select'), () => {
-    return createPromise(checker, check).then(values => {
+  return checker.waitFor(
+    createErrorMessage(check, 'dose not contain'), 
+    () => createPromise(checker, check).then(values => {
+      if(check.value === undefined && check.values === undefined) throw new Error("Missing value or values.")
+      const expectedList = check.values ? check.values : [check.value]
       for (var i = 0; i < expectedList.length; i++) {
         var expected = expectedList[i];
-        if(values.indexOf(expected) >= 0){
-          return false
-        }
+        if(values.indexOf(expected) >= 0) return false
       }
 
       return true
-    })
-  }, check.timeout)
+    }),
+    check.timeout
+  )
 }
 
 export function notEquals(checker, check){
   check = normalizeDirective(check, 'notEquals')
-  return checker.waitFor(createErrorMessage(check, 'is not'), () => {
-    return createPromise(checker, check).then(text => text !== check.value)
-  }, check.timeout) 
+  return checker.waitFor(
+    createErrorMessage(check, 'is not'), 
+    () => createPromise(checker, check).then(values => {
+      if(check.values){
+        return !compareArray(values, check.values)
+      } else if(check.value) {
+        return values[0] !== check.value
+      } else {
+        throw new Error("Missing value or values.")
+      }
+    }),
+    check.timeout
+  )
 }
 
 export function notLikes(checker, check){
   check = normalizeDirective(check, 'notLikes')
-  return checker.waitFor(createErrorMessage(check, 'dose not contains'), () => {
-    return createPromise(checker, check).then(text => text.indexOf(check.value) === -1)
-  }, check.timeout)
+    return checker.waitFor(
+    createErrorMessage(check, 'dose not contains'), 
+    () => createPromise(checker, check).then(values => {
+      if(check.values !== undefined) throw new Error('`likes` can only value.')
+      if(values.length > 1) throw new Error('Multiple values were detected `' + values + '`.')
+      return values[0].indexOf(check.value) === -1
+    }),
+    check.timeout
+  )
 }

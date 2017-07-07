@@ -31,23 +31,62 @@ Call run() method with the scenario as an array of objects.
 const checker = new Checker(driver)
 
 const scenario = [
-  {url: "https://www.google.com/"}
-  {checks: [{exists: By.css("input#lst-ib")}]}
-  {actions:[{}]}
+  {url: "https://http://127.0.0.1:8080/"},
+  {checks: [
+    {exists: By.css("header")},
+    {equals: By.css("h2"), value: "Home"},
+  ]},
+  {actions:[{click: By.css(".nav > li:nth-child(2) > a")}]},
+  {checks: [
+    {equals: By.css("h2"), value: "Foo"},
+  ]},
 ]
 
 checker.run(scenario)
 ```
 
-In the above scenario, first open `https://www.google.com/`, and check if there is a `#searchform` element on the page.
+In the above scenario, first, it opens `https://http://127.0.0.1:8080/`, and checks if there is a `header` element on the page, and checks if the inner text of `h2` tag is `Home`. And then it clicks second navigation menu link, after page loaded, checks if the inner text of `h2` tag is `Foo`.
 
+Javascript error and response Status code problems are checked automatically, and if there is a problem an error is thrown. These functions are realized by checking the browser console log.
 
-Below are all the supported directives of the scenario.
+### checks directive
+
+```
+{$name: locator|string $target [, value|values: string|string array $value] [, type: string $type] [, timeout: int $milliseconds]}
+```
+
+All checks directives wait for the element to be visible and wait until it is in the expected state. The wait time can change with timeout. The default timeout is 1200 ms.
+
+#### $name
+
+```
+exsits|notExists|equals|notEquals|likes|notLikes|selected|unselected|checked|unchecked
+```
+
+exsits|notExists check only the existence of the element. `equals|notEquals` checks the inner text or value with exact match, `likes|notLikes` checks with partial match. `selected|unselected` is for select tag, `checked|unchecked` is for checkbox tag.
+
+#### $target
+
+```
+[By instance](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_By.html) or html|url
+```
+
+Specify the check target. If `html` is specified, the entire response body is targeted. `url` is specified, the current page URL is targeted.
+
+#### $value
+
+Specify the expected value. When checkbox and multiple select tag, specify an array of strings.
+
+#### $type
+
+```
+{attr: $attribute_name}|checkbox|select
+```
 
 ```js
 const scenario = [
   //Opens the specified page.
-  {url: "https://www.google.com/"}
+  {url: "https://http://127.0.0.1:8080/"}
 
   //Scenarios can be nested.
   scenario: [
@@ -108,7 +147,7 @@ This scenario is replaced as follows.
 
 ```js
 [
-  {url: 'https://www.google.com/form.html'}
+  {url: 'https://http://127.0.0.1:8080/form.html'}
   {checks: [
     {by: By.css('.foo')}
   ]}

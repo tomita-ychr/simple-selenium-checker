@@ -421,42 +421,42 @@ test.describe('SSC', () => {
     }).then(() => {
       //equals true
       return checker._testExecif([
-        [{equals: By.css('h2'), value: "Home"}]
+        [{equals: By.css('#home h2'), value: "Home"}]
       ]).then(res => assert(res === true))
     }).then(() => {
       //equals false
       return checker._testExecif([
-        [{equals: By.css('h2'), value: "Foo"}]
+        [{equals: By.css('#home h2'), value: "Foo"}]
       ]).then(res => assert(res === false))
     }).then(() => {
       //notEquals true
       return checker._testExecif([
-        [{notEquals: By.css('h2'), value: "Foo"}]
+        [{notEquals: By.css('#home h2'), value: "Foo"}]
       ]).then(res => assert(res === true))
     }).then(() => {
       //notEquals false
       return checker._testExecif([
-        [{notEquals: By.css('h2'), value: "Home"}]
+        [{notEquals: By.css('#home h2'), value: "Home"}]
       ]).then(res => assert(res === false))
     }).then(() => {
       //likes true
       return checker._testExecif([
-        [{likes: By.css('h2'), value: "om"}]
+        [{likes: By.css('#home h2'), value: "om"}]
       ]).then(res => assert(res === true))
     }).then(() => {
       //likes false
       return checker._testExecif([
-        [{likes: By.css('h2'), value: "Foo"}]
+        [{likes: By.css('#home h2'), value: "Foo"}]
       ]).then(res => assert(res === false))
     }).then(() => {
       //notLikes true
       return checker._testExecif([
-        [{notLikes: By.css('h2'), value: "Foo"}]
+        [{notLikes: By.css('#home h2'), value: "Foo"}]
       ]).then(res => assert(res === true))
     }).then(() => {
       //notLikes false
       return checker._testExecif([
-        [{notLikes: By.css('h2'), value: "om"}]
+        [{notLikes: By.css('#home h2'), value: "om"}]
       ]).then(res => assert(res === false))
     }).then(() => {
       // bool true

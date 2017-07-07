@@ -547,58 +547,83 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var By = _seleniumWebdriver2.default.By;
 
 function createPromise(checker, check) {
-  if (check.type === undefined) {
-    return checker.waitElement(check.locator, check.timeout).then(function (elem) {
-      return elem.getText();
-    });
-  } else if (check.type === 'html') {
-    return checker.driver.findElement(By.css('html')).then(function (elem) {
-      return elem.getAttribute('outerHTML');
-    });
-  } else if (check.type == 'checkbox' || check.type == 'radio') {
+  if (check.locator) {
     return checker.waitElements(check.locator, check.count, check.timeout).then(function (elems) {
       return checker.assembleFromElements(elems, {
+        tag_name: function tag_name(elem) {
+          return elem.getTagName();
+        },
+        type: function type(elem) {
+          return elem.getAttribute('type');
+        },
         value: function value(elem) {
           return elem.getAttribute('value');
+        },
+        multiple: function multiple(elem) {
+          return elem.getAttribute('multiple');
         },
         selected: function selected(elem) {
           return elem.isSelected();
-        }
-      });
-    }).then(function (composits) {
-      return composits.filter(function (composit) {
-        return composit.selected;
-      }).map(function (composit) {
-        return composit.value;
-      });
-    });
-  } else if (check.type == 'select') {
-    return checker.waitElement(check.locator, check.timeout).then(function (elem) {
-      return checker.waitElementsIn(elem, By.css("option"));
-    }).then(function (elems) {
-      return checker.assembleFromElements(elems, {
-        value: function value(elem) {
-          return elem.getAttribute('value');
         },
-        isSelected: function isSelected(elem) {
-          return elem.isSelected();
+        inner_text: function inner_text(elem) {
+          return elem.getText();
+        },
+        attr: function attr(elem) {
+          return check.type && check.type.hasOwnProperty('attr') ? elem.getAttribute(check.type.attr) : Promise.resolve(false);
         }
       });
     }).then(function (composits) {
-      return composits.filter(function (composit) {
-        return composit.isSelected;
-      }).map(function (composit) {
-        return composit.value;
-      });
+      if (composits[0].tag_name == 'select') {
+        return checker.waitElementsIn(composits[0].elem, By.css('option'), check.count, check.timeout).then(function (elems) {
+          return checker.assembleFromElements(elems, {
+            value: function value(elem) {
+              return elem.getAttribute('value');
+            },
+            selected: function selected(elem) {
+              return elem.isSelected();
+            }
+          });
+        }).then(function (sComposits) {
+          return sComposits.filter(function (sComposit) {
+            return sComposit.selected;
+          });
+        }).then(function (sComposits) {
+          return sComposits.map(function (sComposit) {
+            return sComposit.value;
+          });
+        });
+      } else if (composits[0].attr !== false) {
+        return composits.map(function (composit) {
+          return composit.attr;
+        });
+      } else if (composits[0].type == "checkbox" || composits[0].type == "radio") {
+        return composits.filter(function (composit) {
+          return composit.selected;
+        }).map(function (composit) {
+          return composit.value;
+        });
+      } else if (composits[0].tag_name == "input") {
+        return composits.map(function (composit) {
+          return composit.value;
+        });
+      } else {
+        return composits.map(function (composit) {
+          return composit.inner_text;
+        });
+      }
+    });
+  } else if (check.type == 'html') {
+    return checker.driver.findElement(By.css('html')).then(function (elem) {
+      return elem.getAttribute('outerHTML');
+    }).then(function (html) {
+      return [html];
     });
   } else if (check.type == 'url') {
-    return checker.driver.getCurrentUrl();
-  } else if (check.type.hasOwnProperty('attr')) {
-    return checker.waitElement(check.locator, check.timeout).then(function (elem) {
-      return elem.getAttribute(check.type.attr);
+    return checker.driver.getCurrentUrl().then(function (url) {
+      return [url];
     });
   } else {
-    throw new Error('Illegal checker directive type ' + JSON.stringify(check));
+    throw Error("Illegal directive is specified " + JSON.stringify(check) + '.');
   }
 }
 
@@ -620,10 +645,6 @@ function createErrorMessage(check, predicate) {
   }
 }
 
-function compareArray(array1, array2) {
-  return JSON.stringify(array1.sort()) === JSON.stringify(array2.sort());
-}
-
 function normalizeDirective(check, name, forceType) {
   check = Object.assign({}, check);
 
@@ -643,6 +664,10 @@ function normalizeDirective(check, name, forceType) {
   return check;
 }
 
+function compareArray(array1, array2) {
+  return JSON.stringify(array1.sort()) === JSON.stringify(array2.sort());
+}
+
 function exists(checker, check) {
   check = normalizeDirective(check, 'exists');
   return checker.waitElements(check.exists, check.count, check.timeout);
@@ -655,43 +680,39 @@ function notExists(checker, check) {
 
 function likes(checker, check) {
   check = normalizeDirective(check, 'likes');
-  return checker.waitFor(createErrorMessage(check, 'dose not contain'), function () {
-    return createPromise(checker, check).then(function (text) {
-      return text.indexOf(check.value) >= 0;
+  return checker.waitFor(createErrorMessage(check, 'contains'), function () {
+    return createPromise(checker, check).then(function (values) {
+      if (check.values !== undefined) throw new Error('`likes` can only value.');
+      if (values.length > 1) throw new Error('Multiple values were detected `' + values + '`.');
+      return values[0].indexOf(check.value) >= 0;
     });
   }, check.timeout);
 }
 
 function equals(checker, check) {
   check = normalizeDirective(check, 'equals');
-  if (check.values) {
-    return checker.waitFor(createErrorMessage(check, 'is'), function () {
-      return createPromise(checker, check).then(function (values) {
+  return checker.waitFor(createErrorMessage(check, 'is'), function () {
+    return createPromise(checker, check).then(function (values) {
+      if (check.hasOwnProperty('values')) {
         return compareArray(values, check.values);
-      });
-    }, check.timeout);
-  } else {
-    return checker.waitFor(createErrorMessage(check, 'is'), function () {
-      return createPromise(checker, check).then(function (text) {
-        if (Array.isArray(text)) {
-          if (text.length > 1) throw new Error(_util2.default.format("%s has multiple values `%s`"), check.by, text);
-          text = text[0];
-        }
-        return text === check.value;
-      });
-    }, check.timeout);
-  }
+      } else if (check.hasOwnProperty('value')) {
+        return values[0] === check.value;
+      } else {
+        throw new Error("Missing value or values.");
+      }
+    });
+  }, check.timeout);
 }
 
 function unchecked(checker, check) {
   check = normalizeDirective(check, 'unchecked', 'checkbox');
-  return checker.waitFor(createErrorMessage(check, 'is not checked'), function () {
+  return checker.waitFor(createErrorMessage(check, 'dose not contain'), function () {
     return createPromise(checker, check).then(function (values) {
-      for (var i = 0; i < check.values.length; i++) {
-        var expected = check.values[i];
-        if (values.indexOf(expected) >= 0) {
-          return false;
-        }
+      if (check.value === undefined && check.values === undefined) throw new Error("Missing value or values.");
+      var expectedList = check.values ? check.values : [check.value];
+      for (var i = 0; i < expectedList.length; i++) {
+        var expected = expectedList[i];
+        if (values.indexOf(expected) >= 0) return false;
       }
 
       return true;
@@ -701,13 +722,13 @@ function unchecked(checker, check) {
 
 function checked(checker, check) {
   check = normalizeDirective(check, 'checked', 'checkbox');
-  return checker.waitFor(createErrorMessage(check, 'is checked'), function () {
+  return checker.waitFor(createErrorMessage(check, 'contains'), function () {
     return createPromise(checker, check).then(function (values) {
-      for (var i = 0; i < check.values.length; i++) {
-        var expected = check.values[i];
-        if (values.indexOf(expected) === -1) {
-          return false;
-        }
+      if (check.value === undefined && check.values === undefined) throw new Error("Missing value or values.");
+      var expectedList = check.values ? check.values : [check.value];
+      for (var i = 0; i < expectedList.length; i++) {
+        var expected = expectedList[i];
+        if (values.indexOf(expected) === -1) return false;
       }
 
       return true;
@@ -717,31 +738,29 @@ function checked(checker, check) {
 
 function selected(checker, check) {
   check = normalizeDirective(check, 'selected', 'select');
-  var expectedList = check.values || [check.value];
-  return checker.waitFor(createErrorMessage(check, 'select'), function () {
+  return checker.waitFor(createErrorMessage(check, 'contains'), function () {
     return createPromise(checker, check).then(function (values) {
+      if (check.value === undefined && check.values === undefined) throw new Error("Missing value or values.");
+      var expectedList = check.values ? check.values : [check.value];
       for (var i = 0; i < expectedList.length; i++) {
         var expected = expectedList[i];
-        if (values.indexOf(expected) >= 0) {
-          return true;
-        }
+        if (values.indexOf(expected) === -1) return false;
       }
 
-      return false;
+      return true;
     });
   }, check.timeout);
 }
 
 function unselected(checker, check) {
   check = normalizeDirective(check, 'unselected', 'select');
-  var expectedList = check.values || [check.value];
-  return checker.waitFor(createErrorMessage(check, 'dose not select'), function () {
+  return checker.waitFor(createErrorMessage(check, 'dose not contain'), function () {
     return createPromise(checker, check).then(function (values) {
+      if (check.value === undefined && check.values === undefined) throw new Error("Missing value or values.");
+      var expectedList = check.values ? check.values : [check.value];
       for (var i = 0; i < expectedList.length; i++) {
         var expected = expectedList[i];
-        if (values.indexOf(expected) >= 0) {
-          return false;
-        }
+        if (values.indexOf(expected) >= 0) return false;
       }
 
       return true;
@@ -752,8 +771,14 @@ function unselected(checker, check) {
 function notEquals(checker, check) {
   check = normalizeDirective(check, 'notEquals');
   return checker.waitFor(createErrorMessage(check, 'is not'), function () {
-    return createPromise(checker, check).then(function (text) {
-      return text !== check.value;
+    return createPromise(checker, check).then(function (values) {
+      if (check.values) {
+        return !compareArray(values, check.values);
+      } else if (check.value) {
+        return values[0] !== check.value;
+      } else {
+        throw new Error("Missing value or values.");
+      }
     });
   }, check.timeout);
 }
@@ -761,8 +786,10 @@ function notEquals(checker, check) {
 function notLikes(checker, check) {
   check = normalizeDirective(check, 'notLikes');
   return checker.waitFor(createErrorMessage(check, 'dose not contains'), function () {
-    return createPromise(checker, check).then(function (text) {
-      return text.indexOf(check.value) === -1;
+    return createPromise(checker, check).then(function (values) {
+      if (check.values !== undefined) throw new Error('`likes` can only value.');
+      if (values.length > 1) throw new Error('Multiple values were detected `' + values + '`.');
+      return values[0].indexOf(check.value) === -1;
     });
   }, check.timeout);
 }
