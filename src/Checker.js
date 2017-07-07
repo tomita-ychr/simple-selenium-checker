@@ -49,6 +49,8 @@ export default class Checker
           let message = ''
           if(check.type == 'html'){
             message = util.format("%s: [%s], expected: `%s`", check.name, check.type, check.value||check.values)
+          } else if(check.hasOwnProperty('locator')){
+            message = util.format("%s: [%s] %s, expected: `%s`, actual: `%s`", check.name, check.type, check.locator, check.value||check.values, check.actual_values)
           } else {
             message = util.format("%s: [%s], expected: `%s`, actual: `%s`", check.name, check.type, check.value||check.values, check.actual_values)
           }

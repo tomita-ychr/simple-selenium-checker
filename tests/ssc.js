@@ -7,6 +7,7 @@ import placeholder from '../src/placeholder'
 const By = webdriver.By;
 
 const isDebug = process.execArgv.indexOf('--debug') > -1 || process.execArgv.indexOf('--debug-brk') > -1
+const noCatchTest = process.argv.indexOf('--no-catch') >= 0
 
 let driver;
 test.describe('SSC', () => {
@@ -43,7 +44,7 @@ test.describe('SSC', () => {
         checks: [
           {exists: By.css(".delay-content"), timeout: 8000},
           {equals: By.css(".main .col-sm-6:nth-child(2) h3"), value: "Home 002"},
-          {equals: By.css(".main .col-sm-6:nth-child(3) img"), type: {attr: 'alt'}, value: "Home alt 003"},
+          {equals: By.css(".main .col-sm-6:nth-child(3) img"), attr_alt: "Home alt 003"},
           {likes: "html", value: "<title>Simple selenium checker - Home</title>"} 
         ]
       },{
@@ -54,7 +55,7 @@ test.describe('SSC', () => {
         checks: [
           {exists: By.css(".delay-content"), timeout: 8000},
           {equals: By.css(".main .col-sm-6:nth-child(2) h3"), value: "Foo 002"},
-          {equals: By.css(".main .col-sm-6:nth-child(3) img"), type: {attr: "alt"}, value: "Foo alt 003"},
+          {equals: By.css(".main .col-sm-6:nth-child(3) img"), attr_alt: "Foo alt 003"},
           {likes: "html", value: "<title>Simple selenium checker - Foo"} ,
         ],
       }]
@@ -76,6 +77,7 @@ test.describe('SSC', () => {
 
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err != undefined)
         assert(err.name == "NotSuchElementError")
       })
@@ -94,6 +96,7 @@ test.describe('SSC', () => {
 
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err != undefined)
         assert(err.name == "NotSuchElementError")
       })
@@ -112,6 +115,7 @@ test.describe('SSC', () => {
 
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err != undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('Hoge 002') >= 0)
@@ -131,6 +135,7 @@ test.describe('SSC', () => {
 
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err != undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('Bar 003') >= 0)
@@ -150,6 +155,7 @@ test.describe('SSC', () => {
 
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err != undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('<title>Simple selenium checker - Hoge</title>') >= 0)
@@ -169,6 +175,7 @@ test.describe('SSC', () => {
 
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err != undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('<title>Simple selenium checker - Bar</title>') >= 0)
@@ -184,6 +191,7 @@ test.describe('SSC', () => {
 
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err != undefined)
         assert(err.name == "JavascriptError")
       })
@@ -198,6 +206,7 @@ test.describe('SSC', () => {
 
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err != undefined)
         assert(err.name == "StatusCodeError")
       })
@@ -252,6 +261,7 @@ test.describe('SSC', () => {
           {equals: 'url', value: "http://127.0.0.1:8080/hoge.html"} ,
         ]
       }]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err != undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('http://127.0.0.1:8080/hoge.html') >= 0)
@@ -264,6 +274,7 @@ test.describe('SSC', () => {
           {likes: 'url', value: "hoge.html"} ,
         ]
       }]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err != undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('hoge.html') >= 0)
@@ -276,6 +287,7 @@ test.describe('SSC', () => {
           {notEquals: 'url', value: "http://127.0.0.1:8080/"} ,
         ]
       }]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err != undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('http://127.0.0.1:8080/') >= 0)
@@ -288,6 +300,7 @@ test.describe('SSC', () => {
           {notLikes: 'url', value: "127.0.0.1"} ,
         ]
       }]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err != undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('127.0.0.1') >= 0)
@@ -308,6 +321,7 @@ test.describe('SSC', () => {
       const checker = new Checker(driver)
       checker.debug = true;
       return checker.run(scenario).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err != undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('http://127.0.0.1:8080/hoge.html') >= 0)
@@ -340,6 +354,7 @@ test.describe('SSC', () => {
 
       const checker = new Checker(driver)
       return checker.run(scenario).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err != undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('bar') >= 0)
@@ -360,7 +375,7 @@ test.describe('SSC', () => {
           {exists: placeholder('checks_by')},
           {equals: By.css(".main .col-sm-6:nth-child(1) h3"), value: placeholder('checks_equals')},
           {likes: By.css(".main .col-sm-6:nth-child(2) h3"), value: placeholder('checks_likes')},
-          {equals: By.css(".main .col-sm-6:nth-child(3) h3"), type: {attr:"value"}, value: placeholder('checks_attr_value')}
+          {equals: By.css(".main .col-sm-6:nth-child(3) h3"), attr_value: placeholder('checks_attr_value')}
         ],
       },{
         url: placeholder('url').append('/form.html'),
@@ -372,7 +387,7 @@ test.describe('SSC', () => {
         ]
       },{
         checks: [
-          {equals: By.css(".input"), type: {attr: 'value'}, value: 'placeholdercheck'}
+          {equals: By.css(".input"), attr_value: 'placeholdercheck'}
         ]
       }]
 
@@ -395,8 +410,7 @@ test.describe('SSC', () => {
       assert(resScenario[2].checks[0].exists.toString() === By.css(".main .col-sm-6:nth-child(2) h3").toString())
       assert(resScenario[2].checks[1].value === 'Foo 001')
       assert(resScenario[2].checks[2].value === 'oo 00')
-      // https://gist.github.com/gomo/474b14bbf8955e0a20d56902eafd0fb8
-      assert(resScenario[2].checks[3].value === null)
+      assert(resScenario[2].checks[3].attr_value === null)
       assert(resScenario[3].url === 'http://127.0.0.1:8080/form.html')
       assert(resScenario[4].actions[0].sendKeys.toString() === By.css(".input").toString())
 
@@ -536,7 +550,10 @@ test.describe('SSC', () => {
             {exists: By.css(".non-exists")},
           ]
         }]
-      }]).catch(err => err).then(err => assert(err !== undefined))
+      }]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
+        assert(err !== undefined)
+      })
     }).then(() => {
       //ignore checks
       return checker.run([{
@@ -567,7 +584,8 @@ test.describe('SSC', () => {
           {exists: By.css("#foo")},
           {exists: By.css("#fail-on-execute-url")},
         ]
-      }]).catch(err => {
+      }]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotSuchElementError")
       })
@@ -586,7 +604,8 @@ test.describe('SSC', () => {
           {exists: By.css("#foo")},
           {exists: By.css("#fail-on-ignore-url")},
         ]
-      }]).catch(err => {
+      }]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotSuchElementError")
       })
@@ -607,7 +626,8 @@ test.describe('SSC', () => {
           {exists: By.css("#home")},
           {exists: By.css("#fail-on-execute-action")},
         ]
-      }]).catch(err => {
+      }]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotSuchElementError")
       })
@@ -629,7 +649,8 @@ test.describe('SSC', () => {
           {exists: By.css("#home")},
           {exists: By.css("#fail-on-ignore-action")},
         ]
-      }]).catch(err => {
+      }]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotSuchElementError")
       })
@@ -654,7 +675,8 @@ test.describe('SSC', () => {
             {exists: By.css("#nothing2")}
           ]
         }]
-      }]).catch(err => {
+      }]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotSuchElementError")
       })
@@ -677,7 +699,8 @@ test.describe('SSC', () => {
             ]
           }]
         }]
-      }]).catch(err => {
+      }]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotSuchElementError")
       })
@@ -705,7 +728,8 @@ test.describe('SSC', () => {
         url: "http://127.0.0.1:8080/"
       },{
         checks: [{exists: By.css("#foo")}]
-      }]).catch(err => {
+      }]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotSuchElementError")
       })
@@ -718,12 +742,13 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {checks: [
-          {equals: By.css(".nav > li:nth-child(2) > a"), type: {attr: "href"}, value: 'http://127.0.0.1:8080/foo.html'},
-          {equals: By.css("header"), type: {attr: "class"}, value: 'page-header'},
-          {equals: By.css(".nav"), type: {attr: "class"}, value: 'nav nav-pills'},
-          {equals: By.css(".nav"), type: {attr: "class"}, value: 'nav'},
+          {equals: By.css(".nav > li:nth-child(2) > a"), attr_href: 'http://127.0.0.1:8080/foo.html'},
+          {equals: By.css("header"), attr_class: 'page-header'},
+          {equals: By.css(".nav"), attr_class: 'nav nav-pills'},
+          {equals: By.css(".nav"), attr_class: 'nav'},
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('`nav`') >= 0)
@@ -732,12 +757,13 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {checks: [
-          {likes: By.css(".nav > li:nth-child(2) > a"), type: {attr: "href"}, value: '/foo.html'},
-          {likes: By.css("header"), type: {attr: "class"}, value: 'ge-head'},
-          {likes: By.css(".nav"), type: {attr: "class"}, value: 'nav-pil'},
-          {likes: By.css(".nav"), type: {attr: "class"}, value: 'foooo'},
+          {likes: By.css(".nav > li:nth-child(2) > a"), attr_href: '/foo.html'},
+          {likes: By.css("header"), attr_class: 'ge-head'},
+          {likes: By.css(".nav"), attr_class: 'nav-pil'},
+          {likes: By.css(".nav"), attr_class: 'foooo'},
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('foooo') >= 0)
@@ -753,8 +779,8 @@ test.describe('SSC', () => {
         {checks: [
           {notEquals: By.css(".nav > li:nth-child(1) > a"), value: 'Bar'},
           {notEquals: By.css(".nav > li:nth-child(2) > a"), value: 'Bar'},
-          {notEquals: By.css(".nav > li:nth-child(2) > a"), type: {attr: "href"}, value: 'http://127.0.0.1:8080/bar.html'},
-          {notEquals: By.css("header"), type: {attr: "class"}, value: 'page-footer'},
+          {notEquals: By.css(".nav > li:nth-child(2) > a"), attr_href: 'http://127.0.0.1:8080/bar.html'},
+          {notEquals: By.css("header"), attr_class: 'page-footer'},
         ]},
       ])
     }).then(() => {
@@ -763,7 +789,8 @@ test.describe('SSC', () => {
         {checks: [
           {notEquals: By.css(".nav > li:nth-child(1) > a"), value: 'Home'}
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('Home') >= 0)
@@ -772,9 +799,10 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {checks: [
-          {notEquals: By.css(".nav > li:nth-child(2) > a"), type: {attr: "href"}, value: 'http://127.0.0.1:8080/foo.html'},
+          {notEquals: By.css(".nav > li:nth-child(2) > a"), attr_href: 'http://127.0.0.1:8080/foo.html'},
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('http://127.0.0.1:8080/foo.html') >= 0)
@@ -785,8 +813,8 @@ test.describe('SSC', () => {
         {checks: [
           {notLikes: By.css(".nav > li:nth-child(1) > a"), value: 'Bar'},
           {notLikes: By.css(".nav > li:nth-child(2) > a"), value: 'Bar'},
-          {notLikes: By.css(".nav > li:nth-child(2) > a"), type: {attr: "href"}, value: 'http://127.0.0.1:8080/bar.html'},
-          {notLikes: By.css("header"), type: {attr: "class"}, value: 'page-footer'},
+          {notLikes: By.css(".nav > li:nth-child(2) > a"), attr_href: 'http://127.0.0.1:8080/bar.html'},
+          {notLikes: By.css("header"), attr_class: 'page-footer'},
           {notLikes: 'html', value: 'foobarfoobar'} 
         ]},
       ])
@@ -796,7 +824,8 @@ test.describe('SSC', () => {
         {checks: [
           {notLikes: By.css(".nav > li:nth-child(2) > a"), value: 'Foo'},
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('Foo') >= 0)
@@ -805,9 +834,10 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {checks: [
-          {notLikes: By.css("header"), type: {attr: "class"}, value: 'page-header'},
+          {notLikes: By.css("header"), attr_class: 'page-header'},
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('page-header') >= 0)
@@ -818,7 +848,8 @@ test.describe('SSC', () => {
         {checks: [
           {notLikes: 'html', value: 'Simple selenium checker'} ,
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('Simple selenium checker') >= 0)
@@ -836,7 +867,8 @@ test.describe('SSC', () => {
         {checks: [
           {notExists: By.css("body")},
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "ElementExistsError")
       })
@@ -858,7 +890,8 @@ test.describe('SSC', () => {
         {checks: [
           {equals: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox2']},
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('checkbox1,checkbox2') >= 0)
@@ -908,7 +941,8 @@ test.describe('SSC', () => {
         {checks: [
           {unchecked: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']} 
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('checkbox1') >= 0)
@@ -926,7 +960,8 @@ test.describe('SSC', () => {
         {checks: [
           {checked: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox2']} 
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('checkbox2') >= 0)
@@ -949,7 +984,8 @@ test.describe('SSC', () => {
         {checks: [
           {equals: By.css(".radio-inline input[name=radio]"), value: 'radio1'},
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('radio1') >= 0)
@@ -966,7 +1002,8 @@ test.describe('SSC', () => {
         {actions: [
           {check: By.css(".radio-inline input[name=radio]"), value: 'radio99'},
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotSuchElementError")
       })
@@ -980,7 +1017,8 @@ test.describe('SSC', () => {
           {notEquals: By.css(".radio-inline input[name=radio]"), value: 'radio2'},
           {notEquals: By.css(".radio-inline input[name=radio]"), value: 'radio1'},
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('radio1') >= 0)
@@ -997,7 +1035,8 @@ test.describe('SSC', () => {
           {equals: By.css(".select-single"), value: 'option1'},
           {equals: By.css(".select-single"), value: 'option2'},
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('option2') >= 0)
@@ -1012,7 +1051,8 @@ test.describe('SSC', () => {
           {equals: By.css(".select-single"), value: 'option3'},
           {equals: By.css(".select-single"), value: 'option2'},
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('option2') >= 0)
@@ -1024,7 +1064,8 @@ test.describe('SSC', () => {
           {selected: By.css(".select-single"), value: 'option1'} ,
           {selected: By.css(".select-single"), value: 'option2'} ,
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('option2') >= 0)
@@ -1038,7 +1079,8 @@ test.describe('SSC', () => {
           {unselected: By.css(".select-single"), value: 'option3'} ,
           {unselected: By.css(".select-single"), value: 'option1'} ,
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('option1') >= 0)
@@ -1055,7 +1097,8 @@ test.describe('SSC', () => {
           {equals: By.css(".select-multiple"), values: ['option2', 'option3']},
           {equals: By.css(".select-multiple"), values: ['option1']},
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('option1') >= 0)
@@ -1068,7 +1111,8 @@ test.describe('SSC', () => {
           {selected: By.css(".select-multiple"), values: ['option3']} ,
           {selected: By.css(".select-multiple"), values: ['option1']} ,
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('option1') >= 0)
@@ -1085,7 +1129,8 @@ test.describe('SSC', () => {
           {unselected: By.css(".select-multiple"), values: ['option3']} ,
           {unselected: By.css(".select-multiple"), values: ['option2']} ,
         ]},
-      ]).catch(err => {
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf('option2') >= 0)
@@ -1183,7 +1228,8 @@ test.describe('SSC', () => {
           {equals: By.css("h2"), value: "Home"},
           {equals: By.css("h2"), value: "FooBar"},
         ]},
-       ]).catch(err => {
+       ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf("FooBar") >= 0)
@@ -1204,7 +1250,8 @@ test.describe('SSC', () => {
           {equals: By.css("h2"), value: "Frame"},
           {equals: By.css("h2"), value: "FooBar"},
         ]},
-       ]).catch(err => {
+       ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
         assert(err !== undefined)
         assert(err.name == "NotMatchError")
         assert(err.message.indexOf("FooBar") >= 0)

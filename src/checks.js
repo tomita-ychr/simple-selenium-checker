@@ -24,7 +24,7 @@ function createPromise(checker, check){
             .then(sComposits => sComposits.filter(sComposit => sComposit.selected))
             .then(sComposits => ({
               values: sComposits.map(sComposit => sComposit.value),
-              type: 'value'
+              type: 'select value'
             }))
         } else if(composits[0].attr !== false) {
           return {
@@ -34,17 +34,17 @@ function createPromise(checker, check){
         } else if(composits[0].type == "checkbox" || composits[0].type == "radio"){
           return {
             values: composits.filter(composit => composit.selected).map(composit => composit.value),
-            type: 'value'
+            type: composits[0].type + ' value'
           }
         } else if(composits[0].tag_name == "input"){
           return {
             values: composits.map(composit => composit.value),
-            type: 'value'
+            type: 'input value'
           }
         } else {
           return {
             values: composits.map(composit => composit.inner_text),
-            type: 'text'
+            type: 'inner text'
           }
         }
       })
@@ -52,11 +52,13 @@ function createPromise(checker, check){
     return checker.driver.findElement(By.css('html'))
       .then(elem => elem.getAttribute('outerHTML'))
       .then(html => ({
-        values: [html]
+        values: [html],
+        type: check.type,
       }))
   } else if(check.type == 'url') {
     return checker.driver.getCurrentUrl().then(url => ({
-      values: [url]
+      values: [url],
+      type: check.type,
     }))
   } else {
     throw Error("Illegal directive is specified " + JSON.stringify(check) + '.')
@@ -66,13 +68,29 @@ function createPromise(checker, check){
 function normalizeDirective(check, name){
   check = Object.assign({}, check)
 
+  check.name = name
+
+  if(check.hasOwnProperty('type')){
+    throw Error("`type` key is not supported " + JSON.stringify(check) + '.')
+  }
+
   if(typeof check[name] == 'string'){
     check.type = check[name]
   } else {
     check.locator = check[name]
   }
 
-  check.name = name
+  //attr
+  const attr_keys = Object.keys(check).filter(key => key.indexOf('attr_') === 0)
+  if(attr_keys.length > 1) throw new Error("2 or more attr_ key found " + JSON.stringify(check) + '.')
+  if(attr_keys.length > 0){
+    check.type = {attr: attr_keys[0].substr('attr_'.length)}
+    check.value = check[attr_keys[0]]
+  } else if(['exists', 'notExists'].indexOf(check.name) === -1){
+    if(!check.hasOwnProperty('value') && !check.hasOwnProperty('values')){
+      throw new Error("Require value or values key " + JSON.stringify(check) + '.')
+    }
+  }
 
   return check
 }
@@ -116,8 +134,6 @@ export function equals(checker, check){
         return compareArray(data.values, check.values)
       } else if(check.hasOwnProperty('value')) {
         return data.values[0] === check.value
-      } else {
-        throw new Error("Missing value or values.")
       }
     })
   )
@@ -210,8 +226,6 @@ export function notEquals(checker, check){
         return !compareArray(data.values, check.values)
       } else if(check.value) {
         return data.values[0] !== check.value
-      } else {
-        throw new Error("Missing value or values.")
       }
     })
   )
