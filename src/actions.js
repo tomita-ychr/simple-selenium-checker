@@ -81,31 +81,31 @@ export function unselect(checker, action){
 }
 
 export function clear(checker, action){
-  if(action.type == 'checkbox'){
-    return checker.waitElements(action.clear, action.count, action.timeout)
-    .then(elems => checker.assembleFromElements(
-      elems,
-      {isSelected: elem => elem.isSelected()}
-    ))
-    .then(composits => composits.filter(composit => composit.isSelected))
-    .then(composits => webdriver.promise.map(composits, composit => composit.elem.click()))
-  } else if(action.type == 'select'){
-    return checker.waitElement(action.clear, check.timeout)
-      .then(elem => checker.waitElementsIn(elem, By.css("option")))
-      .then(elems => checker.assembleFromElements(
-        elems,
-        {isSelected: elem => elem.isSelected()}
-      ))
-      .then(composits => composits.filter(composit => composit.isSelected).map(composit => composit.elem))
-      .then(elems => webdriver.promise.map(
-        elems,
-        elem => elem.click()
-      ))
-  } else {
-    return checker.waitElement(action.clear, action.timeout).then(elem => {
-      return elem.clear()
+  return checker.waitElements(action.clear, action.count, action.timeout)
+    .then(elems => checker.assembleFromElements(elems, {
+      tag_name: elem => elem.getTagName(),
+      type: elem => elem.getAttribute('type'),
+      selected: elem => elem.isSelected(),
+    }))
+    .then(composits => {
+      if(composits[0].tag_name == 'select'){
+        return checker.waitElementsIn(composits[0].elem, By.css('option'), check.count, check.timeout)
+          .then(elems => checker.assembleFromElements(elems, {
+            tag_name: elem => elem.getTagName(),
+            type: elem => elem.getAttribute('type'),
+            selected: elem => elem.isSelected(),
+          }))
+      } else {
+        return composits
+      }
     })
-  }
+    .then(composits => {
+      if(composits[0].tag_name == 'option' || (composits[0].type == 'checkbox' || composits[0].type == 'radio')){
+        composits.filter(composit => composit.selected).forEach(composit => composit.elem.click())
+      } else {
+        composits.forEach(composit => composit.elem.clear())
+      }
+    })
 }
 
 export function alert(checker, action){

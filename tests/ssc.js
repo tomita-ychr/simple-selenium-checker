@@ -849,14 +849,14 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {checks: [
-          {equals: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox', values: ['checkbox2']},
+          {equals: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox2']},
         ]},
       ])
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {checks: [
-          {equals: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox', values: ['checkbox1', 'checkbox2']},
+          {equals: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox2']},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -867,17 +867,17 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {actions: [
-          {clear: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox'},
+          {clear: By.css(".checkbox-inline input[name=checkbox]")},
         ]},
         {checks: [
-          {equals: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox', values: []},
+          {equals: By.css(".checkbox-inline input[name=checkbox]"), values: []},
           {unchecked: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']} 
         ]},
         {actions: [
           {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox3']},
         ]},
         {checks: [
-          {equals: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox', values: ['checkbox1', 'checkbox3']},
+          {equals: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox3']},
           {checked: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']} ,
           {checked: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox3']} 
         ]}
@@ -886,23 +886,23 @@ test.describe('SSC', () => {
           {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox2']},
         ]},
         {checks: [
-          {equals: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox', values: ['checkbox1', 'checkbox2', 'checkbox3']},
+          {equals: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox2', 'checkbox3']},
         ]},
         {actions: [
           {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']},
         ]},
         {checks: [
-          {equals: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox', values: ['checkbox1', 'checkbox2', 'checkbox3']},
+          {equals: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox2', 'checkbox3']},
         ]},
       ])
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {actions: [
-          {clear: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox'},
+          {clear: By.css(".checkbox-inline input[name=checkbox]")},
         ]},
         {actions: [
-          {clear: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox'},
+          {clear: By.css(".checkbox-inline input[name=checkbox]")},
           {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']},
         ]},
         {checks: [
@@ -917,10 +917,10 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {actions: [
-          {clear: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox'},
+          {clear: By.css(".checkbox-inline input[name=checkbox]")},
         ]},
         {actions: [
-          {clear: By.css(".checkbox-inline input[name=checkbox]"), type: 'checkbox'},
+          {clear: By.css(".checkbox-inline input[name=checkbox]")},
           {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']},
         ]},
         {checks: [
@@ -940,14 +940,14 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {checks: [
-          {equals: By.css(".radio-inline input[name=radio]"), value: 'radio2', type: 'radio'},
+          {equals: By.css(".radio-inline input[name=radio]"), value: 'radio2'},
         ]},
       ])
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {checks: [
-          {equals: By.css(".radio-inline input[name=radio]"), value: 'radio1', type: 'radio'},
+          {equals: By.css(".radio-inline input[name=radio]"), value: 'radio1'},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -961,7 +961,7 @@ test.describe('SSC', () => {
           {check: By.css(".radio-inline input[name=radio]"), value: 'radio1'},
         ]},
         {checks: [
-          {equals: By.css(".radio-inline input[name=radio]"), value: 'radio1', type: 'radio'},
+          {equals: By.css(".radio-inline input[name=radio]"), value: 'radio1'},
         ]},
         {actions: [
           {check: By.css(".radio-inline input[name=radio]"), value: 'radio99'},
@@ -977,8 +977,8 @@ test.describe('SSC', () => {
           {check: By.css(".radio-inline input[name=radio]"), value: 'radio1'},
         ]},
         {checks: [
-          {notEquals: By.css(".radio-inline input[name=radio]"), value: 'radio2', type: 'radio'},
-          {notEquals: By.css(".radio-inline input[name=radio]"), value: 'radio1', type: 'radio'},
+          {notEquals: By.css(".radio-inline input[name=radio]"), value: 'radio2'},
+          {notEquals: By.css(".radio-inline input[name=radio]"), value: 'radio1'},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -994,8 +994,8 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {checks: [
-          {equals: By.css(".select-single"), value: 'option1', type: 'select'},
-          {equals: By.css(".select-single"), value: 'option2', type: 'select'},
+          {equals: By.css(".select-single"), value: 'option1'},
+          {equals: By.css(".select-single"), value: 'option2'},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -1009,8 +1009,8 @@ test.describe('SSC', () => {
           {select: By.css(".select-single"), value: 'option3'},
         ]},
         {checks: [
-          {equals: By.css(".select-single"), value: 'option3', type: 'select'},
-          {equals: By.css(".select-single"), value: 'option2', type: 'select'},
+          {equals: By.css(".select-single"), value: 'option3'},
+          {equals: By.css(".select-single"), value: 'option2'},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -1052,8 +1052,8 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {checks: [
-          {equals: By.css(".select-multiple"), type: 'select', values: ['option2', 'option3']},
-          {equals: By.css(".select-multiple"), type: 'select', values: ['option1']},
+          {equals: By.css(".select-multiple"), values: ['option2', 'option3']},
+          {equals: By.css(".select-multiple"), values: ['option1']},
         ]},
       ]).catch(err => {
         assert(err !== undefined)
@@ -1077,7 +1077,7 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {actions: [
-          {clear: By.css(".select-multiple"), type: 'select'},
+          {clear: By.css(".select-multiple")},
           {select: By.css(".select-multiple"), values: ['option2']},
         ]},
         {checks: [
@@ -1094,40 +1094,40 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {actions: [
-          {clear: By.css(".select-multiple"), type: 'select'},
+          {clear: By.css(".select-multiple")},
         ]},
         {checks: [
-          {equals: By.css(".select-multiple"), type: 'select', values: []},
+          {equals: By.css(".select-multiple"), values: []},
         ]},
         {actions: [
           {select: By.css(".select-multiple"), values: ['option1', 'option3']},
         ]},
         {checks: [
-          {equals: By.css(".select-multiple"), type: 'select', values: ['option1', 'option3']},
+          {equals: By.css(".select-multiple"), values: ['option1', 'option3']},
         ]},
         {actions: [
           {select: By.css(".select-multiple"), values: ['option2', 'option3']},
         ]},
         {checks: [
-          {equals: By.css(".select-multiple"), type: 'select', values: ['option1', 'option2', 'option3']},
+          {equals: By.css(".select-multiple"), values: ['option1', 'option2', 'option3']},
         ]},
         {actions: [
           {unselect: By.css(".select-multiple"), values: ['option3']},
         ]},
         {checks: [
-          {equals: By.css(".select-multiple"), type: 'select', values: ['option1', 'option2']},
+          {equals: By.css(".select-multiple"), values: ['option1', 'option2']},
         ]},
         {actions: [
           {unselect: By.css(".select-multiple"), values: ['option3']},
         ]},
         {checks: [
-          {equals: By.css(".select-multiple"), type: 'select', values: ['option1', 'option2']},
+          {equals: By.css(".select-multiple"), values: ['option1', 'option2']},
         ]},
         {actions: [
           {unselect: By.css(".select-multiple"), values: ['option1', 'option2']},
         ]},
         {checks: [
-          {equals: By.css(".select-multiple"), type: 'select', values: []},
+          {equals: By.css(".select-multiple"), values: []},
         ]},
       ])
     })

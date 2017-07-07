@@ -39,13 +39,20 @@ export default class Checker
     return promise
   }
 
-  waitFor(message, action, timeout){
+  waitFor(check, action, timeout){
     if(timeout === undefined) timeout = Checker.DefaultTimeout
     return this.driver
-      .wait(new webdriver.Condition(message, () => action()), timeout)
+      .wait(new webdriver.Condition('', () => action()), timeout)
       .catch(err => {
         if(err.name == 'TimeoutError'){
-          throw new errors.NotMatchError(err.message)
+          let message = ''
+          if(check.type == 'html'){
+            message = util.format("%s: [%s], expected: `%s`", check.name, check.type, check.value||check.values)
+          } else {
+            message = util.format("%s: [%s], expected: `%s`, actual: `%s`", check.name, check.type, check.value||check.values, check.actual_values)
+          }
+           
+          throw new errors.NotMatchError(message)
         }
         throw err
       })

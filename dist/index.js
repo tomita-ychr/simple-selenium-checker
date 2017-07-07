@@ -70,7 +70,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -81,976 +81,6 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_0__;
 
 /***/ }),
 /* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.placeholder = exports.Checker = undefined;
-
-var _Checker = __webpack_require__(2);
-
-var _Checker2 = _interopRequireDefault(_Checker);
-
-var _placeholder = __webpack_require__(5);
-
-var _placeholder2 = _interopRequireDefault(_placeholder);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = _Checker2.default;
-exports.Checker = _Checker2.default;
-exports.placeholder = _placeholder2.default;
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _seleniumWebdriver = __webpack_require__(0);
-
-var _seleniumWebdriver2 = _interopRequireDefault(_seleniumWebdriver);
-
-var _util = __webpack_require__(6);
-
-var _util2 = _interopRequireDefault(_util);
-
-var _checks = __webpack_require__(3);
-
-var checks = _interopRequireWildcard(_checks);
-
-var _actions = __webpack_require__(4);
-
-var actions = _interopRequireWildcard(_actions);
-
-var _errors = __webpack_require__(11);
-
-var errors = _interopRequireWildcard(_errors);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var until = _seleniumWebdriver2.default.until;
-var By = _seleniumWebdriver2.default.By;
-var Key = _seleniumWebdriver2.default.Key;
-
-var Checker = function () {
-  function Checker(driver) {
-    _classCallCheck(this, Checker);
-
-    this.driver = driver;
-    this.debug = Checker.Debug;
-  }
-
-  _createClass(Checker, [{
-    key: 'handleAlert',
-    value: function handleAlert(alertAction, timeout) {
-      var _this = this;
-
-      if (timeout === undefined) timeout = Checker.DefaultTimeout;
-      return this.driver.wait(until.alertIsPresent(), timeout).then(function () {
-        var alert = _this.driver.switchTo().alert();
-        if (!alert[alertAction]) {
-          throw new Error("Missing " + alertAction + " action in alert.");
-        }
-        return alert[alertAction]();
-      });
-    }
-  }, {
-    key: 'assembleFromElements',
-    value: function assembleFromElements(elems, values) {
-      var promise = _seleniumWebdriver2.default.promise.map(elems, function (elem) {
-        return { elem: elem };
-      });
-
-      Object.keys(values).forEach(function (key) {
-        var func = values[key];
-        promise = promise.then(function (composits) {
-          return _seleniumWebdriver2.default.promise.map(composits, function (composit) {
-            return func(composit.elem).then(function (value) {
-              composit[key] = value;
-              return composit;
-            });
-          });
-        });
-      });
-
-      return promise;
-    }
-  }, {
-    key: 'waitFor',
-    value: function waitFor(message, action, timeout) {
-      if (timeout === undefined) timeout = Checker.DefaultTimeout;
-      return this.driver.wait(new _seleniumWebdriver2.default.Condition(message, function () {
-        return action();
-      }), timeout).catch(function (err) {
-        if (err.name == 'TimeoutError') {
-          throw new errors.NotMatchError(err.message);
-        }
-        throw err;
-      });
-    }
-  }, {
-    key: 'waitDissapearElements',
-    value: function waitDissapearElements(locator, timeout) {
-      var _this2 = this;
-
-      if (timeout === undefined) timeout = Checker.DefaultTimeout;
-      var cond = new _seleniumWebdriver2.default.Condition(locator + ' disappear from the screen.', function () {
-        return _this2.driver.findElements(locator).then(function (elems) {
-          return elems.length === 0;
-        });
-      });
-      return this.driver.wait(cond, timeout).catch(function (err) {
-        if (err.name == 'TimeoutError') {
-          throw new errors.ElementExistsError(err.message);
-        }
-      });
-    }
-  }, {
-    key: 'waitElementsIn',
-    value: function waitElementsIn(element, locator, count, timeout) {
-      if (count === undefined) count = 1;
-      if (timeout === undefined) timeout = Checker.DefaultTimeout;
-      var cond = new _seleniumWebdriver2.default.Condition(_util2.default.format('for %s to be located %s in specified element', count > 1 ? count + " elements" : 'element', locator), function () {
-        return element.findElements(locator).then(function (elems) {
-          if (elems.length >= count) {
-            return elems;
-          }
-
-          return false;
-        });
-      });
-
-      return this.driver.wait(cond, timeout).catch(function (err) {
-        if (err.name == 'TimeoutError') {
-          throw new errors.NotSuchElementError(err.message);
-        }
-      });
-    }
-  }, {
-    key: 'waitElements',
-    value: function waitElements(locator, count, timeout) {
-      var _this3 = this;
-
-      if (count === undefined) count = 1;
-      if (timeout === undefined) timeout = Checker.DefaultTimeout;
-      var cond = new _seleniumWebdriver2.default.Condition(_util2.default.format('for %s to be located %s', count > 1 ? count + " elements" : 'element', locator), function () {
-        return _this3.driver.findElements(locator).then(function (elems) {
-          if (elems.length >= count) {
-            return elems;
-          }
-
-          return false;
-        });
-      });
-
-      return this.driver.wait(cond, timeout).catch(function (err) {
-        if (err.name == 'TimeoutError') {
-          throw new errors.NotSuchElementError(err.message);
-        }
-      });
-    }
-  }, {
-    key: 'waitElement',
-    value: function waitElement(locator, timeout) {
-      var _this4 = this;
-
-      if (timeout === undefined) timeout = Checker.DefaultTimeout;
-      return this.driver.wait(until.elementLocated(locator), timeout).then(function (elem) {
-        return _this4.driver.wait(until.elementIsVisible(elem), timeout);
-      });
-    }
-  }, {
-    key: '_detectFunction',
-    value: function _detectFunction(functions, obj) {
-      var keys = [];
-      var func = undefined;
-      for (var key in functions) {
-        if (obj.hasOwnProperty(key)) {
-          keys.push(key);
-          if (func) throw new Error("Found two identify keys. " + keys.join(','));
-          func = functions[key];
-        }
-      }
-
-      if (!func) {
-        throw new Error("Missing supported directive in " + JSON.stringify(obj));
-      }
-
-      return func;
-    }
-  }, {
-    key: '_testItem',
-    value: function _testItem(condition) {
-      if (condition.bool !== undefined) {
-        return Promise.resolve(condition.bool);
-      } else {
-        return this._detectFunction(checks, condition)(this, condition).then(function () {
-          return true;
-        }).catch(function (err) {
-          if (['NotMatchError', 'NotSuchElementError', 'ElementExistsError'].indexOf(err.name) >= 0) {
-            return false;
-          }
-
-          throw err;
-        });
-      }
-    }
-  }, {
-    key: '_testGroup',
-    value: function _testGroup(conditions) {
-      var _this5 = this;
-
-      var promise = Promise.resolve(false);
-      conditions.forEach(function (item) {
-        promise = promise.then(function (res) {
-          if (res === true) return true; //OR
-          return _this5._testItem(item);
-        });
-      });
-
-      return promise;
-    }
-  }, {
-    key: '_testExecif',
-    value: function _testExecif(conditions) {
-      var _this6 = this;
-
-      var promise = Promise.resolve(true);
-      if (conditions) {
-        conditions.forEach(function (group) {
-          promise = promise.then(function (res) {
-            if (res === false) return false; //AND
-            return _this6._testGroup(group);
-          });
-        });
-      }
-
-      return promise;
-    }
-  }, {
-    key: 'run',
-    value: function run(scenario, promise) {
-      var _this7 = this;
-
-      if (!promise) {
-        promise = Promise.resolve();
-      }
-
-      scenario.forEach(function (item) {
-        if (item.scenario) {
-          promise = _this7.run(item.scenario, promise);
-        } else {
-          //directive count check.
-          var directives = Object.keys(item);
-          if (directives.length !== 1) {
-            throw new Error('Only one directive can be placed in one scenario item.');
-          }
-
-          //check supported directives
-          if (['execif', 'url', 'actions', 'checks'].indexOf(directives[0]) === -1) {
-            throw new Error("Illegal directive object. " + JSON.stringify(item));
-          }
-
-          item = _this7._applyPlaceholder(item);
-
-          //execif
-          if (item.execif) {
-            promise = promise.then(function () {
-              return _this7._testExecif(item.execif);
-            });
-          } else if (item.url) {
-            promise = promise.then(function (res) {
-              if (res === false) return false;
-              return _this7.driver.get(item.url);
-            });
-          } else if (item.actions) {
-            item.actions.forEach(function (action) {
-              promise = promise.then(function (res) {
-                if (res === false) return false;
-                return _this7._detectFunction(actions, action)(_this7, action);
-              });
-            });
-          } else if (item.checks) {
-            item.checks.forEach(function (check) {
-              promise = promise.then(function (res) {
-                if (res === false) return false;
-                return _this7._detectFunction(checks, check)(_this7, check);
-              });
-            });
-          }
-
-          //Check javascript and response errors using browser logs.
-          promise = promise.then(function (res) {
-            if (res === false) return false;
-            return _this7.driver.getCurrentUrl().then(function (url) {
-              return new Promise(function (resolve) {
-                _this7.driver.manage().logs().get('browser').then(function (logs) {
-                  logs.forEach(function (log) {
-                    //javascript
-                    if (Checker.JsErrorStrings.some(function (err) {
-                      return log.message.indexOf(err) >= 0;
-                    })) {
-                      throw new errors.JavascriptError(log.message);
-                    }
-
-                    //response
-                    if (log.message.indexOf(url + " - ") === 0) {
-                      var msg = log.message.split(url).join("");
-                      for (var i = 400; i <= 599; i++) {
-                        if (msg.indexOf(" " + i + " ") >= 0) {
-                          throw new errors.StatusCodeError(log.message);
-                        }
-                      }
-                    }
-                  });
-                  resolve();
-                });
-              });
-            });
-          });
-
-          //Format the error.
-          if (_this7.debug === false) {
-            promise = promise.catch(function (err) {
-              return _this7.driver.findElement(By.css('html')).then(function (elem) {
-                return elem.getAttribute('outerHTML');
-              }).then(function (html) {
-                return _this7.driver.getCurrentUrl().then(function (url) {
-                  var data = Object.assign({}, _this7.data);
-                  delete data.next;
-                  var message = url + "\n" + "JSON: " + JSON.stringify(item) + "\n" + "Name: " + err.name + "\n" + "Message: " + err.message + "\n" + html;
-                  throw new errors.VerboseError(message, err);
-                });
-              });
-            });
-          }
-        }
-      });
-
-      return promise.then(function () {
-        return undefined;
-      });
-    }
-  }, {
-    key: '_applyPlaceholderToValue',
-    value: function _applyPlaceholderToValue(value) {
-      if (value.placeholderKey) {
-        if (this.placeholder.hasOwnProperty(value.placeholderKey)) {
-          return value.apply(this.placeholder[value.placeholderKey]);
-        } else {
-          throw new Error('Missing ' + value.placeholderKey + ' key in placeholder.');
-        }
-      } else {
-        return value;
-      }
-    }
-  }, {
-    key: '_applyPlaceholderToArray',
-    value: function _applyPlaceholderToArray(elems) {
-      var _this8 = this;
-
-      var newElems = [];
-      elems.forEach(function (elem) {
-        if (elem.forEach) {
-          newElems.push(_this8._applyPlaceholderToArray(elem));
-        } else {
-          var newElem = {};
-          for (var elemKey in elem) {
-            newElem[elemKey] = _this8._applyPlaceholderToValue(elem[elemKey]);
-          }
-          newElems.push(newElem);
-        }
-      });
-
-      return newElems;
-    }
-  }, {
-    key: '_applyPlaceholder',
-    value: function _applyPlaceholder(scenarioItem) {
-      if (this.placeholder === undefined) {
-        return scenarioItem;
-      }
-
-      var newItem = {};
-      for (var itemKey in scenarioItem) {
-        var elem = scenarioItem[itemKey];
-        if (elem.forEach) {
-          newItem[itemKey] = this._applyPlaceholderToArray(elem);
-        } else {
-          newItem[itemKey] = this._applyPlaceholderToValue(elem);
-        }
-      }
-
-      return newItem;
-    }
-  }]);
-
-  return Checker;
-}();
-
-exports.default = Checker;
-
-
-Checker.JsErrorStrings = ["SyntaxError", "EvalError", "ReferenceError", "RangeError", "TypeError", "URIError"];
-
-Checker.Debug = false;
-
-Checker.DefaultTimeout = 12000;
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.exists = exists;
-exports.notExists = notExists;
-exports.likes = likes;
-exports.equals = equals;
-exports.unchecked = unchecked;
-exports.checked = checked;
-exports.selected = selected;
-exports.unselected = unselected;
-exports.notEquals = notEquals;
-exports.notLikes = notLikes;
-
-var _seleniumWebdriver = __webpack_require__(0);
-
-var _seleniumWebdriver2 = _interopRequireDefault(_seleniumWebdriver);
-
-var _util = __webpack_require__(6);
-
-var _util2 = _interopRequireDefault(_util);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var By = _seleniumWebdriver2.default.By;
-
-function createPromise(checker, check) {
-  if (check.locator) {
-    return checker.waitElements(check.locator, check.count, check.timeout).then(function (elems) {
-      return checker.assembleFromElements(elems, {
-        tag_name: function tag_name(elem) {
-          return elem.getTagName();
-        },
-        type: function type(elem) {
-          return elem.getAttribute('type');
-        },
-        value: function value(elem) {
-          return elem.getAttribute('value');
-        },
-        multiple: function multiple(elem) {
-          return elem.getAttribute('multiple');
-        },
-        selected: function selected(elem) {
-          return elem.isSelected();
-        },
-        inner_text: function inner_text(elem) {
-          return elem.getText();
-        },
-        attr: function attr(elem) {
-          return check.type && check.type.hasOwnProperty('attr') ? elem.getAttribute(check.type.attr) : Promise.resolve(false);
-        }
-      });
-    }).then(function (composits) {
-      if (composits[0].tag_name == 'select') {
-        return checker.waitElementsIn(composits[0].elem, By.css('option'), check.count, check.timeout).then(function (elems) {
-          return checker.assembleFromElements(elems, {
-            value: function value(elem) {
-              return elem.getAttribute('value');
-            },
-            selected: function selected(elem) {
-              return elem.isSelected();
-            }
-          });
-        }).then(function (sComposits) {
-          return sComposits.filter(function (sComposit) {
-            return sComposit.selected;
-          });
-        }).then(function (sComposits) {
-          return sComposits.map(function (sComposit) {
-            return sComposit.value;
-          });
-        });
-      } else if (composits[0].attr !== false) {
-        return composits.map(function (composit) {
-          return composit.attr;
-        });
-      } else if (composits[0].type == "checkbox" || composits[0].type == "radio") {
-        return composits.filter(function (composit) {
-          return composit.selected;
-        }).map(function (composit) {
-          return composit.value;
-        });
-      } else if (composits[0].tag_name == "input") {
-        return composits.map(function (composit) {
-          return composit.value;
-        });
-      } else {
-        return composits.map(function (composit) {
-          return composit.inner_text;
-        });
-      }
-    });
-  } else if (check.type == 'html') {
-    return checker.driver.findElement(By.css('html')).then(function (elem) {
-      return elem.getAttribute('outerHTML');
-    }).then(function (html) {
-      return [html];
-    });
-  } else if (check.type == 'url') {
-    return checker.driver.getCurrentUrl().then(function (url) {
-      return [url];
-    });
-  } else {
-    throw Error("Illegal directive is specified " + JSON.stringify(check) + '.');
-  }
-}
-
-function createErrorMessage(check, predicate) {
-  if (check.type === undefined) {
-    return _util2.default.format("Text in %s %s `%s`.", check.locator, predicate, check.value || check.values);
-  } else if (check.type === 'html') {
-    return _util2.default.format("Response body %s `%s`.", predicate, check.value || check.values);
-  } else if (check.type == 'checkbox' || check.type == 'radio') {
-    return _util2.default.format("%s[%s] %s `%s`.", check.locator, check.type, predicate, check.value || check.values);
-  } else if (check.type == 'url') {
-    return _util2.default.format("Url %s `%s`.", predicate, check.value || check.values);
-  } else if (check.type.hasOwnProperty('attr')) {
-    return _util2.default.format("%s of %s %s `%s`.", check.type.attr, check.locator, predicate, check.value || check.values);
-  } else if (check.type === 'select') {
-    return _util2.default.format("%s[select] %s `%s`.", check.locator, predicate, check.value || check.values);
-  } else {
-    throw new Error('Illegal checker directive type ' + JSON.stringify(check));
-  }
-}
-
-function normalizeDirective(check, name, forceType) {
-  check = Object.assign({}, check);
-
-  if (forceType !== undefined) {
-    check.type = forceType;
-  }
-
-  if (typeof check[name] == 'string') {
-    if (check.type !== undefined) {
-      throw new Error('When target is string, type must be undefined.');
-    }
-    check.type = check[name];
-  } else {
-    check.locator = check[name];
-  }
-
-  return check;
-}
-
-function compareArray(array1, array2) {
-  return JSON.stringify(array1.sort()) === JSON.stringify(array2.sort());
-}
-
-function exists(checker, check) {
-  check = normalizeDirective(check, 'exists');
-  return checker.waitElements(check.exists, check.count, check.timeout);
-}
-
-function notExists(checker, check) {
-  check = normalizeDirective(check, 'notExists');
-  return checker.waitDissapearElements(check.notExists, check.timeout);
-}
-
-function likes(checker, check) {
-  check = normalizeDirective(check, 'likes');
-  return checker.waitFor(createErrorMessage(check, 'contains'), function () {
-    return createPromise(checker, check).then(function (values) {
-      if (check.values !== undefined) throw new Error('`likes` can only value.');
-      if (values.length > 1) throw new Error('Multiple values were detected `' + values + '`.');
-      return values[0].indexOf(check.value) >= 0;
-    });
-  }, check.timeout);
-}
-
-function equals(checker, check) {
-  check = normalizeDirective(check, 'equals');
-  return checker.waitFor(createErrorMessage(check, 'is'), function () {
-    return createPromise(checker, check).then(function (values) {
-      if (check.hasOwnProperty('values')) {
-        return compareArray(values, check.values);
-      } else if (check.hasOwnProperty('value')) {
-        return values[0] === check.value;
-      } else {
-        throw new Error("Missing value or values.");
-      }
-    });
-  }, check.timeout);
-}
-
-function unchecked(checker, check) {
-  check = normalizeDirective(check, 'unchecked', 'checkbox');
-  return checker.waitFor(createErrorMessage(check, 'dose not contain'), function () {
-    return createPromise(checker, check).then(function (values) {
-      if (check.value === undefined && check.values === undefined) throw new Error("Missing value or values.");
-      var expectedList = check.values ? check.values : [check.value];
-      for (var i = 0; i < expectedList.length; i++) {
-        var expected = expectedList[i];
-        if (values.indexOf(expected) >= 0) return false;
-      }
-
-      return true;
-    });
-  }, check.timeout);
-}
-
-function checked(checker, check) {
-  check = normalizeDirective(check, 'checked', 'checkbox');
-  return checker.waitFor(createErrorMessage(check, 'contains'), function () {
-    return createPromise(checker, check).then(function (values) {
-      if (check.value === undefined && check.values === undefined) throw new Error("Missing value or values.");
-      var expectedList = check.values ? check.values : [check.value];
-      for (var i = 0; i < expectedList.length; i++) {
-        var expected = expectedList[i];
-        if (values.indexOf(expected) === -1) return false;
-      }
-
-      return true;
-    });
-  }, check.timeout);
-}
-
-function selected(checker, check) {
-  check = normalizeDirective(check, 'selected', 'select');
-  return checker.waitFor(createErrorMessage(check, 'contains'), function () {
-    return createPromise(checker, check).then(function (values) {
-      if (check.value === undefined && check.values === undefined) throw new Error("Missing value or values.");
-      var expectedList = check.values ? check.values : [check.value];
-      for (var i = 0; i < expectedList.length; i++) {
-        var expected = expectedList[i];
-        if (values.indexOf(expected) === -1) return false;
-      }
-
-      return true;
-    });
-  }, check.timeout);
-}
-
-function unselected(checker, check) {
-  check = normalizeDirective(check, 'unselected', 'select');
-  return checker.waitFor(createErrorMessage(check, 'dose not contain'), function () {
-    return createPromise(checker, check).then(function (values) {
-      if (check.value === undefined && check.values === undefined) throw new Error("Missing value or values.");
-      var expectedList = check.values ? check.values : [check.value];
-      for (var i = 0; i < expectedList.length; i++) {
-        var expected = expectedList[i];
-        if (values.indexOf(expected) >= 0) return false;
-      }
-
-      return true;
-    });
-  }, check.timeout);
-}
-
-function notEquals(checker, check) {
-  check = normalizeDirective(check, 'notEquals');
-  return checker.waitFor(createErrorMessage(check, 'is not'), function () {
-    return createPromise(checker, check).then(function (values) {
-      if (check.values) {
-        return !compareArray(values, check.values);
-      } else if (check.value) {
-        return values[0] !== check.value;
-      } else {
-        throw new Error("Missing value or values.");
-      }
-    });
-  }, check.timeout);
-}
-
-function notLikes(checker, check) {
-  check = normalizeDirective(check, 'notLikes');
-  return checker.waitFor(createErrorMessage(check, 'dose not contains'), function () {
-    return createPromise(checker, check).then(function (values) {
-      if (check.values !== undefined) throw new Error('`likes` can only value.');
-      if (values.length > 1) throw new Error('Multiple values were detected `' + values + '`.');
-      return values[0].indexOf(check.value) === -1;
-    });
-  }, check.timeout);
-}
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.click = click;
-exports.sendKeys = sendKeys;
-exports.check = check;
-exports.select = select;
-exports.unselect = unselect;
-exports.clear = clear;
-exports.alert = alert;
-exports.switchTo = switchTo;
-
-var _seleniumWebdriver = __webpack_require__(0);
-
-var _seleniumWebdriver2 = _interopRequireDefault(_seleniumWebdriver);
-
-var _util = __webpack_require__(6);
-
-var _util2 = _interopRequireDefault(_util);
-
-var _Checker = __webpack_require__(2);
-
-var _Checker2 = _interopRequireDefault(_Checker);
-
-var _errors = __webpack_require__(11);
-
-var errors = _interopRequireWildcard(_errors);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var By = _seleniumWebdriver2.default.By;
-
-function click(checker, action) {
-  return checker.waitElement(action.click, action.timeout).then(function (elem) {
-    return elem.click();
-  });
-}
-
-function sendKeys(checker, action) {
-  return checker.waitElement(action.sendKeys, action.timeout).then(function (elem) {
-    return elem.sendKeys(action.value);
-  });
-}
-
-function check(checker, action) {
-  if (action.hasOwnProperty('values')) {
-    //checkbox
-    return checker.waitElements(action.check, action.count, action.timeout).then(function (elems) {
-      return checker.assembleFromElements(elems, {
-        value: function value(elem) {
-          return elem.getAttribute('value');
-        },
-        isSelected: function isSelected(elem) {
-          return elem.isSelected();
-        }
-      });
-    }).then(function (composits) {
-      return composits.filter(function (composit) {
-        return !composit.isSelected && action.values.indexOf(composit.value) >= 0;
-      });
-    }).then(function (composits) {
-      return _seleniumWebdriver2.default.promise.map(composits, function (composit) {
-        return composit.elem.click();
-      });
-    });
-  } else if (action.hasOwnProperty('value')) {
-    //radio
-    return checker.waitElements(action.check, action.count, action.timeout).then(function (elems) {
-      return checker.assembleFromElements(elems, { value: function value(elem) {
-          return elem.getAttribute('value');
-        } });
-    }).then(function (composits) {
-      return composits.filter(function (composit) {
-        return composit.value == action.value;
-      });
-    }).then(function (composits) {
-      if (composits.length == 0) {
-        throw new errors.NotSuchElementError(_util2.default.format("Radio button with `%s` were not found in %s.", action.value, action.check));
-      }
-
-      return composits[0].elem.click();
-    });
-  } else {
-    throw new Error("value or values is required.");
-  }
-}
-
-function select(checker, action) {
-  var values = action.value ? [action.value] : action.values;
-  return checker.waitElement(action.select, action.timeout).then(function (elem) {
-    return checker.waitElementsIn(elem, By.css('option'));
-  }).then(function (elems) {
-    return checker.assembleFromElements(elems, {
-      value: function value(elem) {
-        return elem.getAttribute('value');
-      },
-      isSelected: function isSelected(elem) {
-        return elem.isSelected();
-      }
-    });
-  }).then(function (composits) {
-    return composits.filter(function (composit) {
-      return !composit.isSelected && values.indexOf(composit.value) >= 0;
-    }).map(function (composit) {
-      return composit.elem;
-    });
-  }).then(function (elems) {
-    return _seleniumWebdriver2.default.promise.map(elems, function (elem) {
-      return elem.click();
-    });
-  });
-}
-
-function unselect(checker, action) {
-  return checker.waitElement(action.unselect, action.timeout).then(function (elem) {
-    return checker.waitElementsIn(elem, By.css('option'));
-  }).then(function (elems) {
-    return checker.assembleFromElements(elems, {
-      value: function value(elem) {
-        return elem.getAttribute('value');
-      },
-      isSelected: function isSelected(elem) {
-        return elem.isSelected();
-      }
-    });
-  }).then(function (composits) {
-    return composits.filter(function (composit) {
-      return composit.isSelected && action.values.indexOf(composit.value) >= 0;
-    }).map(function (composit) {
-      return composit.elem;
-    });
-  }).then(function (elems) {
-    return _seleniumWebdriver2.default.promise.map(elems, function (elem) {
-      return elem.click();
-    });
-  });
-}
-
-function clear(checker, action) {
-  if (action.type == 'checkbox') {
-    return checker.waitElements(action.clear, action.count, action.timeout).then(function (elems) {
-      return checker.assembleFromElements(elems, { isSelected: function isSelected(elem) {
-          return elem.isSelected();
-        } });
-    }).then(function (composits) {
-      return composits.filter(function (composit) {
-        return composit.isSelected;
-      });
-    }).then(function (composits) {
-      return _seleniumWebdriver2.default.promise.map(composits, function (composit) {
-        return composit.elem.click();
-      });
-    });
-  } else if (action.type == 'select') {
-    return checker.waitElement(action.clear, check.timeout).then(function (elem) {
-      return checker.waitElementsIn(elem, By.css("option"));
-    }).then(function (elems) {
-      return checker.assembleFromElements(elems, { isSelected: function isSelected(elem) {
-          return elem.isSelected();
-        } });
-    }).then(function (composits) {
-      return composits.filter(function (composit) {
-        return composit.isSelected;
-      }).map(function (composit) {
-        return composit.elem;
-      });
-    }).then(function (elems) {
-      return _seleniumWebdriver2.default.promise.map(elems, function (elem) {
-        return elem.click();
-      });
-    });
-  } else {
-    return checker.waitElement(action.clear, action.timeout).then(function (elem) {
-      return elem.clear();
-    });
-  }
-}
-
-function alert(checker, action) {
-  return checker.handleAlert(action.alert, action.timeout);
-}
-
-function switchTo(checker, action) {
-  if (action.switchTo === 'default' || !action.switchTo) {
-    return checker.driver.switchTo().frame(null);
-  } else {
-    return checker.waitElement(action.switchTo, action.timeout).then(function (elem) {
-      return checker.driver.switchTo().frame(elem);
-    });
-  }
-}
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-exports.default = placeholder;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Placeholder = function () {
-  function Placeholder(key) {
-    _classCallCheck(this, Placeholder);
-
-    this.key = key;
-    this.appendedTexts = [];
-  }
-
-  _createClass(Placeholder, [{
-    key: 'append',
-    value: function append(text) {
-      this.appendedTexts.push(text);
-      return this;
-    }
-  }, {
-    key: 'apply',
-    value: function apply(holderItem) {
-      if (this.appendedTexts.length) {
-        return holderItem + this.appendedTexts.join('');
-      } else {
-        return holderItem;
-      }
-    }
-  }, {
-    key: 'placeholderKey',
-    get: function get() {
-      return this.key;
-    }
-  }]);
-
-  return Placeholder;
-}();
-
-function placeholder(key) {
-  return new Placeholder(key);
-}
-
-/***/ }),
-/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -1578,7 +608,7 @@ function isPrimitive(arg) {
 }
 exports.isPrimitive = isPrimitive;
 
-exports.isBuffer = __webpack_require__(9);
+exports.isBuffer = __webpack_require__(7);
 
 function objectToString(o) {
   return Object.prototype.toString.call(o);
@@ -1622,7 +652,7 @@ exports.log = function() {
  *     prototype.
  * @param {function} superCtor Constructor function to inherit prototype from.
  */
-exports.inherits = __webpack_require__(10);
+exports.inherits = __webpack_require__(8);
 
 exports._extend = function(origin, add) {
   // Don't do anything if add isn't an object
@@ -1640,10 +670,558 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7), __webpack_require__(8)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(6)))
 
 /***/ }),
-/* 7 */
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _seleniumWebdriver = __webpack_require__(0);
+
+var _seleniumWebdriver2 = _interopRequireDefault(_seleniumWebdriver);
+
+var _util = __webpack_require__(1);
+
+var _util2 = _interopRequireDefault(_util);
+
+var _checks = __webpack_require__(9);
+
+var checks = _interopRequireWildcard(_checks);
+
+var _actions = __webpack_require__(10);
+
+var actions = _interopRequireWildcard(_actions);
+
+var _errors = __webpack_require__(3);
+
+var errors = _interopRequireWildcard(_errors);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var until = _seleniumWebdriver2.default.until;
+var By = _seleniumWebdriver2.default.By;
+var Key = _seleniumWebdriver2.default.Key;
+
+var Checker = function () {
+  function Checker(driver) {
+    _classCallCheck(this, Checker);
+
+    this.driver = driver;
+    this.debug = Checker.Debug;
+  }
+
+  _createClass(Checker, [{
+    key: 'handleAlert',
+    value: function handleAlert(alertAction, timeout) {
+      var _this = this;
+
+      if (timeout === undefined) timeout = Checker.DefaultTimeout;
+      return this.driver.wait(until.alertIsPresent(), timeout).then(function () {
+        var alert = _this.driver.switchTo().alert();
+        if (!alert[alertAction]) {
+          throw new Error("Missing " + alertAction + " action in alert.");
+        }
+        return alert[alertAction]();
+      });
+    }
+  }, {
+    key: 'assembleFromElements',
+    value: function assembleFromElements(elems, values) {
+      var promise = _seleniumWebdriver2.default.promise.map(elems, function (elem) {
+        return { elem: elem };
+      });
+
+      Object.keys(values).forEach(function (key) {
+        var func = values[key];
+        promise = promise.then(function (composits) {
+          return _seleniumWebdriver2.default.promise.map(composits, function (composit) {
+            return func(composit.elem).then(function (value) {
+              composit[key] = value;
+              return composit;
+            });
+          });
+        });
+      });
+
+      return promise;
+    }
+  }, {
+    key: 'waitFor',
+    value: function waitFor(check, action, timeout) {
+      if (timeout === undefined) timeout = Checker.DefaultTimeout;
+      return this.driver.wait(new _seleniumWebdriver2.default.Condition('', function () {
+        return action();
+      }), timeout).catch(function (err) {
+        if (err.name == 'TimeoutError') {
+          var message = '';
+          if (check.type == 'html') {
+            message = _util2.default.format("%s: [%s], expected: `%s`", check.name, check.type, check.value || check.values);
+          } else {
+            message = _util2.default.format("%s: [%s], expected: `%s`, actual: `%s`", check.name, check.type, check.value || check.values, check.actual_values);
+          }
+
+          throw new errors.NotMatchError(message);
+        }
+        throw err;
+      });
+    }
+  }, {
+    key: 'waitDissapearElements',
+    value: function waitDissapearElements(locator, timeout) {
+      var _this2 = this;
+
+      if (timeout === undefined) timeout = Checker.DefaultTimeout;
+      var cond = new _seleniumWebdriver2.default.Condition(locator + ' disappear from the screen.', function () {
+        return _this2.driver.findElements(locator).then(function (elems) {
+          return elems.length === 0;
+        });
+      });
+      return this.driver.wait(cond, timeout).catch(function (err) {
+        if (err.name == 'TimeoutError') {
+          throw new errors.ElementExistsError(err.message);
+        }
+      });
+    }
+  }, {
+    key: 'waitElementsIn',
+    value: function waitElementsIn(element, locator, count, timeout) {
+      if (count === undefined) count = 1;
+      if (timeout === undefined) timeout = Checker.DefaultTimeout;
+      var cond = new _seleniumWebdriver2.default.Condition(_util2.default.format('for %s to be located %s in specified element', count > 1 ? count + " elements" : 'element', locator), function () {
+        return element.findElements(locator).then(function (elems) {
+          if (elems.length >= count) {
+            return elems;
+          }
+
+          return false;
+        });
+      });
+
+      return this.driver.wait(cond, timeout).catch(function (err) {
+        if (err.name == 'TimeoutError') {
+          throw new errors.NotSuchElementError(err.message);
+        }
+      });
+    }
+  }, {
+    key: 'waitElements',
+    value: function waitElements(locator, count, timeout) {
+      var _this3 = this;
+
+      if (count === undefined) count = 1;
+      if (timeout === undefined) timeout = Checker.DefaultTimeout;
+      var cond = new _seleniumWebdriver2.default.Condition(_util2.default.format('for %s to be located %s', count > 1 ? count + " elements" : 'element', locator), function () {
+        return _this3.driver.findElements(locator).then(function (elems) {
+          if (elems.length >= count) {
+            return elems;
+          }
+
+          return false;
+        });
+      });
+
+      return this.driver.wait(cond, timeout).catch(function (err) {
+        if (err.name == 'TimeoutError') {
+          throw new errors.NotSuchElementError(err.message);
+        }
+      });
+    }
+  }, {
+    key: 'waitElement',
+    value: function waitElement(locator, timeout) {
+      var _this4 = this;
+
+      if (timeout === undefined) timeout = Checker.DefaultTimeout;
+      return this.driver.wait(until.elementLocated(locator), timeout).then(function (elem) {
+        return _this4.driver.wait(until.elementIsVisible(elem), timeout);
+      });
+    }
+  }, {
+    key: '_detectFunction',
+    value: function _detectFunction(functions, obj) {
+      var keys = [];
+      var func = undefined;
+      for (var key in functions) {
+        if (obj.hasOwnProperty(key)) {
+          keys.push(key);
+          if (func) throw new Error("Found two identify keys. " + keys.join(','));
+          func = functions[key];
+        }
+      }
+
+      if (!func) {
+        throw new Error("Missing supported directive in " + JSON.stringify(obj));
+      }
+
+      return func;
+    }
+  }, {
+    key: '_testItem',
+    value: function _testItem(condition) {
+      if (condition.bool !== undefined) {
+        return Promise.resolve(condition.bool);
+      } else {
+        return this._detectFunction(checks, condition)(this, condition).then(function () {
+          return true;
+        }).catch(function (err) {
+          if (['NotMatchError', 'NotSuchElementError', 'ElementExistsError'].indexOf(err.name) >= 0) {
+            return false;
+          }
+
+          throw err;
+        });
+      }
+    }
+  }, {
+    key: '_testGroup',
+    value: function _testGroup(conditions) {
+      var _this5 = this;
+
+      var promise = Promise.resolve(false);
+      conditions.forEach(function (item) {
+        promise = promise.then(function (res) {
+          if (res === true) return true; //OR
+          return _this5._testItem(item);
+        });
+      });
+
+      return promise;
+    }
+  }, {
+    key: '_testExecif',
+    value: function _testExecif(conditions) {
+      var _this6 = this;
+
+      var promise = Promise.resolve(true);
+      if (conditions) {
+        conditions.forEach(function (group) {
+          promise = promise.then(function (res) {
+            if (res === false) return false; //AND
+            return _this6._testGroup(group);
+          });
+        });
+      }
+
+      return promise;
+    }
+  }, {
+    key: 'run',
+    value: function run(scenario, promise) {
+      var _this7 = this;
+
+      if (!promise) {
+        promise = Promise.resolve();
+      }
+
+      scenario.forEach(function (item) {
+        if (item.scenario) {
+          promise = _this7.run(item.scenario, promise);
+        } else {
+          //directive count check.
+          var directives = Object.keys(item);
+          if (directives.length !== 1) {
+            throw new Error('Only one directive can be placed in one scenario item.');
+          }
+
+          //check supported directives
+          if (['execif', 'url', 'actions', 'checks'].indexOf(directives[0]) === -1) {
+            throw new Error("Illegal directive object. " + JSON.stringify(item));
+          }
+
+          item = _this7._applyPlaceholder(item);
+
+          //execif
+          if (item.execif) {
+            promise = promise.then(function () {
+              return _this7._testExecif(item.execif);
+            });
+          } else if (item.url) {
+            promise = promise.then(function (res) {
+              if (res === false) return false;
+              return _this7.driver.get(item.url);
+            });
+          } else if (item.actions) {
+            item.actions.forEach(function (action) {
+              promise = promise.then(function (res) {
+                if (res === false) return false;
+                return _this7._detectFunction(actions, action)(_this7, action);
+              });
+            });
+          } else if (item.checks) {
+            item.checks.forEach(function (check) {
+              promise = promise.then(function (res) {
+                if (res === false) return false;
+                return _this7._detectFunction(checks, check)(_this7, check);
+              });
+            });
+          }
+
+          //Check javascript and response errors using browser logs.
+          promise = promise.then(function (res) {
+            if (res === false) return false;
+            return _this7.driver.getCurrentUrl().then(function (url) {
+              return new Promise(function (resolve) {
+                _this7.driver.manage().logs().get('browser').then(function (logs) {
+                  logs.forEach(function (log) {
+                    //javascript
+                    if (Checker.JsErrorStrings.some(function (err) {
+                      return log.message.indexOf(err) >= 0;
+                    })) {
+                      throw new errors.JavascriptError(log.message);
+                    }
+
+                    //response
+                    if (log.message.indexOf(url + " - ") === 0) {
+                      var msg = log.message.split(url).join("");
+                      for (var i = 400; i <= 599; i++) {
+                        if (msg.indexOf(" " + i + " ") >= 0) {
+                          throw new errors.StatusCodeError(log.message);
+                        }
+                      }
+                    }
+                  });
+                  resolve();
+                });
+              });
+            });
+          });
+
+          //Format the error.
+          if (_this7.debug === false) {
+            promise = promise.catch(function (err) {
+              return _this7.driver.findElement(By.css('html')).then(function (elem) {
+                return elem.getAttribute('outerHTML');
+              }).then(function (html) {
+                return _this7.driver.getCurrentUrl().then(function (url) {
+                  var data = Object.assign({}, _this7.data);
+                  delete data.next;
+                  var message = url + "\n" + "JSON: " + JSON.stringify(item) + "\n" + "Name: " + err.name + "\n" + "Message: " + err.message + "\n" + html;
+                  throw new errors.VerboseError(message, err);
+                });
+              });
+            });
+          }
+        }
+      });
+
+      return promise.then(function () {
+        return undefined;
+      });
+    }
+  }, {
+    key: '_applyPlaceholderToValue',
+    value: function _applyPlaceholderToValue(value) {
+      if (value.placeholderKey) {
+        if (this.placeholder.hasOwnProperty(value.placeholderKey)) {
+          return value.apply(this.placeholder[value.placeholderKey]);
+        } else {
+          throw new Error('Missing ' + value.placeholderKey + ' key in placeholder.');
+        }
+      } else {
+        return value;
+      }
+    }
+  }, {
+    key: '_applyPlaceholderToArray',
+    value: function _applyPlaceholderToArray(elems) {
+      var _this8 = this;
+
+      var newElems = [];
+      elems.forEach(function (elem) {
+        if (elem.forEach) {
+          newElems.push(_this8._applyPlaceholderToArray(elem));
+        } else {
+          var newElem = {};
+          for (var elemKey in elem) {
+            newElem[elemKey] = _this8._applyPlaceholderToValue(elem[elemKey]);
+          }
+          newElems.push(newElem);
+        }
+      });
+
+      return newElems;
+    }
+  }, {
+    key: '_applyPlaceholder',
+    value: function _applyPlaceholder(scenarioItem) {
+      if (this.placeholder === undefined) {
+        return scenarioItem;
+      }
+
+      var newItem = {};
+      for (var itemKey in scenarioItem) {
+        var elem = scenarioItem[itemKey];
+        if (elem.forEach) {
+          newItem[itemKey] = this._applyPlaceholderToArray(elem);
+        } else {
+          newItem[itemKey] = this._applyPlaceholderToValue(elem);
+        }
+      }
+
+      return newItem;
+    }
+  }]);
+
+  return Checker;
+}();
+
+exports.default = Checker;
+
+
+Checker.JsErrorStrings = ["SyntaxError", "EvalError", "ReferenceError", "RangeError", "TypeError", "URIError"];
+
+Checker.Debug = false;
+
+Checker.DefaultTimeout = 12000;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var NotMatchError = exports.NotMatchError = function (_Error) {
+  _inherits(NotMatchError, _Error);
+
+  function NotMatchError(message, fileName, lineNumber) {
+    _classCallCheck(this, NotMatchError);
+
+    var _this = _possibleConstructorReturn(this, (NotMatchError.__proto__ || Object.getPrototypeOf(NotMatchError)).call(this, message, fileName, lineNumber));
+
+    _this.name = "NotMatchError";
+    return _this;
+  }
+
+  return NotMatchError;
+}(Error);
+
+var NotSuchElementError = exports.NotSuchElementError = function (_Error2) {
+  _inherits(NotSuchElementError, _Error2);
+
+  function NotSuchElementError(message, fileName, lineNumber) {
+    _classCallCheck(this, NotSuchElementError);
+
+    var _this2 = _possibleConstructorReturn(this, (NotSuchElementError.__proto__ || Object.getPrototypeOf(NotSuchElementError)).call(this, message, fileName, lineNumber));
+
+    _this2.name = "NotSuchElementError";
+    return _this2;
+  }
+
+  return NotSuchElementError;
+}(Error);
+
+var ElementExistsError = exports.ElementExistsError = function (_Error3) {
+  _inherits(ElementExistsError, _Error3);
+
+  function ElementExistsError(message, fileName, lineNumber) {
+    _classCallCheck(this, ElementExistsError);
+
+    var _this3 = _possibleConstructorReturn(this, (ElementExistsError.__proto__ || Object.getPrototypeOf(ElementExistsError)).call(this, message, fileName, lineNumber));
+
+    _this3.name = "ElementExistsError";
+    return _this3;
+  }
+
+  return ElementExistsError;
+}(Error);
+
+var JavascriptError = exports.JavascriptError = function (_Error4) {
+  _inherits(JavascriptError, _Error4);
+
+  function JavascriptError(message, fileName, lineNumber) {
+    _classCallCheck(this, JavascriptError);
+
+    var _this4 = _possibleConstructorReturn(this, (JavascriptError.__proto__ || Object.getPrototypeOf(JavascriptError)).call(this, message, fileName, lineNumber));
+
+    _this4.name = "JavascriptError";
+    return _this4;
+  }
+
+  return JavascriptError;
+}(Error);
+
+var StatusCodeError = exports.StatusCodeError = function (_Error5) {
+  _inherits(StatusCodeError, _Error5);
+
+  function StatusCodeError(message, fileName, lineNumber) {
+    _classCallCheck(this, StatusCodeError);
+
+    var _this5 = _possibleConstructorReturn(this, (StatusCodeError.__proto__ || Object.getPrototypeOf(StatusCodeError)).call(this, message, fileName, lineNumber));
+
+    _this5.name = "StatusCodeError";
+    return _this5;
+  }
+
+  return StatusCodeError;
+}(Error);
+
+var VerboseError = exports.VerboseError = function (_Error6) {
+  _inherits(VerboseError, _Error6);
+
+  function VerboseError(message, error) {
+    _classCallCheck(this, VerboseError);
+
+    var _this6 = _possibleConstructorReturn(this, (VerboseError.__proto__ || Object.getPrototypeOf(VerboseError)).call(this, message));
+
+    _this6.name = error.name;
+    return _this6;
+  }
+
+  return VerboseError;
+}(Error);
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.placeholder = exports.Checker = undefined;
+
+var _Checker = __webpack_require__(2);
+
+var _Checker2 = _interopRequireDefault(_Checker);
+
+var _placeholder = __webpack_require__(11);
+
+var _placeholder2 = _interopRequireDefault(_placeholder);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = _Checker2.default;
+exports.Checker = _Checker2.default;
+exports.placeholder = _placeholder2.default;
+
+/***/ }),
+/* 5 */
 /***/ (function(module, exports) {
 
 var g;
@@ -1670,7 +1248,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 8 */
+/* 6 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -1860,7 +1438,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 9 */
+/* 7 */
 /***/ (function(module, exports) {
 
 module.exports = function isBuffer(arg) {
@@ -1871,7 +1449,7 @@ module.exports = function isBuffer(arg) {
 }
 
 /***/ }),
-/* 10 */
+/* 8 */
 /***/ (function(module, exports) {
 
 if (typeof Object.create === 'function') {
@@ -1900,6 +1478,506 @@ if (typeof Object.create === 'function') {
 
 
 /***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.exists = exists;
+exports.notExists = notExists;
+exports.likes = likes;
+exports.equals = equals;
+exports.unchecked = unchecked;
+exports.checked = checked;
+exports.selected = selected;
+exports.unselected = unselected;
+exports.notEquals = notEquals;
+exports.notLikes = notLikes;
+
+var _seleniumWebdriver = __webpack_require__(0);
+
+var _seleniumWebdriver2 = _interopRequireDefault(_seleniumWebdriver);
+
+var _util = __webpack_require__(1);
+
+var _util2 = _interopRequireDefault(_util);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var By = _seleniumWebdriver2.default.By;
+
+function createPromise(checker, check) {
+  if (check.locator) {
+    return checker.waitElements(check.locator, check.count, check.timeout).then(function (elems) {
+      return checker.assembleFromElements(elems, {
+        tag_name: function tag_name(elem) {
+          return elem.getTagName();
+        },
+        type: function type(elem) {
+          return elem.getAttribute('type');
+        },
+        value: function value(elem) {
+          return elem.getAttribute('value');
+        },
+        multiple: function multiple(elem) {
+          return elem.getAttribute('multiple');
+        },
+        selected: function selected(elem) {
+          return elem.isSelected();
+        },
+        inner_text: function inner_text(elem) {
+          return elem.getText();
+        },
+        attr: function attr(elem) {
+          return check.type && check.type.hasOwnProperty('attr') ? elem.getAttribute(check.type.attr) : Promise.resolve(false);
+        }
+      });
+    }).then(function (composits) {
+      if (composits[0].tag_name == 'select') {
+        return checker.waitElementsIn(composits[0].elem, By.css('option'), check.count, check.timeout).then(function (elems) {
+          return checker.assembleFromElements(elems, {
+            value: function value(elem) {
+              return elem.getAttribute('value');
+            },
+            selected: function selected(elem) {
+              return elem.isSelected();
+            }
+          });
+        }).then(function (sComposits) {
+          return sComposits.filter(function (sComposit) {
+            return sComposit.selected;
+          });
+        }).then(function (sComposits) {
+          return {
+            values: sComposits.map(function (sComposit) {
+              return sComposit.value;
+            }),
+            type: 'value'
+          };
+        });
+      } else if (composits[0].attr !== false) {
+        return {
+          values: composits.map(function (composit) {
+            return composit.attr;
+          }),
+          type: check.type.attr + ' attribute'
+        };
+      } else if (composits[0].type == "checkbox" || composits[0].type == "radio") {
+        return {
+          values: composits.filter(function (composit) {
+            return composit.selected;
+          }).map(function (composit) {
+            return composit.value;
+          }),
+          type: 'value'
+        };
+      } else if (composits[0].tag_name == "input") {
+        return {
+          values: composits.map(function (composit) {
+            return composit.value;
+          }),
+          type: 'value'
+        };
+      } else {
+        return {
+          values: composits.map(function (composit) {
+            return composit.inner_text;
+          }),
+          type: 'text'
+        };
+      }
+    });
+  } else if (check.type == 'html') {
+    return checker.driver.findElement(By.css('html')).then(function (elem) {
+      return elem.getAttribute('outerHTML');
+    }).then(function (html) {
+      return {
+        values: [html]
+      };
+    });
+  } else if (check.type == 'url') {
+    return checker.driver.getCurrentUrl().then(function (url) {
+      return {
+        values: [url]
+      };
+    });
+  } else {
+    throw Error("Illegal directive is specified " + JSON.stringify(check) + '.');
+  }
+}
+
+function normalizeDirective(check, name) {
+  check = Object.assign({}, check);
+
+  if (typeof check[name] == 'string') {
+    check.type = check[name];
+  } else {
+    check.locator = check[name];
+  }
+
+  check.name = name;
+
+  return check;
+}
+
+function compareArray(array1, array2) {
+  return JSON.stringify(array1.sort()) === JSON.stringify(array2.sort());
+}
+
+function exists(checker, check) {
+  check = normalizeDirective(check, 'exists');
+  return checker.waitElements(check.exists, check.count, check.timeout);
+}
+
+function notExists(checker, check) {
+  check = normalizeDirective(check, 'notExists');
+  return checker.waitDissapearElements(check.notExists, check.timeout);
+}
+
+function likes(checker, check) {
+  check = normalizeDirective(check, 'likes');
+  return checker.waitFor(check, function () {
+    return createPromise(checker, check).then(function (data) {
+      check.actual_values = data.values;
+      check.type = data.type;
+      if (check.values !== undefined) throw new Error('`likes` can only value.');
+      if (data.values.length > 1) throw new Error('Multiple values were detected `' + data.values + '`.');
+      return data.values[0].indexOf(check.value) >= 0;
+    });
+  }, check.timeout);
+}
+
+function equals(checker, check) {
+  check = normalizeDirective(check, 'equals');
+  return checker.waitFor(check, function () {
+    return createPromise(checker, check).then(function (data) {
+      check.type = data.type;
+      check.actual_values = data.values;
+      if (check.hasOwnProperty('values')) {
+        return compareArray(data.values, check.values);
+      } else if (check.hasOwnProperty('value')) {
+        return data.values[0] === check.value;
+      } else {
+        throw new Error("Missing value or values.");
+      }
+    });
+  }, check.timeout);
+}
+
+function unchecked(checker, check) {
+  check = normalizeDirective(check, 'unchecked');
+  return checker.waitFor(check, function () {
+    return createPromise(checker, check).then(function (data) {
+      check.type = data.type;
+      check.actual_values = data.values;
+      if (check.value === undefined && check.values === undefined) throw new Error("Missing value or values.");
+      var expectedList = check.values ? check.values : [check.value];
+      for (var i = 0; i < expectedList.length; i++) {
+        var expected = expectedList[i];
+        if (data.values.indexOf(expected) >= 0) return false;
+      }
+
+      return true;
+    });
+  }, check.timeout);
+}
+
+function checked(checker, check) {
+  check = normalizeDirective(check, 'checked');
+  return checker.waitFor(check, function () {
+    return createPromise(checker, check).then(function (data) {
+      check.actual_values = data.values;
+      check.type = data.type;
+      if (check.value === undefined && check.values === undefined) throw new Error("Missing value or values.");
+      var expectedList = check.values ? check.values : [check.value];
+      for (var i = 0; i < expectedList.length; i++) {
+        var expected = expectedList[i];
+        if (data.values.indexOf(expected) === -1) return false;
+      }
+
+      return true;
+    });
+  }, check.timeout);
+}
+
+function selected(checker, check) {
+  check = normalizeDirective(check, 'selected');
+  return checker.waitFor(check, function () {
+    return createPromise(checker, check).then(function (data) {
+      check.actual_values = data.values;
+      check.type = data.type;
+      if (check.value === undefined && check.values === undefined) throw new Error("Missing value or values.");
+      var expectedList = check.values ? check.values : [check.value];
+      for (var i = 0; i < expectedList.length; i++) {
+        var expected = expectedList[i];
+        if (data.values.indexOf(expected) === -1) return false;
+      }
+
+      return true;
+    });
+  }, check.timeout);
+}
+
+function unselected(checker, check) {
+  check = normalizeDirective(check, 'unselected');
+  return checker.waitFor(check, function () {
+    return createPromise(checker, check).then(function (data) {
+      check.actual_values = data.values;
+      check.type = data.type;
+      if (check.value === undefined && check.values === undefined) throw new Error("Missing value or values.");
+      var expectedList = check.values ? check.values : [check.value];
+      for (var i = 0; i < expectedList.length; i++) {
+        var expected = expectedList[i];
+        if (data.values.indexOf(expected) >= 0) return false;
+      }
+
+      return true;
+    });
+  }, check.timeout);
+}
+
+function notEquals(checker, check) {
+  check = normalizeDirective(check, 'notEquals');
+  return checker.waitFor(check, function () {
+    return createPromise(checker, check).then(function (data) {
+      check.actual_values = data.values;
+      check.type = data.type;
+      if (check.values) {
+        return !compareArray(data.values, check.values);
+      } else if (check.value) {
+        return data.values[0] !== check.value;
+      } else {
+        throw new Error("Missing value or values.");
+      }
+    });
+  }, check.timeout);
+}
+
+function notLikes(checker, check) {
+  check = normalizeDirective(check, 'notLikes');
+  return checker.waitFor(check, function () {
+    return createPromise(checker, check).then(function (data) {
+      check.type = data.type;
+      check.actual_values = data.values;
+      if (check.values !== undefined) throw new Error('`likes` can only value.');
+      if (data.values.length > 1) throw new Error('Multiple values were detected `' + data.values + '`.');
+      return data.values[0].indexOf(check.value) === -1;
+    });
+  }, check.timeout);
+}
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.click = click;
+exports.sendKeys = sendKeys;
+exports.check = check;
+exports.select = select;
+exports.unselect = unselect;
+exports.clear = clear;
+exports.alert = alert;
+exports.switchTo = switchTo;
+
+var _seleniumWebdriver = __webpack_require__(0);
+
+var _seleniumWebdriver2 = _interopRequireDefault(_seleniumWebdriver);
+
+var _util = __webpack_require__(1);
+
+var _util2 = _interopRequireDefault(_util);
+
+var _Checker = __webpack_require__(2);
+
+var _Checker2 = _interopRequireDefault(_Checker);
+
+var _errors = __webpack_require__(3);
+
+var errors = _interopRequireWildcard(_errors);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var By = _seleniumWebdriver2.default.By;
+
+function click(checker, action) {
+  return checker.waitElement(action.click, action.timeout).then(function (elem) {
+    return elem.click();
+  });
+}
+
+function sendKeys(checker, action) {
+  return checker.waitElement(action.sendKeys, action.timeout).then(function (elem) {
+    return elem.sendKeys(action.value);
+  });
+}
+
+function check(checker, action) {
+  if (action.hasOwnProperty('values')) {
+    //checkbox
+    return checker.waitElements(action.check, action.count, action.timeout).then(function (elems) {
+      return checker.assembleFromElements(elems, {
+        value: function value(elem) {
+          return elem.getAttribute('value');
+        },
+        isSelected: function isSelected(elem) {
+          return elem.isSelected();
+        }
+      });
+    }).then(function (composits) {
+      return composits.filter(function (composit) {
+        return !composit.isSelected && action.values.indexOf(composit.value) >= 0;
+      });
+    }).then(function (composits) {
+      return _seleniumWebdriver2.default.promise.map(composits, function (composit) {
+        return composit.elem.click();
+      });
+    });
+  } else if (action.hasOwnProperty('value')) {
+    //radio
+    return checker.waitElements(action.check, action.count, action.timeout).then(function (elems) {
+      return checker.assembleFromElements(elems, { value: function value(elem) {
+          return elem.getAttribute('value');
+        } });
+    }).then(function (composits) {
+      return composits.filter(function (composit) {
+        return composit.value == action.value;
+      });
+    }).then(function (composits) {
+      if (composits.length == 0) {
+        throw new errors.NotSuchElementError(_util2.default.format("Radio button with `%s` were not found in %s.", action.value, action.check));
+      }
+
+      return composits[0].elem.click();
+    });
+  } else {
+    throw new Error("value or values is required.");
+  }
+}
+
+function select(checker, action) {
+  var values = action.value ? [action.value] : action.values;
+  return checker.waitElement(action.select, action.timeout).then(function (elem) {
+    return checker.waitElementsIn(elem, By.css('option'));
+  }).then(function (elems) {
+    return checker.assembleFromElements(elems, {
+      value: function value(elem) {
+        return elem.getAttribute('value');
+      },
+      isSelected: function isSelected(elem) {
+        return elem.isSelected();
+      }
+    });
+  }).then(function (composits) {
+    return composits.filter(function (composit) {
+      return !composit.isSelected && values.indexOf(composit.value) >= 0;
+    }).map(function (composit) {
+      return composit.elem;
+    });
+  }).then(function (elems) {
+    return _seleniumWebdriver2.default.promise.map(elems, function (elem) {
+      return elem.click();
+    });
+  });
+}
+
+function unselect(checker, action) {
+  return checker.waitElement(action.unselect, action.timeout).then(function (elem) {
+    return checker.waitElementsIn(elem, By.css('option'));
+  }).then(function (elems) {
+    return checker.assembleFromElements(elems, {
+      value: function value(elem) {
+        return elem.getAttribute('value');
+      },
+      isSelected: function isSelected(elem) {
+        return elem.isSelected();
+      }
+    });
+  }).then(function (composits) {
+    return composits.filter(function (composit) {
+      return composit.isSelected && action.values.indexOf(composit.value) >= 0;
+    }).map(function (composit) {
+      return composit.elem;
+    });
+  }).then(function (elems) {
+    return _seleniumWebdriver2.default.promise.map(elems, function (elem) {
+      return elem.click();
+    });
+  });
+}
+
+function clear(checker, action) {
+  return checker.waitElements(action.clear, action.count, action.timeout).then(function (elems) {
+    return checker.assembleFromElements(elems, {
+      tag_name: function tag_name(elem) {
+        return elem.getTagName();
+      },
+      type: function type(elem) {
+        return elem.getAttribute('type');
+      },
+      selected: function selected(elem) {
+        return elem.isSelected();
+      }
+    });
+  }).then(function (composits) {
+    if (composits[0].tag_name == 'select') {
+      return checker.waitElementsIn(composits[0].elem, By.css('option'), check.count, check.timeout).then(function (elems) {
+        return checker.assembleFromElements(elems, {
+          tag_name: function tag_name(elem) {
+            return elem.getTagName();
+          },
+          type: function type(elem) {
+            return elem.getAttribute('type');
+          },
+          selected: function selected(elem) {
+            return elem.isSelected();
+          }
+        });
+      });
+    } else {
+      return composits;
+    }
+  }).then(function (composits) {
+    if (composits[0].tag_name == 'option' || composits[0].type == 'checkbox' || composits[0].type == 'radio') {
+      composits.filter(function (composit) {
+        return composit.selected;
+      }).forEach(function (composit) {
+        return composit.elem.click();
+      });
+    } else {
+      composits.forEach(function (composit) {
+        return composit.elem.clear();
+      });
+    }
+  });
+}
+
+function alert(checker, action) {
+  return checker.handleAlert(action.alert, action.timeout);
+}
+
+function switchTo(checker, action) {
+  if (action.switchTo === 'default' || !action.switchTo) {
+    return checker.driver.switchTo().frame(null);
+  } else {
+    return checker.waitElement(action.switchTo, action.timeout).then(function (elem) {
+      return checker.driver.switchTo().frame(elem);
+    });
+  }
+}
+
+/***/ }),
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1910,101 +1988,48 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+exports.default = placeholder;
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+var Placeholder = function () {
+  function Placeholder(key) {
+    _classCallCheck(this, Placeholder);
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var NotMatchError = exports.NotMatchError = function (_Error) {
-  _inherits(NotMatchError, _Error);
-
-  function NotMatchError(message, fileName, lineNumber) {
-    _classCallCheck(this, NotMatchError);
-
-    var _this = _possibleConstructorReturn(this, (NotMatchError.__proto__ || Object.getPrototypeOf(NotMatchError)).call(this, message, fileName, lineNumber));
-
-    _this.name = "NotMatchError";
-    return _this;
+    this.key = key;
+    this.appendedTexts = [];
   }
 
-  return NotMatchError;
-}(Error);
+  _createClass(Placeholder, [{
+    key: 'append',
+    value: function append(text) {
+      this.appendedTexts.push(text);
+      return this;
+    }
+  }, {
+    key: 'apply',
+    value: function apply(holderItem) {
+      if (this.appendedTexts.length) {
+        return holderItem + this.appendedTexts.join('');
+      } else {
+        return holderItem;
+      }
+    }
+  }, {
+    key: 'placeholderKey',
+    get: function get() {
+      return this.key;
+    }
+  }]);
 
-var NotSuchElementError = exports.NotSuchElementError = function (_Error2) {
-  _inherits(NotSuchElementError, _Error2);
+  return Placeholder;
+}();
 
-  function NotSuchElementError(message, fileName, lineNumber) {
-    _classCallCheck(this, NotSuchElementError);
-
-    var _this2 = _possibleConstructorReturn(this, (NotSuchElementError.__proto__ || Object.getPrototypeOf(NotSuchElementError)).call(this, message, fileName, lineNumber));
-
-    _this2.name = "NotSuchElementError";
-    return _this2;
-  }
-
-  return NotSuchElementError;
-}(Error);
-
-var ElementExistsError = exports.ElementExistsError = function (_Error3) {
-  _inherits(ElementExistsError, _Error3);
-
-  function ElementExistsError(message, fileName, lineNumber) {
-    _classCallCheck(this, ElementExistsError);
-
-    var _this3 = _possibleConstructorReturn(this, (ElementExistsError.__proto__ || Object.getPrototypeOf(ElementExistsError)).call(this, message, fileName, lineNumber));
-
-    _this3.name = "ElementExistsError";
-    return _this3;
-  }
-
-  return ElementExistsError;
-}(Error);
-
-var JavascriptError = exports.JavascriptError = function (_Error4) {
-  _inherits(JavascriptError, _Error4);
-
-  function JavascriptError(message, fileName, lineNumber) {
-    _classCallCheck(this, JavascriptError);
-
-    var _this4 = _possibleConstructorReturn(this, (JavascriptError.__proto__ || Object.getPrototypeOf(JavascriptError)).call(this, message, fileName, lineNumber));
-
-    _this4.name = "JavascriptError";
-    return _this4;
-  }
-
-  return JavascriptError;
-}(Error);
-
-var StatusCodeError = exports.StatusCodeError = function (_Error5) {
-  _inherits(StatusCodeError, _Error5);
-
-  function StatusCodeError(message, fileName, lineNumber) {
-    _classCallCheck(this, StatusCodeError);
-
-    var _this5 = _possibleConstructorReturn(this, (StatusCodeError.__proto__ || Object.getPrototypeOf(StatusCodeError)).call(this, message, fileName, lineNumber));
-
-    _this5.name = "StatusCodeError";
-    return _this5;
-  }
-
-  return StatusCodeError;
-}(Error);
-
-var VerboseError = exports.VerboseError = function (_Error6) {
-  _inherits(VerboseError, _Error6);
-
-  function VerboseError(message, error) {
-    _classCallCheck(this, VerboseError);
-
-    var _this6 = _possibleConstructorReturn(this, (VerboseError.__proto__ || Object.getPrototypeOf(VerboseError)).call(this, message));
-
-    _this6.name = error.name;
-    return _this6;
-  }
-
-  return VerboseError;
-}(Error);
+function placeholder(key) {
+  return new Placeholder(key);
+}
 
 /***/ })
 /******/ ]);
