@@ -290,6 +290,10 @@ const checker = new Checker(driver)
 checker.debug = true
 ```
 
+## How do I use this?
+
+* [mocha test sample]./samples/mocha/test.js()
+
 ## Development
 
 1. Fork and clone this repository. `git clone git@github.com:SunriseDigital/simple-selenium-checker.git`
