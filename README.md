@@ -1,4 +1,4 @@
-## Simple selenium checker
+# Simple selenium checker
 
 [![npm version](https://badge.fury.io/js/simple-selenium-checker.svg)](https://badge.fury.io/js/simple-selenium-checker)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -289,3 +289,15 @@ When Checker fails the test, it displays all sources of HTML in the message. If 
 const checker = new Checker(driver)
 checker.debug = true
 ```
+
+## Development
+
+1. Fork and clone this repository. `git clone git@github.com:SunriseDigital/simple-selenium-checker.git`
+1. Install dependencies. `npm install`
+1. Install http-server. `npm install http-server -g`
+1. Start http-server. `http-server`
+1. Install selenium-standalone. `npm install selenium-standalone -g`
+1. Start selenium-standalone. `selenium-standalone start`
+1. Install gulp. `npm install gulp -g`
+1. Start gulp task. `gulp`
+1. Run test. `npm test`
