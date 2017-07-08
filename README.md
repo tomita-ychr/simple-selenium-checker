@@ -45,7 +45,7 @@ const scenario = [
 checker.run(scenario)
 ```
 
-In the above scenario, first, it opens `https://http://127.0.0.1:8080/`, and checks if there is a `header` element on the page, and checks if the inner text of `h2` tag is `Home`. And then it clicks second navigation menu link, after page loaded, checks if the inner text of `h2` tag is `Foo`.
+In the above scenario, first, it opens `https://http://127.0.0.1:8080/`, and checks if there is a `header` element on the page, and checks if the inner text of `h2` tag is `Home`. And then it clicks second navigation menu link, after the page loaded, checks if the inner text of `h2` tag is `Foo`.
 
 Javascript error and response Status code problems are checked automatically, and if there is a problem an error is thrown. These functions are realized by checking the browser console log.
 
@@ -112,23 +112,124 @@ const scenario = [
     {equals: By.css('img#foobar'), attr_alt: "foobar"}
 
     //checkboxes
+    //<input type="checkobx" name="tag" value="tag1" checked> tag1
+    //<input type="checkobx" name="tag" value="tag2" checked> tag2
+    //<input type="checkobx" name="tag" value="tag3"> tag3
     {equals: By.css('input[type=checkbox][name=tag]'), values: ['tag1', 'tag2']}
     {checked: By.css('input[type=checkbox][name=tag]'), values: ['tag1']}
     {unchecked: By.css('input[type=checkbox][name=tag]'), values: ['tag3']}
 
     //radio
+    {equals: By.css('input[type=radio][name=yea_or_no]'), value: 'yes'}
 
-  ]},
-
-  {actions: [
-    //Enter text in the form element.
-    {sendKey: By.css("form input[type=text].name"), value: "Tom Chandler"},
-    //Click the button and link.
-    {click: By.css(".nav li:nth-child(2) > a")},
+    //select with multilple attribute
+    {equals: By.css('select.area'), values: ['area1', 'area2']}
+    {selected: By.css('select.area'), values: ['area1']}
+    {unselected: By.css('select.area'), values: ['area3']}
   ]}
 ]
 ```
 
+### actions directive
+
+Like `actions` also `assertions`, wait until the specified element becomes available. It is also possible to specify a timeout for each directive and the `Checker.DefaultTimeout` property is applied.
+
+#### click
+
+Click on the specified element such as button or link.
+
+```js
+  {actions: [
+    {click: By.css(".nav li:nth-child(2) > a")}
+  ]}
+```
+
+#### sendKey
+
+Enter a string in `input[type=text]` or `textarea`. Because it will be added, please use the `clear` action when you want to enter a new one.
+
+```js
+  {actions: [
+    {sendKey: By.css("form input[type=text].name"), value: "Tom Chandler"}
+  ]}
+```
+
+#### clear
+
+This clears the input contents of `input[type=text]` or `textarea`. Also, use this to clear the checkbox or multiple selectable select tags.
+
+```js
+  {actions: [
+    {clear: By.css("form input[type=text].name")}
+  ]}
+```
+
+#### check|uncheck
+
+`check` action check radio and checkbox. `uncheck` unchecks the checkbox. You can not uncheck the radio. Although it can be checked by `click`, it is convenient because it does not do anything if already checked values exist in `value|values`.
+
+
+```js
+  {actions: [
+    //checkbox group
+    {check: By.css("form input[type=checkbox][name=tag]"), values: ['tag1', 'tag2']}
+    {unselect: By.css("form input[type=checkbox][name=tag]"), values: ['tag2', 'tag3']}
+    
+    //radio
+    {check: By.css("form input[type=radio][name=sex]"), value: 'man'}
+  ]}
+```
+
+#### select|unselect
+
+Use `select` `unselect` to select and release select tag values.
+
+```js
+  {actions: [
+    //select with multiple
+    {select: By.css("form select.area"), values: ['area1', 'area2']}
+    {unselect: By.css("form select.area"), values: ['area1']}
+
+    //select without multiple
+    {select: By.css("form select.sex"), value: 'man'}
+    {unselect: By.css("form select.sex"), value: 'man'}
+  ]}
+```
+
+#### alert
+
+You can handle alert and confirm with the alert action. alert`accept`. `accept` and `dismiss` can be specified for the value of the alert key.
+
+```js
+  {actions: [
+    //Click the button display alert.
+    {click: By.css("#alert")},
+    //Click OK button on alert.
+    {alert: "accept"}
+
+    {click: By.css("#confirm")},
+    //Click cancel button on confirm.
+    {alert: "dismiss"}
+  ]}
+```
+
+#### switchTo
+
+You can handle iframes with `switchTo` action.
+
+```js
+  {actions: [
+    {switchTo: By.css("#index_frame")},
+  ]},
+  //... do something
+  {actions: [
+    {switchTo: 'default'},
+  ]},
+```
+
+### execif
+
+The scenario can be nested. If you use the execif directive, you skip the after that.Every key of assertions is available for each element of execif. Together the key `bool` is available. this is useful in placeholder described below.
 
 ```js
 const scenario = [
@@ -139,38 +240,17 @@ const scenario = [
   scenario: [
     //If `execif` evaluates to false, ignoring after directives.
     {execif: [//Elements in this array evaluated in the AND.
-      //Evaluate to true if the target element exists.
       [{exists: By.css('.foo')}, {exists: By.css('.bar')}], //Elements in this array evaluated in the OR.
-      //Evaluate to true if the target element not exists.
-      [{nonExists: By.css('.main')},
-      //only `bool` is useful in the Placeholder described below.
+      [{nonExists: By.css('.main')}],
       [{bool: true}],
     ]}
+    
+    //({exists: By.css('.foo')} OR {exists: By.css('.bar')}) AND {nonExists: By.css('.main')} AND {bool: true}
   ]
-
-  //Check the elements and text on the page.
-  {assertions: [
-    //Only the existence of the element.
-    {exists: By.css("#searchform")}
-    //Compare the text contained in the element with exact match.
-    //When `timeout` is specified, it checks repeatedly for the specified milliseconds until the target element is visible.
-    {equals: "Home 002", by: By.css(".main .col-sm-6:nth-child(2) h3"), timeout: 1000},
-    //Compare the text contained in the element with partial match.
-    {likes: "Home 002", by: By.css(".main .col-sm-6:nth-child(2) h3")},
-    //Search the entire body of the response with partial match.
-    {likes: "<title>Simple selenium checker - Home</title>", type: 'html'}
-    //Html attribute
-    {equals: "foobar", type: {attr: 'alt'}, by: By.css('img#foobar')}
-  ]},
-
-  {actions: [
-    //Enter text in the form element.
-    {sendKey: By.css("form input[type=text].name"), value: "Tom Chandler"},
-    //Click the button and link.
-    {click: By.css(".nav li:nth-child(2) > a")},
-  ]}
 ]
 ```
+
+### placeholder
 
 With `placeholder` you can replace the elements in the scenario.
 
@@ -201,8 +281,9 @@ This scenario is replaced as follows.
 ]
 ```
 
-When Checker fails the test, it displays all sources of HTML in the message. If you set to true the debug property, only the original message is displayed.
+### debug
 
+When Checker fails the test, it displays all sources of HTML in the message. If you set to true the debug property, only the original message is displayed.
 
 ```js
 const checker = new Checker(driver)
