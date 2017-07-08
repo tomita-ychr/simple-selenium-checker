@@ -1,19 +1,19 @@
-export class NotMatchError extends Error
+export class UnexpectedValue extends Error
 {
   constructor(message, error){
     super(message, error)
-    this.name = "NotMatchError"
+    this.name = "UnexpectedValue"
     if(error !== undefined){
       this.stack = error.stack
     }
   }
 }
 
-export class NotSuchElementError extends Error
+export class NoSuchElementError extends Error
 {
   constructor(message, error){
     super(message, error)
-    this.name = "NotSuchElementError"
+    this.name = "NoSuchElementError"
     if(error !== undefined){
       this.stack = error.stack
     }

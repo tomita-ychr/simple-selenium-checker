@@ -55,7 +55,7 @@ export default class Checker
             message = util.format("%s: [%s], expected: `%s`, actual: `%s`", check.name, check.type, check.value||check.values, check.actual_values)
           }
           
-          throw new errors.NotMatchError(message, err)
+          throw new errors.UnexpectedValue(message, err)
         }
         throw err
       })
@@ -133,7 +133,7 @@ export default class Checker
       return this._detectFunction(checks, condition)(this, condition)
         .then(() => true)
         .catch(err => {
-          if(['NotMatchError', 'NotSuchElementError', 'ExistsError'].indexOf(err.name) >= 0){
+          if(['UnexpectedValue', 'NoSuchElementError', 'ExistsError'].indexOf(err.name) >= 0){
             return false
           }
 

@@ -105,7 +105,7 @@ export function exists(checker, check){
   return checker.waitElements(check.exists, check.count, check.timeout)
     .catch(err => {
       if(err.name == 'TimeoutError'){
-        throw new errors.NotSuchElementError(util.format("%s: %s", check.name, check.locator), err)
+        throw new errors.NoSuchElementError(util.format("%s: %s", check.name, check.locator), err)
       }
       throw err
     })

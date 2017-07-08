@@ -776,7 +776,7 @@ var Checker = function () {
             message = _util2.default.format("%s: [%s], expected: `%s`, actual: `%s`", check.name, check.type, check.value || check.values, check.actual_values);
           }
 
-          throw new errors.NotMatchError(message, err);
+          throw new errors.UnexpectedValue(message, err);
         }
         throw err;
       });
@@ -868,7 +868,7 @@ var Checker = function () {
         return this._detectFunction(checks, condition)(this, condition).then(function () {
           return true;
         }).catch(function (err) {
-          if (['NotMatchError', 'NotSuchElementError', 'ExistsError'].indexOf(err.name) >= 0) {
+          if (['UnexpectedValue', 'NoSuchElementError', 'ExistsError'].indexOf(err.name) >= 0) {
             return false;
           }
 
@@ -1095,40 +1095,40 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var NotMatchError = exports.NotMatchError = function (_Error) {
-  _inherits(NotMatchError, _Error);
+var UnexpectedValue = exports.UnexpectedValue = function (_Error) {
+  _inherits(UnexpectedValue, _Error);
 
-  function NotMatchError(message, error) {
-    _classCallCheck(this, NotMatchError);
+  function UnexpectedValue(message, error) {
+    _classCallCheck(this, UnexpectedValue);
 
-    var _this = _possibleConstructorReturn(this, (NotMatchError.__proto__ || Object.getPrototypeOf(NotMatchError)).call(this, message, error));
+    var _this = _possibleConstructorReturn(this, (UnexpectedValue.__proto__ || Object.getPrototypeOf(UnexpectedValue)).call(this, message, error));
 
-    _this.name = "NotMatchError";
+    _this.name = "UnexpectedValue";
     if (error !== undefined) {
       _this.stack = error.stack;
     }
     return _this;
   }
 
-  return NotMatchError;
+  return UnexpectedValue;
 }(Error);
 
-var NotSuchElementError = exports.NotSuchElementError = function (_Error2) {
-  _inherits(NotSuchElementError, _Error2);
+var NoSuchElementError = exports.NoSuchElementError = function (_Error2) {
+  _inherits(NoSuchElementError, _Error2);
 
-  function NotSuchElementError(message, error) {
-    _classCallCheck(this, NotSuchElementError);
+  function NoSuchElementError(message, error) {
+    _classCallCheck(this, NoSuchElementError);
 
-    var _this2 = _possibleConstructorReturn(this, (NotSuchElementError.__proto__ || Object.getPrototypeOf(NotSuchElementError)).call(this, message, error));
+    var _this2 = _possibleConstructorReturn(this, (NoSuchElementError.__proto__ || Object.getPrototypeOf(NoSuchElementError)).call(this, message, error));
 
-    _this2.name = "NotSuchElementError";
+    _this2.name = "NoSuchElementError";
     if (error !== undefined) {
       _this2.stack = error.stack;
     }
     return _this2;
   }
 
-  return NotSuchElementError;
+  return NoSuchElementError;
 }(Error);
 
 var ExistsError = exports.ExistsError = function (_Error3) {
@@ -1665,7 +1665,7 @@ function exists(checker, check) {
   check = normalizeDirective(check, 'exists');
   return checker.waitElements(check.exists, check.count, check.timeout).catch(function (err) {
     if (err.name == 'TimeoutError') {
-      throw new errors.NotSuchElementError(_util2.default.format("%s: %s", check.name, check.locator), err);
+      throw new errors.NoSuchElementError(_util2.default.format("%s: %s", check.name, check.locator), err);
     }
     throw err;
   });
@@ -1895,7 +1895,7 @@ function check(checker, action) {
       });
     }).then(function (composits) {
       if (composits.length == 0) {
-        throw new errors.NotSuchElementError(_util2.default.format("Radio button with `%s` were not found in %s.", action.value, action.check));
+        throw new errors.NoSuchElementError(_util2.default.format("Radio button with `%s` were not found in %s.", action.value, action.check));
       }
 
       return composits[0].elem.click();

@@ -79,7 +79,7 @@ test.describe('SSC', () => {
       return checker.run(scenario).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err != undefined)
-        assert(err.name == "NotSuchElementError")
+        assert(err.name == "NoSuchElementError")
       })
     }).then(() => {
       const scenario = [{
@@ -98,7 +98,7 @@ test.describe('SSC', () => {
       return checker.run(scenario).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err != undefined)
-        assert(err.name == "NotSuchElementError")
+        assert(err.name == "NoSuchElementError")
       })
     })
   })
@@ -117,7 +117,7 @@ test.describe('SSC', () => {
       return checker.run(scenario).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err != undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('Hoge 002') >= 0)
       })
     }).then(() => {
@@ -137,7 +137,7 @@ test.describe('SSC', () => {
       return checker.run(scenario).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err != undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('Bar 003') >= 0)
       })
     })
@@ -157,7 +157,7 @@ test.describe('SSC', () => {
       return checker.run(scenario).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err != undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('<title>Simple selenium checker - Hoge</title>') >= 0)
       })
     }).then(() => {
@@ -177,7 +177,7 @@ test.describe('SSC', () => {
       return checker.run(scenario).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err != undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('<title>Simple selenium checker - Bar</title>') >= 0)
       })
     })
@@ -263,7 +263,7 @@ test.describe('SSC', () => {
       }]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err != undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('http://127.0.0.1:8080/hoge.html') >= 0)
       })
     }).then(() => {
@@ -276,7 +276,7 @@ test.describe('SSC', () => {
       }]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err != undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('hoge.html') >= 0)
       })
     }).then(() => {
@@ -289,7 +289,7 @@ test.describe('SSC', () => {
       }]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err != undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('http://127.0.0.1:8080/') >= 0)
       })
     }).then(() => {
@@ -302,7 +302,7 @@ test.describe('SSC', () => {
       }]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err != undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('127.0.0.1') >= 0)
       })
     })
@@ -323,7 +323,7 @@ test.describe('SSC', () => {
       return checker.run(scenario).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err != undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('http://127.0.0.1:8080/hoge.html') >= 0)
       })
     })
@@ -356,7 +356,7 @@ test.describe('SSC', () => {
       return checker.run(scenario).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err != undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('bar') >= 0)
       })
     })
@@ -587,7 +587,7 @@ test.describe('SSC', () => {
       }]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotSuchElementError")
+        assert(err.name == "NoSuchElementError")
       })
     }).then(() => {
       // ignore url
@@ -607,7 +607,7 @@ test.describe('SSC', () => {
       }]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotSuchElementError")
+        assert(err.name == "NoSuchElementError")
       })
     }).then(() => {
       // execute action
@@ -629,7 +629,7 @@ test.describe('SSC', () => {
       }]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotSuchElementError")
+        assert(err.name == "NoSuchElementError")
       })
     }).then(() => {
       // ignore action
@@ -652,7 +652,7 @@ test.describe('SSC', () => {
       }]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotSuchElementError")
+        assert(err.name == "NoSuchElementError")
       })
     })
 
@@ -678,7 +678,7 @@ test.describe('SSC', () => {
       }]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotSuchElementError")
+        assert(err.name == "NoSuchElementError")
       })
     }).then(() => {
       // third level
@@ -702,7 +702,7 @@ test.describe('SSC', () => {
       }]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotSuchElementError")
+        assert(err.name == "NoSuchElementError")
       })
     }).then(() => {
       //execif third level
@@ -731,7 +731,7 @@ test.describe('SSC', () => {
       }]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotSuchElementError")
+        assert(err.name == "NoSuchElementError")
       })
     })
   })
@@ -750,7 +750,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('`nav`') >= 0)
       })
     }).then(() => {
@@ -765,7 +765,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('foooo') >= 0)
       })
     })
@@ -792,7 +792,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('Home') >= 0)
       })
     }).then(() => {
@@ -804,7 +804,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('http://127.0.0.1:8080/foo.html') >= 0)
       })
     }).then(() => {
@@ -827,7 +827,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('Foo') >= 0)
       })
     }).then(() => {
@@ -839,7 +839,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('page-header') >= 0)
       })
     }).then(() => {
@@ -851,7 +851,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('Simple selenium checker') >= 0)
       })
     }).then(() => {
@@ -893,7 +893,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('checkbox1,checkbox2') >= 0)
       })
     }).then(() => {
@@ -944,7 +944,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('checkbox1') >= 0)
       })
     }).then(() => {
@@ -963,7 +963,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('checkbox2') >= 0)
       })
     })
@@ -987,7 +987,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('radio1') >= 0)
       })
     }).then(() => {
@@ -1005,7 +1005,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotSuchElementError")
+        assert(err.name == "NoSuchElementError")
       })
     }).then(() => {
       return checker.run([
@@ -1020,7 +1020,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('radio1') >= 0)
       })
     })
@@ -1038,7 +1038,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('option2') >= 0)
       })
     }).then(() => {
@@ -1054,7 +1054,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('option2') >= 0)
       })
     }).then(() => {
@@ -1067,7 +1067,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('option2') >= 0)
       })
     })
@@ -1082,7 +1082,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('option1') >= 0)
       })
     })
@@ -1100,7 +1100,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('option1') >= 0)
       })
     }).then(() => {
@@ -1114,7 +1114,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('option1') >= 0)
       })
     }).then(() => {
@@ -1132,7 +1132,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf('option2') >= 0)
       })
     }).then(() => {
@@ -1231,7 +1231,7 @@ test.describe('SSC', () => {
        ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf("FooBar") >= 0)
       })
     }).then(() => {
@@ -1253,7 +1253,7 @@ test.describe('SSC', () => {
        ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "NotMatchError")
+        assert(err.name == "UnexpectedValue")
         assert(err.message.indexOf("FooBar") >= 0)
       })
     })
