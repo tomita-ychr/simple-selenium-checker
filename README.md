@@ -292,7 +292,7 @@ checker.debug = true
 
 ## How do I use this?
 
-* [mocha test sample]./samples/mocha/test.js()
+* [mocha test sample](./samples/mocha/test.js)
 
 ## Development
 
