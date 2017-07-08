@@ -55,7 +55,7 @@ Javascript error and response Status code problems are checked automatically, an
 {$name: locator|string $target [, value|values|attr_{attribute name}: string|string array $value] [, timeout: int $milliseconds]}
 ```
 
-All checks directives wait for the element to be visible and wait until it is in the expected state. The wait time can change with a timeout. The default timeout is 1200 ms. You can change the default timeout globally with `Checker.DefaultTimeout` property.
+All assertion directives wait for the element to be visible and wait until it is in the expected state. The wait time can change with a timeout. The default timeout is 1200 ms. You can change the default timeout globally with `Checker.DefaultTimeout` property.
 
 #### $name
 
@@ -259,13 +259,13 @@ import {placeholder} from 'simple-selenium-checker'
 
 const scenario = [
   {url: placeholder('host_name').append('/form.html')}
-  {checks: [
-    {by: placeholder('checks_on_form')}
+  {assertions: [
+    {by: placeholder('assertions_on_form')}
   ]}
 ]
 checker.placeholder = {
   'host_name': 'http://www.example.com',
-  'checks_on_form': By.css('.foo'),
+  'assertions_on_form': By.css('.foo'),
 }
 checker.run(scenario, 'https://www.google.com')
 ```
