@@ -1498,6 +1498,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.click = click;
 exports.sendKeys = sendKeys;
 exports.check = check;
+exports.uncheck = uncheck;
 exports.select = select;
 exports.unselect = unselect;
 exports.clear = clear;
@@ -1579,6 +1580,27 @@ function check(checker, action) {
   } else {
     throw new Error("value or values is required.");
   }
+}
+
+function uncheck(checker, action) {
+  return checker.waitElements(action.uncheck, action.count, action.timeout).then(function (elems) {
+    return checker.assembleFromElements(elems, {
+      value: function value(elem) {
+        return elem.getAttribute('value');
+      },
+      selected: function selected(elem) {
+        return elem.isSelected();
+      }
+    });
+  }).then(function (composits) {
+    return composits.filter(function (composit) {
+      return composit.selected && action.values.indexOf(composit.value) >= 0;
+    });
+  }).then(function (composits) {
+    return _seleniumWebdriver2.default.promise.map(composits, function (composit) {
+      return composit.elem.click();
+    });
+  });
 }
 
 function select(checker, action) {

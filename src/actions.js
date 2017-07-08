@@ -48,6 +48,19 @@ export function check(checker, action){
   }
 }
 
+export function uncheck(checker, action){
+  return checker.waitElements(action.uncheck, action.count, action.timeout)
+    .then(elems => checker.assembleFromElements(elems, {
+      value: elem => elem.getAttribute('value'),
+      selected: elem => elem.isSelected()
+    }))
+    .then(composits => composits.filter(composit => composit.selected && action.values.indexOf(composit.value) >= 0))
+    .then(composits => webdriver.promise.map(
+      composits,
+      composit => composit.elem.click()
+    ))
+}
+
 
 export function select(checker, action){
   const values = action.value ? [action.value] : action.values

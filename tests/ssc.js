@@ -900,6 +900,28 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
         {actions: [
+          {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox2', 'checkbox3']},
+        ]},
+        {assertions: [
+          {equals: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox2', 'checkbox3']},
+        ]},
+        {actions: [
+          {uncheck: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox2']},
+        ]},
+        {assertions: [
+          {equals: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox3']},
+        ]},
+        {actions: [
+          {uncheck: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox2', 'checkbox3']},
+        ]},
+        {assertions: [
+          {equals: By.css(".checkbox-inline input[name=checkbox]"), values: []},
+        ]},
+      ])
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/options.html"},
+        {actions: [
           {clear: By.css(".checkbox-inline input[name=checkbox]")},
         ]},
         {assertions: [
