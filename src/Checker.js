@@ -1,6 +1,6 @@
 import webdriver from 'selenium-webdriver';
 import util from 'util';
-import * as checks from './checks'
+import * as assertions from './assertions'
 import * as actions from './actions'
 import * as errors from './errors'
 const until = webdriver.until;
@@ -130,7 +130,7 @@ export default class Checker
     if(condition.bool !== undefined){
       return Promise.resolve(condition.bool)
     } else {
-      return this._detectFunction(checks, condition)(this, condition)
+      return this._detectFunction(assertions, condition)(this, condition)
         .then(() => true)
         .catch(err => {
           if(['UnexpectedValue', 'NoSuchElementError', 'ExistsError'].indexOf(err.name) >= 0){
@@ -184,7 +184,7 @@ export default class Checker
         }
 
         //check supported directives
-        if(['execif', 'url', 'actions', 'checks'].indexOf(directives[0]) === -1){
+        if(['execif', 'url', 'actions', 'assertions'].indexOf(directives[0]) === -1){
           throw new Error("Illegal directive object. " + JSON.stringify(item))
         }
 
@@ -205,11 +205,11 @@ export default class Checker
               return this._detectFunction(actions, action)(this, action)
             })
           })
-        } else if(item.checks) {
-          item.checks.forEach(check => {
+        } else if(item.assertions) {
+          item.assertions.forEach(check => {
             promise = promise.then(res => {
               if(res === false) return false
-              return this._detectFunction(checks, check)(this, check)
+              return this._detectFunction(assertions, check)(this, check)
             })
           })
         }

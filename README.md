@@ -32,12 +32,12 @@ const checker = new Checker(driver)
 
 const scenario = [
   {url: "https://http://127.0.0.1:8080/"},
-  {checks: [
+  {assertions: [
     {exists: By.css("header")},
     {equals: By.css("h2"), value: "Home"},
   ]},
   {actions:[{click: By.css(".nav > li:nth-child(2) > a")}]},
-  {checks: [
+  {assertions: [
     {equals: By.css("h2"), value: "Foo"},
   ]},
 ]
@@ -49,13 +49,13 @@ In the above scenario, first, it opens `https://http://127.0.0.1:8080/`, and che
 
 Javascript error and response Status code problems are checked automatically, and if there is a problem an error is thrown. These functions are realized by checking the browser console log.
 
-### checks directive
+### assertions directive
 
 ```
-{$name: locator|string $target [, value|values: string|string array $value] [, type: string $type] [, timeout: int $milliseconds]}
+{$name: locator|string $target [, value|values|attr_{attribute name}: string|string array $value] [, timeout: int $milliseconds]}
 ```
 
-All checks directives wait for the element to be visible and wait until it is in the expected state. The wait time can change with timeout. The default timeout is 1200 ms.
+All checks directives wait for the element to be visible and wait until it is in the expected state. The wait time can change with a timeout. The default timeout is 1200 ms. You can change the default timeout globally with `Checker.DefaultTimeout` property.
 
 #### $name
 
@@ -75,13 +75,60 @@ Specify the check target. If `html` is specified, the entire response body is ta
 
 #### $value
 
-Specify the expected value. When checkbox and multiple select tag, specify an array of strings.
+Specify the expected value. When the target is form element (except textarea), compare with value, otherwise with inner text. checkbox and radio can handle multiple elements together.
 
-#### $type
+If you specify a value with the HTML attribute name as the key after the `attr_` prefix, it will be compared with the value of that attribute.
 
+#### samples
+
+```js
+const scenario = [
+  //Opens the specified page.
+  {url: "https://http://127.0.0.1:8080/"}
+
+  //Check the elements and text on the page.
+  {assertions: [
+    //Only the existence of the element.
+    {exists: By.css("header")}
+    {notExists: By.css("header .nav")}
+
+    //Compare with the inner text of the element exactly.
+    {equals: by: By.css(".main .col-sm-6:nth-child(2) h3"), value: "Home 002"},
+    //When `timeout` is specified, it checks repeatedly for the specified milliseconds until the target element is visible.
+    {notEquals: By.css(".main .col-sm-6:nth-child(2) h3"), , value: "Foo 002", timeout: 1000},
+    
+    //Compare with the inner text of the element partially.
+    {likes: By.css(".main .col-sm-6:nth-child(2) h3"), value: "ome 00"},
+    {notLikes: By.css(".main .col-sm-6:nth-child(2) h3"), value: "oo 00"},
+
+    //Search with the entire body of the response partially.
+    {likes: "html", value: "<title>Simple selenium checker - Home</title>"}
+
+    //Compare with url.
+    {equals: "url", value: "<https://http://127.0.0.1:8080/"}
+
+
+    //Html attribute
+    {equals: By.css('img#foobar'), attr_alt: "foobar"}
+
+    //checkboxes
+    {equals: By.css('input[type=checkbox][name=tag]'), values: ['tag1', 'tag2']}
+    {checked: By.css('input[type=checkbox][name=tag]'), values: ['tag1']}
+    {unchecked: By.css('input[type=checkbox][name=tag]'), values: ['tag3']}
+
+    //radio
+
+  ]},
+
+  {actions: [
+    //Enter text in the form element.
+    {sendKey: By.css("form input[type=text].name"), value: "Tom Chandler"},
+    //Click the button and link.
+    {click: By.css(".nav li:nth-child(2) > a")},
+  ]}
+]
 ```
-{attr: $attribute_name}|checkbox|select
-```
+
 
 ```js
 const scenario = [
@@ -102,7 +149,7 @@ const scenario = [
   ]
 
   //Check the elements and text on the page.
-  {checks: [
+  {assertions: [
     //Only the existence of the element.
     {exists: By.css("#searchform")}
     //Compare the text contained in the element with exact match.
@@ -148,7 +195,7 @@ This scenario is replaced as follows.
 ```js
 [
   {url: 'https://http://127.0.0.1:8080/form.html'}
-  {checks: [
+  {assertions: [
     {by: By.css('.foo')}
   ]}
 ]

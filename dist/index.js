@@ -693,9 +693,9 @@ var _util = __webpack_require__(1);
 
 var _util2 = _interopRequireDefault(_util);
 
-var _checks = __webpack_require__(9);
+var _assertions = __webpack_require__(12);
 
-var checks = _interopRequireWildcard(_checks);
+var assertions = _interopRequireWildcard(_assertions);
 
 var _actions = __webpack_require__(10);
 
@@ -865,7 +865,7 @@ var Checker = function () {
       if (condition.bool !== undefined) {
         return Promise.resolve(condition.bool);
       } else {
-        return this._detectFunction(checks, condition)(this, condition).then(function () {
+        return this._detectFunction(assertions, condition)(this, condition).then(function () {
           return true;
         }).catch(function (err) {
           if (['UnexpectedValue', 'NoSuchElementError', 'ExistsError'].indexOf(err.name) >= 0) {
@@ -928,7 +928,7 @@ var Checker = function () {
           }
 
           //check supported directives
-          if (['execif', 'url', 'actions', 'checks'].indexOf(directives[0]) === -1) {
+          if (['execif', 'url', 'actions', 'assertions'].indexOf(directives[0]) === -1) {
             throw new Error("Illegal directive object. " + JSON.stringify(item));
           }
 
@@ -951,11 +951,11 @@ var Checker = function () {
                 return _this7._detectFunction(actions, action)(_this7, action);
               });
             });
-          } else if (item.checks) {
-            item.checks.forEach(function (check) {
+          } else if (item.assertions) {
+            item.assertions.forEach(function (check) {
               promise = promise.then(function (res) {
                 if (res === false) return false;
-                return _this7._detectFunction(checks, check)(_this7, check);
+                return _this7._detectFunction(assertions, check)(_this7, check);
               });
             });
           }
@@ -1485,331 +1485,7 @@ if (typeof Object.create === 'function') {
 
 
 /***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.exists = exists;
-exports.notExists = notExists;
-exports.likes = likes;
-exports.equals = equals;
-exports.unchecked = unchecked;
-exports.checked = checked;
-exports.selected = selected;
-exports.unselected = unselected;
-exports.notEquals = notEquals;
-exports.notLikes = notLikes;
-
-var _seleniumWebdriver = __webpack_require__(0);
-
-var _seleniumWebdriver2 = _interopRequireDefault(_seleniumWebdriver);
-
-var _util = __webpack_require__(1);
-
-var _util2 = _interopRequireDefault(_util);
-
-var _errors = __webpack_require__(3);
-
-var errors = _interopRequireWildcard(_errors);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var By = _seleniumWebdriver2.default.By;
-
-function createPromise(checker, check) {
-  if (check.locator) {
-    return checker.waitElements(check.locator, check.count, check.timeout).then(function (elems) {
-      return checker.assembleFromElements(elems, {
-        tag_name: function tag_name(elem) {
-          return elem.getTagName();
-        },
-        type: function type(elem) {
-          return elem.getAttribute('type');
-        },
-        value: function value(elem) {
-          return elem.getAttribute('value');
-        },
-        multiple: function multiple(elem) {
-          return elem.getAttribute('multiple');
-        },
-        selected: function selected(elem) {
-          return elem.isSelected();
-        },
-        inner_text: function inner_text(elem) {
-          return elem.getText();
-        },
-        attr: function attr(elem) {
-          return check.type && check.type.hasOwnProperty('attr') ? elem.getAttribute(check.type.attr) : Promise.resolve(false);
-        }
-      });
-    }).then(function (composits) {
-      if (composits[0].tag_name == 'select') {
-        return checker.waitElementsIn(composits[0].elem, By.css('option'), check.count, check.timeout).then(function (elems) {
-          return checker.assembleFromElements(elems, {
-            value: function value(elem) {
-              return elem.getAttribute('value');
-            },
-            selected: function selected(elem) {
-              return elem.isSelected();
-            }
-          });
-        }).then(function (sComposits) {
-          return sComposits.filter(function (sComposit) {
-            return sComposit.selected;
-          });
-        }).then(function (sComposits) {
-          return {
-            values: sComposits.map(function (sComposit) {
-              return sComposit.value;
-            }),
-            type: 'select value'
-          };
-        });
-      } else if (composits[0].attr !== false) {
-        return {
-          values: composits.map(function (composit) {
-            return composit.attr;
-          }),
-          type: check.type.attr + ' attribute'
-        };
-      } else if (composits[0].type == "checkbox" || composits[0].type == "radio") {
-        return {
-          values: composits.filter(function (composit) {
-            return composit.selected;
-          }).map(function (composit) {
-            return composit.value;
-          }),
-          type: composits[0].type + ' value'
-        };
-      } else if (composits[0].tag_name == "input") {
-        return {
-          values: composits.map(function (composit) {
-            return composit.value;
-          }),
-          type: 'input value'
-        };
-      } else {
-        return {
-          values: composits.map(function (composit) {
-            return composit.inner_text;
-          }),
-          type: 'inner text'
-        };
-      }
-    });
-  } else if (check.type == 'html') {
-    return checker.driver.findElement(By.css('html')).then(function (elem) {
-      return elem.getAttribute('outerHTML');
-    }).then(function (html) {
-      return {
-        values: [html],
-        type: check.type
-      };
-    });
-  } else if (check.type == 'url') {
-    return checker.driver.getCurrentUrl().then(function (url) {
-      return {
-        values: [url],
-        type: check.type
-      };
-    });
-  } else {
-    throw Error("Illegal directive is specified " + JSON.stringify(check) + '.');
-  }
-}
-
-function normalizeDirective(check, name) {
-  check = Object.assign({}, check);
-
-  check.name = name;
-
-  if (check.hasOwnProperty('type')) {
-    throw Error("`type` key is not supported " + JSON.stringify(check) + '.');
-  }
-
-  if (typeof check[name] == 'string') {
-    check.type = check[name];
-  } else {
-    check.locator = check[name];
-  }
-
-  //attr
-  var attr_keys = Object.keys(check).filter(function (key) {
-    return key.indexOf('attr_') === 0;
-  });
-  if (attr_keys.length > 1) throw new Error("2 or more attr_ key found " + JSON.stringify(check) + '.');
-  if (attr_keys.length > 0) {
-    check.type = { attr: attr_keys[0].substr('attr_'.length) };
-    check.value = check[attr_keys[0]];
-  } else if (['exists', 'notExists'].indexOf(check.name) === -1) {
-    if (!check.hasOwnProperty('value') && !check.hasOwnProperty('values')) {
-      throw new Error("Require value or values key " + JSON.stringify(check) + '.');
-    }
-  }
-
-  return check;
-}
-
-function compareArray(array1, array2) {
-  return JSON.stringify(array1.sort()) === JSON.stringify(array2.sort());
-}
-
-function exists(checker, check) {
-  check = normalizeDirective(check, 'exists');
-  return checker.waitElements(check.exists, check.count, check.timeout).catch(function (err) {
-    if (err.name == 'TimeoutError') {
-      throw new errors.NoSuchElementError(_util2.default.format("%s: %s", check.name, check.locator), err);
-    }
-    throw err;
-  });
-}
-
-function notExists(checker, check) {
-  check = normalizeDirective(check, 'notExists');
-  return checker.waitDissapearElements(check.notExists, check.timeout).catch(function (err) {
-    if (err.name == 'TimeoutError') {
-      throw new errors.ExistsError(_util2.default.format("%s: %s", check.name, check.locator), err);
-    }
-    throw err;
-  });
-}
-
-function likes(checker, check) {
-  check = normalizeDirective(check, 'likes');
-  return checker.waitForValueCheck(check, function () {
-    return createPromise(checker, check).then(function (data) {
-      check.actual_values = data.values;
-      check.type = data.type;
-      if (check.values !== undefined) throw new Error('`likes` can only value.');
-      if (data.values.length > 1) throw new Error('Multiple values were detected `' + data.values + '`.');
-      return data.values[0].indexOf(check.value) >= 0;
-    });
-  });
-}
-
-function equals(checker, check) {
-  check = normalizeDirective(check, 'equals');
-  return checker.waitForValueCheck(check, function () {
-    return createPromise(checker, check).then(function (data) {
-      check.type = data.type;
-      check.actual_values = data.values;
-      if (check.hasOwnProperty('values')) {
-        return compareArray(data.values, check.values);
-      } else if (check.hasOwnProperty('value')) {
-        return data.values[0] === check.value;
-      }
-    });
-  });
-}
-
-function unchecked(checker, check) {
-  check = normalizeDirective(check, 'unchecked');
-  return checker.waitForValueCheck(check, function () {
-    return createPromise(checker, check).then(function (data) {
-      check.type = data.type;
-      check.actual_values = data.values;
-      if (check.value === undefined && check.values === undefined) throw new Error("Missing value or values.");
-      var expectedList = check.values ? check.values : [check.value];
-      for (var i = 0; i < expectedList.length; i++) {
-        var expected = expectedList[i];
-        if (data.values.indexOf(expected) >= 0) return false;
-      }
-
-      return true;
-    });
-  });
-}
-
-function checked(checker, check) {
-  check = normalizeDirective(check, 'checked');
-  return checker.waitForValueCheck(check, function () {
-    return createPromise(checker, check).then(function (data) {
-      check.actual_values = data.values;
-      check.type = data.type;
-      if (check.value === undefined && check.values === undefined) throw new Error("Missing value or values.");
-      var expectedList = check.values ? check.values : [check.value];
-      for (var i = 0; i < expectedList.length; i++) {
-        var expected = expectedList[i];
-        if (data.values.indexOf(expected) === -1) return false;
-      }
-
-      return true;
-    });
-  });
-}
-
-function selected(checker, check) {
-  check = normalizeDirective(check, 'selected');
-  return checker.waitForValueCheck(check, function () {
-    return createPromise(checker, check).then(function (data) {
-      check.actual_values = data.values;
-      check.type = data.type;
-      if (check.value === undefined && check.values === undefined) throw new Error("Missing value or values.");
-      var expectedList = check.values ? check.values : [check.value];
-      for (var i = 0; i < expectedList.length; i++) {
-        var expected = expectedList[i];
-        if (data.values.indexOf(expected) === -1) return false;
-      }
-
-      return true;
-    });
-  });
-}
-
-function unselected(checker, check) {
-  check = normalizeDirective(check, 'unselected');
-  return checker.waitForValueCheck(check, function () {
-    return createPromise(checker, check).then(function (data) {
-      check.actual_values = data.values;
-      check.type = data.type;
-      if (check.value === undefined && check.values === undefined) throw new Error("Missing value or values.");
-      var expectedList = check.values ? check.values : [check.value];
-      for (var i = 0; i < expectedList.length; i++) {
-        var expected = expectedList[i];
-        if (data.values.indexOf(expected) >= 0) return false;
-      }
-
-      return true;
-    });
-  });
-}
-
-function notEquals(checker, check) {
-  check = normalizeDirective(check, 'notEquals');
-  return checker.waitForValueCheck(check, function () {
-    return createPromise(checker, check).then(function (data) {
-      check.actual_values = data.values;
-      check.type = data.type;
-      if (check.values) {
-        return !compareArray(data.values, check.values);
-      } else if (check.value) {
-        return data.values[0] !== check.value;
-      }
-    });
-  });
-}
-
-function notLikes(checker, check) {
-  check = normalizeDirective(check, 'notLikes');
-  return checker.waitForValueCheck(check, function () {
-    return createPromise(checker, check).then(function (data) {
-      check.type = data.type;
-      check.actual_values = data.values;
-      if (check.values !== undefined) throw new Error('`likes` can only value.');
-      if (data.values.length > 1) throw new Error('Multiple values were detected `' + data.values + '`.');
-      return data.values[0].indexOf(check.value) === -1;
-    });
-  });
-}
-
-/***/ }),
+/* 9 */,
 /* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2068,6 +1744,331 @@ var Placeholder = function () {
 
 function placeholder(key) {
   return new Placeholder(key);
+}
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.exists = exists;
+exports.notExists = notExists;
+exports.likes = likes;
+exports.equals = equals;
+exports.unchecked = unchecked;
+exports.checked = checked;
+exports.selected = selected;
+exports.unselected = unselected;
+exports.notEquals = notEquals;
+exports.notLikes = notLikes;
+
+var _seleniumWebdriver = __webpack_require__(0);
+
+var _seleniumWebdriver2 = _interopRequireDefault(_seleniumWebdriver);
+
+var _util = __webpack_require__(1);
+
+var _util2 = _interopRequireDefault(_util);
+
+var _errors = __webpack_require__(3);
+
+var errors = _interopRequireWildcard(_errors);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var By = _seleniumWebdriver2.default.By;
+
+function createPromise(checker, assertion) {
+  if (assertion.locator) {
+    return checker.waitElements(assertion.locator, assertion.count, assertion.timeout).then(function (elems) {
+      return checker.assembleFromElements(elems, {
+        tag_name: function tag_name(elem) {
+          return elem.getTagName();
+        },
+        type: function type(elem) {
+          return elem.getAttribute('type');
+        },
+        value: function value(elem) {
+          return elem.getAttribute('value');
+        },
+        multiple: function multiple(elem) {
+          return elem.getAttribute('multiple');
+        },
+        selected: function selected(elem) {
+          return elem.isSelected();
+        },
+        inner_text: function inner_text(elem) {
+          return elem.getText();
+        },
+        attr: function attr(elem) {
+          return assertion.type && assertion.type.hasOwnProperty('attr') ? elem.getAttribute(assertion.type.attr) : Promise.resolve(false);
+        }
+      });
+    }).then(function (composits) {
+      if (composits[0].tag_name == 'select') {
+        return checker.waitElementsIn(composits[0].elem, By.css('option'), assertion.count, assertion.timeout).then(function (elems) {
+          return checker.assembleFromElements(elems, {
+            value: function value(elem) {
+              return elem.getAttribute('value');
+            },
+            selected: function selected(elem) {
+              return elem.isSelected();
+            }
+          });
+        }).then(function (sComposits) {
+          return sComposits.filter(function (sComposit) {
+            return sComposit.selected;
+          });
+        }).then(function (sComposits) {
+          return {
+            values: sComposits.map(function (sComposit) {
+              return sComposit.value;
+            }),
+            type: 'select value'
+          };
+        });
+      } else if (composits[0].attr !== false) {
+        return {
+          values: composits.map(function (composit) {
+            return composit.attr;
+          }),
+          type: assertion.type.attr + ' attribute'
+        };
+      } else if (composits[0].type == "checkbox" || composits[0].type == "radio") {
+        return {
+          values: composits.filter(function (composit) {
+            return composit.selected;
+          }).map(function (composit) {
+            return composit.value;
+          }),
+          type: composits[0].type + ' value'
+        };
+      } else if (composits[0].tag_name == "input") {
+        return {
+          values: composits.map(function (composit) {
+            return composit.value;
+          }),
+          type: 'input value'
+        };
+      } else {
+        return {
+          values: composits.map(function (composit) {
+            return composit.inner_text;
+          }),
+          type: 'inner text'
+        };
+      }
+    });
+  } else if (assertion.type == 'html') {
+    return checker.driver.findElement(By.css('html')).then(function (elem) {
+      return elem.getAttribute('outerHTML');
+    }).then(function (html) {
+      return {
+        values: [html],
+        type: assertion.type
+      };
+    });
+  } else if (assertion.type == 'url') {
+    return checker.driver.getCurrentUrl().then(function (url) {
+      return {
+        values: [url],
+        type: assertion.type
+      };
+    });
+  } else {
+    throw Error("Illegal directive is specified " + JSON.stringify(assertion) + '.');
+  }
+}
+
+function normalizeDirective(assertion, name) {
+  assertion = Object.assign({}, assertion);
+
+  assertion.name = name;
+
+  if (assertion.hasOwnProperty('type')) {
+    throw Error("`type` key is not supported " + JSON.stringify(assertion) + '.');
+  }
+
+  if (typeof assertion[name] == 'string') {
+    assertion.type = assertion[name];
+  } else {
+    assertion.locator = assertion[name];
+  }
+
+  //attr
+  var attr_keys = Object.keys(assertion).filter(function (key) {
+    return key.indexOf('attr_') === 0;
+  });
+  if (attr_keys.length > 1) throw new Error("2 or more attr_ key found " + JSON.stringify(assertion) + '.');
+  if (attr_keys.length > 0) {
+    assertion.type = { attr: attr_keys[0].substr('attr_'.length) };
+    assertion.value = assertion[attr_keys[0]];
+  } else if (['exists', 'notExists'].indexOf(assertion.name) === -1) {
+    if (!assertion.hasOwnProperty('value') && !assertion.hasOwnProperty('values')) {
+      throw new Error("Require value or values key " + JSON.stringify(assertion) + '.');
+    }
+  }
+
+  return assertion;
+}
+
+function compareArray(array1, array2) {
+  return JSON.stringify(array1.sort()) === JSON.stringify(array2.sort());
+}
+
+function exists(checker, assertion) {
+  assertion = normalizeDirective(assertion, 'exists');
+  return checker.waitElements(assertion.exists, assertion.count, assertion.timeout).catch(function (err) {
+    if (err.name == 'TimeoutError') {
+      throw new errors.NoSuchElementError(_util2.default.format("%s: %s", assertion.name, assertion.locator), err);
+    }
+    throw err;
+  });
+}
+
+function notExists(checker, assertion) {
+  assertion = normalizeDirective(assertion, 'notExists');
+  return checker.waitDissapearElements(assertion.notExists, assertion.timeout).catch(function (err) {
+    if (err.name == 'TimeoutError') {
+      throw new errors.ExistsError(_util2.default.format("%s: %s", assertion.name, assertion.locator), err);
+    }
+    throw err;
+  });
+}
+
+function likes(checker, assertion) {
+  assertion = normalizeDirective(assertion, 'likes');
+  return checker.waitForValueCheck(assertion, function () {
+    return createPromise(checker, assertion).then(function (data) {
+      assertion.actual_values = data.values;
+      assertion.type = data.type;
+      if (assertion.values !== undefined) throw new Error('`likes` can only value.');
+      if (data.values.length > 1) throw new Error('Multiple values were detected `' + data.values + '`.');
+      return data.values[0].indexOf(assertion.value) >= 0;
+    });
+  });
+}
+
+function equals(checker, assertion) {
+  assertion = normalizeDirective(assertion, 'equals');
+  return checker.waitForValueCheck(assertion, function () {
+    return createPromise(checker, assertion).then(function (data) {
+      assertion.type = data.type;
+      assertion.actual_values = data.values;
+      if (assertion.hasOwnProperty('values')) {
+        return compareArray(data.values, assertion.values);
+      } else if (assertion.hasOwnProperty('value')) {
+        return data.values[0] === assertion.value;
+      }
+    });
+  });
+}
+
+function unchecked(checker, assertion) {
+  assertion = normalizeDirective(assertion, 'unchecked');
+  return checker.waitForValueCheck(assertion, function () {
+    return createPromise(checker, assertion).then(function (data) {
+      assertion.type = data.type;
+      assertion.actual_values = data.values;
+      if (assertion.value === undefined && assertion.values === undefined) throw new Error("Missing value or values.");
+      var expectedList = assertion.values ? assertion.values : [assertion.value];
+      for (var i = 0; i < expectedList.length; i++) {
+        var expected = expectedList[i];
+        if (data.values.indexOf(expected) >= 0) return false;
+      }
+
+      return true;
+    });
+  });
+}
+
+function checked(checker, assertion) {
+  assertion = normalizeDirective(assertion, 'checked');
+  return checker.waitForValueCheck(assertion, function () {
+    return createPromise(checker, assertion).then(function (data) {
+      assertion.actual_values = data.values;
+      assertion.type = data.type;
+      if (assertion.value === undefined && assertion.values === undefined) throw new Error("Missing value or values.");
+      var expectedList = assertion.values ? assertion.values : [assertion.value];
+      for (var i = 0; i < expectedList.length; i++) {
+        var expected = expectedList[i];
+        if (data.values.indexOf(expected) === -1) return false;
+      }
+
+      return true;
+    });
+  });
+}
+
+function selected(checker, assertion) {
+  assertion = normalizeDirective(assertion, 'selected');
+  return checker.waitForValueCheck(assertion, function () {
+    return createPromise(checker, assertion).then(function (data) {
+      assertion.actual_values = data.values;
+      assertion.type = data.type;
+      if (assertion.value === undefined && assertion.values === undefined) throw new Error("Missing value or values.");
+      var expectedList = assertion.values ? assertion.values : [assertion.value];
+      for (var i = 0; i < expectedList.length; i++) {
+        var expected = expectedList[i];
+        if (data.values.indexOf(expected) === -1) return false;
+      }
+
+      return true;
+    });
+  });
+}
+
+function unselected(checker, assertion) {
+  assertion = normalizeDirective(assertion, 'unselected');
+  return checker.waitForValueCheck(assertion, function () {
+    return createPromise(checker, assertion).then(function (data) {
+      assertion.actual_values = data.values;
+      assertion.type = data.type;
+      if (assertion.value === undefined && assertion.values === undefined) throw new Error("Missing value or values.");
+      var expectedList = assertion.values ? assertion.values : [assertion.value];
+      for (var i = 0; i < expectedList.length; i++) {
+        var expected = expectedList[i];
+        if (data.values.indexOf(expected) >= 0) return false;
+      }
+
+      return true;
+    });
+  });
+}
+
+function notEquals(checker, assertion) {
+  assertion = normalizeDirective(assertion, 'notEquals');
+  return checker.waitForValueCheck(assertion, function () {
+    return createPromise(checker, assertion).then(function (data) {
+      assertion.actual_values = data.values;
+      assertion.type = data.type;
+      if (assertion.values) {
+        return !compareArray(data.values, assertion.values);
+      } else if (assertion.value) {
+        return data.values[0] !== assertion.value;
+      }
+    });
+  });
+}
+
+function notLikes(checker, assertion) {
+  assertion = normalizeDirective(assertion, 'notLikes');
+  return checker.waitForValueCheck(assertion, function () {
+    return createPromise(checker, assertion).then(function (data) {
+      assertion.type = data.type;
+      assertion.actual_values = data.values;
+      if (assertion.values !== undefined) throw new Error('`likes` can only value.');
+      if (data.values.length > 1) throw new Error('Multiple values were detected `' + data.values + '`.');
+      return data.values[0].indexOf(assertion.value) === -1;
+    });
+  });
 }
 
 /***/ })

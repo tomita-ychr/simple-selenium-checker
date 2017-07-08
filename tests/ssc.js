@@ -41,7 +41,7 @@ test.describe('SSC', () => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
       },{
-        checks: [
+        assertions: [
           {exists: By.css(".delay-content"), timeout: 8000},
           {equals: By.css(".main .col-sm-6:nth-child(2) h3"), value: "Home 002"},
           {equals: By.css(".main .col-sm-6:nth-child(3) img"), attr_alt: "Home alt 003"},
@@ -52,7 +52,7 @@ test.describe('SSC', () => {
           {click: By.css(".nav > li:nth-child(2) > a")},
         ]
       },{
-        checks: [
+        assertions: [
           {exists: By.css(".delay-content"), timeout: 8000},
           {equals: By.css(".main .col-sm-6:nth-child(2) h3"), value: "Foo 002"},
           {equals: By.css(".main .col-sm-6:nth-child(3) img"), attr_alt: "Foo alt 003"},
@@ -70,7 +70,7 @@ test.describe('SSC', () => {
       const scenario = [{
         url: "http://127.0.0.1:8080/"
       },{
-        checks: [
+        assertions: [
           {exists: By.css("#foo")},
         ]
       }]
@@ -89,7 +89,7 @@ test.describe('SSC', () => {
           {click: By.css(".nav > li:nth-child(2) > a")},
         ]
       },{
-        checks: [
+        assertions: [
           {exists: By.css("#home")},
         ]
       }]
@@ -108,7 +108,7 @@ test.describe('SSC', () => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
       }, {
-        checks: [
+        assertions: [
           {equals: By.css(".main .col-sm-6:nth-child(2) h3"), value: "Hoge 002"},
         ]
       }]
@@ -128,7 +128,7 @@ test.describe('SSC', () => {
           {click: By.css(".nav > li:nth-child(2) > a")},
         ],
       },{
-        checks: [
+        assertions: [
           {equals: By.css(".main .col-sm-6:nth-child(3) h3"), value: "Bar 003"},
         ],
       }]
@@ -148,7 +148,7 @@ test.describe('SSC', () => {
       const scenario = [{
         url: "http://127.0.0.1:8080/"
       },{
-        checks: [
+        assertions: [
           {likes: "html", value: "<title>Simple selenium checker - Hoge</title>"} 
         ]
       }]
@@ -168,7 +168,7 @@ test.describe('SSC', () => {
           {click: By.css(".nav > li:nth-child(2) > a")},
         ],
       },{
-        checks: [ 
+        assertions: [ 
           {likes: "html", value: "<title>Simple selenium checker - Bar</title>"} 
         ],
       }]
@@ -218,7 +218,7 @@ test.describe('SSC', () => {
       const scenario = [{
         url: "http://127.0.0.1:8080/form.html",
       },{
-        checks: [
+        assertions: [
           {exists: By.css(".input")},
         ],
       },{
@@ -227,7 +227,7 @@ test.describe('SSC', () => {
           {click: By.css(".submit")},
         ],
       },{
-        checks: [
+        assertions: [
           {exists: By.css(".main .col-sm-6:nth-child(1) h3")},
           {equals: "url", value: "http://127.0.0.1:8080/index.html?name=fooBarTest&send=send"} ,
         ],
@@ -244,7 +244,7 @@ test.describe('SSC', () => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
       },{
-        checks: [
+        assertions: [
           {equals: 'url', value: "http://127.0.0.1:8080/"} ,
           {likes: 'url', value: "127.0.0.1"} ,
           {notEquals: 'url', value: "http://127.0.0.1:8080/foobar.html"} ,
@@ -257,7 +257,7 @@ test.describe('SSC', () => {
       return checker.run([{
         url: "http://127.0.0.1:8080/",
       },{
-        checks: [
+        assertions: [
           {equals: 'url', value: "http://127.0.0.1:8080/hoge.html"} ,
         ]
       }]).catch(err => err).then(err => {
@@ -270,7 +270,7 @@ test.describe('SSC', () => {
       return checker.run([{
         url: "http://127.0.0.1:8080/",
       },{
-        checks: [
+        assertions: [
           {likes: 'url', value: "hoge.html"} ,
         ]
       }]).catch(err => err).then(err => {
@@ -283,7 +283,7 @@ test.describe('SSC', () => {
       return checker.run([{
         url: "http://127.0.0.1:8080/",
       },{
-        checks: [
+        assertions: [
           {notEquals: 'url', value: "http://127.0.0.1:8080/"} ,
         ]
       }]).catch(err => err).then(err => {
@@ -296,7 +296,7 @@ test.describe('SSC', () => {
       return checker.run([{
         url: "http://127.0.0.1:8080/",
       },{
-        checks: [
+        assertions: [
           {notLikes: 'url', value: "127.0.0.1"} ,
         ]
       }]).catch(err => err).then(err => {
@@ -313,7 +313,7 @@ test.describe('SSC', () => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
       },{
-        checks: [
+        assertions: [
           {equals: 'url', value: "http://127.0.0.1:8080/hoge.html"} ,
         ]
       }]
@@ -334,7 +334,7 @@ test.describe('SSC', () => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
       },{
-        checks: [
+        assertions: [
           {likes: By.css(".main .col-sm-6:nth-child(1) h3"), value: "ome 00"},
           {likes: By.css(".main .col-sm-6:nth-child(2) h3"), value: "ome 00"},
           {likes: By.css(".main .col-sm-6:nth-child(3) h3"), value: "ome 00"}
@@ -347,7 +347,7 @@ test.describe('SSC', () => {
       const scenario = [{
         url: "http://127.0.0.1:8080/",
       },{
-        checks: [
+        assertions: [
           {likes: By.css(".main .col-sm-6:nth-child(1) h3"), value: "bar"},
         ]
       }]
@@ -371,11 +371,11 @@ test.describe('SSC', () => {
           {click: placeholder('actions_click')},
         ],
       },{
-        checks: [
-          {exists: placeholder('checks_by')},
-          {equals: By.css(".main .col-sm-6:nth-child(1) h3"), value: placeholder('checks_equals')},
-          {likes: By.css(".main .col-sm-6:nth-child(2) h3"), value: placeholder('checks_likes')},
-          {equals: By.css(".main .col-sm-6:nth-child(3) h3"), attr_value: placeholder('checks_attr_value')}
+        assertions: [
+          {exists: placeholder('assertions_by')},
+          {equals: By.css(".main .col-sm-6:nth-child(1) h3"), value: placeholder('assertions_equals')},
+          {likes: By.css(".main .col-sm-6:nth-child(2) h3"), value: placeholder('assertions_likes')},
+          {equals: By.css(".main .col-sm-6:nth-child(3) h3"), attr_value: placeholder('assertions_attr_value')}
         ],
       },{
         url: placeholder('url').append('/form.html'),
@@ -386,7 +386,7 @@ test.describe('SSC', () => {
           {sendKeys: By.css(".input"), value: placeholder('actions_sendkey_value')},
         ]
       },{
-        checks: [
+        assertions: [
           {equals: By.css(".input"), attr_value: 'placeholdercheck'}
         ]
       }]
@@ -394,10 +394,10 @@ test.describe('SSC', () => {
       const checker = new Checker(driver)
       checker.placeholder = {
         'url': 'http://127.0.0.1:8080',
-        'checks_by': By.css(".main .col-sm-6:nth-child(2) h3"),
-        'checks_equals': 'Foo 001',
-        'checks_likes': 'oo 00',
-        'checks_attr_value': null,
+        'assertions_by': By.css(".main .col-sm-6:nth-child(2) h3"),
+        'assertions_equals': 'Foo 001',
+        'assertions_likes': 'oo 00',
+        'assertions_attr_value': null,
         'actions_click': By.css(".nav > li:nth-child(2) > a"),
         'actions_sendkey': By.css(".input"),
         'actions_sendkey_value': 'placeholdercheck'
@@ -407,10 +407,10 @@ test.describe('SSC', () => {
       scenario.forEach(scenarioItem => resScenario.push(checker._applyPlaceholder(scenarioItem)))
       assert(resScenario[0].url === 'http://127.0.0.1:8080/')
       assert(resScenario[1].actions[0].click.toString() === By.css(".nav > li:nth-child(2) > a").toString())
-      assert(resScenario[2].checks[0].exists.toString() === By.css(".main .col-sm-6:nth-child(2) h3").toString())
-      assert(resScenario[2].checks[1].value === 'Foo 001')
-      assert(resScenario[2].checks[2].value === 'oo 00')
-      assert(resScenario[2].checks[3].attr_value === null)
+      assert(resScenario[2].assertions[0].exists.toString() === By.css(".main .col-sm-6:nth-child(2) h3").toString())
+      assert(resScenario[2].assertions[1].value === 'Foo 001')
+      assert(resScenario[2].assertions[2].value === 'oo 00')
+      assert(resScenario[2].assertions[3].attr_value === null)
       assert(resScenario[3].url === 'http://127.0.0.1:8080/form.html')
       assert(resScenario[4].actions[0].sendKeys.toString() === By.css(".input").toString())
 
@@ -546,7 +546,7 @@ test.describe('SSC', () => {
         scenario: [{
           execif: [[{exists: By.css('header')}]],
         },{
-          checks: [
+          assertions: [
             {exists: By.css(".non-exists")},
           ]
         }]
@@ -562,7 +562,7 @@ test.describe('SSC', () => {
         scenario: [{
           execif: [[{notExists: By.css('header')}]],
         },{
-          checks: [
+          assertions: [
             {exists: By.css(".non-exists")},
             {exists: By.css(".non-exists2")},
           ]
@@ -580,7 +580,7 @@ test.describe('SSC', () => {
           url: "http://127.0.0.1:8080/foo.html"
         }]
       },{
-        checks: [
+        assertions: [
           {exists: By.css("#foo")},
           {exists: By.css("#fail-on-execute-url")},
         ]
@@ -600,7 +600,7 @@ test.describe('SSC', () => {
           url: "http://127.0.0.1:8080/form.html"
         }]
       },{
-        checks: [
+        assertions: [
           {exists: By.css("#foo")},
           {exists: By.css("#fail-on-ignore-url")},
         ]
@@ -622,7 +622,7 @@ test.describe('SSC', () => {
           ]
         }]
       },{
-        checks: [
+        assertions: [
           {exists: By.css("#home")},
           {exists: By.css("#fail-on-execute-action")},
         ]
@@ -645,7 +645,7 @@ test.describe('SSC', () => {
           ]
         }]
       },{
-        checks: [
+        assertions: [
           {exists: By.css("#home")},
           {exists: By.css("#fail-on-ignore-action")},
         ]
@@ -670,7 +670,7 @@ test.describe('SSC', () => {
         scenario: [{
           url: "http://127.0.0.1:8080/foo.html"
         },{
-          checks: [
+          assertions: [
             {exists: By.css("#foo")},
             {exists: By.css("#nothing2")}
           ]
@@ -688,12 +688,12 @@ test.describe('SSC', () => {
         scenario: [{
           url: "http://127.0.0.1:8080/foo.html"
         },{
-          checks: [{exists: By.css("#foo")}]
+          assertions: [{exists: By.css("#foo")}]
         },{
           scenario: [{
             url: "http://127.0.0.1:8080/form.html"
           },{
-            checks: [
+            assertions: [
               {exists: By.css(".input[name=name]")},
               {exists: By.css("#nothing3")}
             ]
@@ -712,14 +712,14 @@ test.describe('SSC', () => {
         scenario: [{
           url: "http://127.0.0.1:8080/foo.html"
         },{
-          checks: [{exists: By.css("#foo")}]
+          assertions: [{exists: By.css("#foo")}]
         },{
           scenario: [{
             url: "http://127.0.0.1:8080/form.html"
           },{
             execif: [[{exists: By.css('#home')}]]
           },{
-            checks: [
+            assertions: [
               {exists: By.css("#home")}
             ]
           }]
@@ -727,7 +727,7 @@ test.describe('SSC', () => {
       },{
         url: "http://127.0.0.1:8080/"
       },{
-        checks: [{exists: By.css("#foo")}]
+        assertions: [{exists: By.css("#foo")}]
       }]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
@@ -741,7 +741,7 @@ test.describe('SSC', () => {
     return Promise.resolve().then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
-        {checks: [
+        {assertions: [
           {equals: By.css(".nav > li:nth-child(2) > a"), attr_href: 'http://127.0.0.1:8080/foo.html'},
           {equals: By.css("header"), attr_class: 'page-header'},
           {equals: By.css(".nav"), attr_class: 'nav nav-pills'},
@@ -756,7 +756,7 @@ test.describe('SSC', () => {
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
-        {checks: [
+        {assertions: [
           {likes: By.css(".nav > li:nth-child(2) > a"), attr_href: '/foo.html'},
           {likes: By.css("header"), attr_class: 'ge-head'},
           {likes: By.css(".nav"), attr_class: 'nav-pil'},
@@ -776,7 +776,7 @@ test.describe('SSC', () => {
     return Promise.resolve().then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
-        {checks: [
+        {assertions: [
           {notEquals: By.css(".nav > li:nth-child(1) > a"), value: 'Bar'},
           {notEquals: By.css(".nav > li:nth-child(2) > a"), value: 'Bar'},
           {notEquals: By.css(".nav > li:nth-child(2) > a"), attr_href: 'http://127.0.0.1:8080/bar.html'},
@@ -786,7 +786,7 @@ test.describe('SSC', () => {
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
-        {checks: [
+        {assertions: [
           {notEquals: By.css(".nav > li:nth-child(1) > a"), value: 'Home'}
         ]},
       ]).catch(err => err).then(err => {
@@ -798,7 +798,7 @@ test.describe('SSC', () => {
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
-        {checks: [
+        {assertions: [
           {notEquals: By.css(".nav > li:nth-child(2) > a"), attr_href: 'http://127.0.0.1:8080/foo.html'},
         ]},
       ]).catch(err => err).then(err => {
@@ -810,7 +810,7 @@ test.describe('SSC', () => {
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
-        {checks: [
+        {assertions: [
           {notLikes: By.css(".nav > li:nth-child(1) > a"), value: 'Bar'},
           {notLikes: By.css(".nav > li:nth-child(2) > a"), value: 'Bar'},
           {notLikes: By.css(".nav > li:nth-child(2) > a"), attr_href: 'http://127.0.0.1:8080/bar.html'},
@@ -821,7 +821,7 @@ test.describe('SSC', () => {
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
-        {checks: [
+        {assertions: [
           {notLikes: By.css(".nav > li:nth-child(2) > a"), value: 'Foo'},
         ]},
       ]).catch(err => err).then(err => {
@@ -833,7 +833,7 @@ test.describe('SSC', () => {
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
-        {checks: [
+        {assertions: [
           {notLikes: By.css("header"), attr_class: 'page-header'},
         ]},
       ]).catch(err => err).then(err => {
@@ -845,7 +845,7 @@ test.describe('SSC', () => {
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
-        {checks: [
+        {assertions: [
           {notLikes: 'html', value: 'Simple selenium checker'} ,
         ]},
       ]).catch(err => err).then(err => {
@@ -857,14 +857,14 @@ test.describe('SSC', () => {
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
-        {checks: [
+        {assertions: [
           {notExists: By.css(".not-exists")},
         ]},
       ])
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
-        {checks: [
+        {assertions: [
           {notExists: By.css("body")},
         ]},
       ]).catch(err => err).then(err => {
@@ -880,14 +880,14 @@ test.describe('SSC', () => {
     return Promise.resolve().then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
-        {checks: [
+        {assertions: [
           {equals: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox2']},
         ]},
       ])
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
-        {checks: [
+        {assertions: [
           {equals: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox2']},
         ]},
       ]).catch(err => err).then(err => {
@@ -902,14 +902,14 @@ test.describe('SSC', () => {
         {actions: [
           {clear: By.css(".checkbox-inline input[name=checkbox]")},
         ]},
-        {checks: [
+        {assertions: [
           {equals: By.css(".checkbox-inline input[name=checkbox]"), values: []},
           {unchecked: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']} 
         ]},
         {actions: [
           {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox3']},
         ]},
-        {checks: [
+        {assertions: [
           {equals: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox3']},
           {checked: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']} ,
           {checked: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox3']} 
@@ -918,13 +918,13 @@ test.describe('SSC', () => {
         {actions: [
           {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox2']},
         ]},
-        {checks: [
+        {assertions: [
           {equals: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox2', 'checkbox3']},
         ]},
         {actions: [
           {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']},
         ]},
-        {checks: [
+        {assertions: [
           {equals: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1', 'checkbox2', 'checkbox3']},
         ]},
       ])
@@ -938,7 +938,7 @@ test.describe('SSC', () => {
           {clear: By.css(".checkbox-inline input[name=checkbox]")},
           {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']},
         ]},
-        {checks: [
+        {assertions: [
           {unchecked: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']} 
         ]},
       ]).catch(err => err).then(err => {
@@ -957,7 +957,7 @@ test.describe('SSC', () => {
           {clear: By.css(".checkbox-inline input[name=checkbox]")},
           {check: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox1']},
         ]},
-        {checks: [
+        {assertions: [
           {checked: By.css(".checkbox-inline input[name=checkbox]"), values: ['checkbox2']} 
         ]},
       ]).catch(err => err).then(err => {
@@ -974,14 +974,14 @@ test.describe('SSC', () => {
     return Promise.resolve().then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
-        {checks: [
+        {assertions: [
           {equals: By.css(".radio-inline input[name=radio]"), value: 'radio2'},
         ]},
       ])
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
-        {checks: [
+        {assertions: [
           {equals: By.css(".radio-inline input[name=radio]"), value: 'radio1'},
         ]},
       ]).catch(err => err).then(err => {
@@ -996,7 +996,7 @@ test.describe('SSC', () => {
         {actions: [
           {check: By.css(".radio-inline input[name=radio]"), value: 'radio1'},
         ]},
-        {checks: [
+        {assertions: [
           {equals: By.css(".radio-inline input[name=radio]"), value: 'radio1'},
         ]},
         {actions: [
@@ -1013,7 +1013,7 @@ test.describe('SSC', () => {
         {actions: [
           {check: By.css(".radio-inline input[name=radio]"), value: 'radio1'},
         ]},
-        {checks: [
+        {assertions: [
           {notEquals: By.css(".radio-inline input[name=radio]"), value: 'radio2'},
           {notEquals: By.css(".radio-inline input[name=radio]"), value: 'radio1'},
         ]},
@@ -1031,7 +1031,7 @@ test.describe('SSC', () => {
     return Promise.resolve().then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
-        {checks: [
+        {assertions: [
           {equals: By.css(".select-single"), value: 'option1'},
           {equals: By.css(".select-single"), value: 'option2'},
         ]},
@@ -1047,7 +1047,7 @@ test.describe('SSC', () => {
         {actions: [
           {select: By.css(".select-single"), value: 'option3'},
         ]},
-        {checks: [
+        {assertions: [
           {equals: By.css(".select-single"), value: 'option3'},
           {equals: By.css(".select-single"), value: 'option2'},
         ]},
@@ -1060,7 +1060,7 @@ test.describe('SSC', () => {
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
-        {checks: [
+        {assertions: [
           {selected: By.css(".select-single"), value: 'option1'} ,
           {selected: By.css(".select-single"), value: 'option2'} ,
         ]},
@@ -1074,7 +1074,7 @@ test.describe('SSC', () => {
     .then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
-        {checks: [
+        {assertions: [
           {unselected: By.css(".select-single"), value: 'option2'} ,
           {unselected: By.css(".select-single"), value: 'option3'} ,
           {unselected: By.css(".select-single"), value: 'option1'} ,
@@ -1093,7 +1093,7 @@ test.describe('SSC', () => {
     return Promise.resolve().then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
-        {checks: [
+        {assertions: [
           {equals: By.css(".select-multiple"), values: ['option2', 'option3']},
           {equals: By.css(".select-multiple"), values: ['option1']},
         ]},
@@ -1106,7 +1106,7 @@ test.describe('SSC', () => {
     }).then(() => {
       return checker.run([
         {url: "http://127.0.0.1:8080/options.html"},
-        {checks: [
+        {assertions: [
           {selected: By.css(".select-multiple"), values: ['option2']} ,
           {selected: By.css(".select-multiple"), values: ['option3']} ,
           {selected: By.css(".select-multiple"), values: ['option1']} ,
@@ -1124,7 +1124,7 @@ test.describe('SSC', () => {
           {clear: By.css(".select-multiple")},
           {select: By.css(".select-multiple"), values: ['option2']},
         ]},
-        {checks: [
+        {assertions: [
           {unselected: By.css(".select-multiple"), values: ['option1']} ,
           {unselected: By.css(".select-multiple"), values: ['option3']} ,
           {unselected: By.css(".select-multiple"), values: ['option2']} ,
@@ -1141,37 +1141,37 @@ test.describe('SSC', () => {
         {actions: [
           {clear: By.css(".select-multiple")},
         ]},
-        {checks: [
+        {assertions: [
           {equals: By.css(".select-multiple"), values: []},
         ]},
         {actions: [
           {select: By.css(".select-multiple"), values: ['option1', 'option3']},
         ]},
-        {checks: [
+        {assertions: [
           {equals: By.css(".select-multiple"), values: ['option1', 'option3']},
         ]},
         {actions: [
           {select: By.css(".select-multiple"), values: ['option2', 'option3']},
         ]},
-        {checks: [
+        {assertions: [
           {equals: By.css(".select-multiple"), values: ['option1', 'option2', 'option3']},
         ]},
         {actions: [
           {unselect: By.css(".select-multiple"), values: ['option3']},
         ]},
-        {checks: [
+        {assertions: [
           {equals: By.css(".select-multiple"), values: ['option1', 'option2']},
         ]},
         {actions: [
           {unselect: By.css(".select-multiple"), values: ['option3']},
         ]},
-        {checks: [
+        {assertions: [
           {equals: By.css(".select-multiple"), values: ['option1', 'option2']},
         ]},
         {actions: [
           {unselect: By.css(".select-multiple"), values: ['option1', 'option2']},
         ]},
-        {checks: [
+        {assertions: [
           {equals: By.css(".select-multiple"), values: []},
         ]},
       ])
@@ -1187,7 +1187,7 @@ test.describe('SSC', () => {
           {click: By.css("#alert")},
           {alert: "accept", timeout: 3000}
         ]},
-        {checks: [
+        {assertions: [
           {equals: By.css("#display"), value: "Alert", timeout: 3000},
         ]},
        ])
@@ -1198,7 +1198,7 @@ test.describe('SSC', () => {
           {click: By.css("#confirm")},
           {alert: "accept", timeout: 3000}
         ]},
-        {checks: [
+        {assertions: [
           {equals: By.css("#display"), value: "Confirm OK", timeout: 3000},
         ]},
        ])
@@ -1209,7 +1209,7 @@ test.describe('SSC', () => {
           {click: By.css("#confirm")},
           {alert: "dismiss", timeout: 3000}
         ]},
-        {checks: [
+        {assertions: [
           {equals: By.css("#display"), value: "Confirm Cancel", timeout: 3000},
         ]},
        ])
@@ -1224,7 +1224,7 @@ test.describe('SSC', () => {
         {actions: [
           {switchTo: By.css("#index_frame")},
         ]},
-        {checks: [
+        {assertions: [
           {equals: By.css("h2"), value: "Home"},
           {equals: By.css("h2"), value: "FooBar"},
         ]},
@@ -1240,13 +1240,13 @@ test.describe('SSC', () => {
         {actions: [
           {switchTo: By.css("#index_frame")},
         ]},
-        {checks: [
+        {assertions: [
           {equals: By.css("h2"), value: "Home"},
         ]},
         {actions: [
           {switchTo: 'default'},
         ]},
-        {checks: [
+        {assertions: [
           {equals: By.css("h2"), value: "Frame"},
           {equals: By.css("h2"), value: "FooBar"},
         ]},
