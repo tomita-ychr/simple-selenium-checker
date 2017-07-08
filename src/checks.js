@@ -1,5 +1,6 @@
 import webdriver from 'selenium-webdriver';
 import util from 'util';
+import * as errors from './errors'
 const By = webdriver.By;
 
 function createPromise(checker, check){
@@ -102,11 +103,23 @@ function compareArray(array1, array2){
 export function exists(checker, check){
   check = normalizeDirective(check, 'exists')
   return checker.waitElements(check.exists, check.count, check.timeout)
+    .catch(err => {
+      if(err.name == 'TimeoutError'){
+        throw new errors.NotSuchElementError(util.format("%s: %s", check.name, check.locator), err)
+      }
+      throw err
+    })
 }
 
 export function notExists(checker, check){
   check = normalizeDirective(check, 'notExists')
   return checker.waitDissapearElements(check.notExists, check.timeout)
+    .catch(err => {
+      if(err.name == 'TimeoutError'){
+        throw new errors.ExistsError(util.format("%s: %s", check.name, check.locator), err)
+      }
+      throw err
+    })
 }
 
 export function likes(checker, check){

@@ -54,8 +54,8 @@ export default class Checker
           } else {
             message = util.format("%s: [%s], expected: `%s`, actual: `%s`", check.name, check.type, check.value||check.values, check.actual_values)
           }
-           
-          throw new errors.NotMatchError(message)
+          
+          throw new errors.NotMatchError(message, err)
         }
         throw err
       })
@@ -66,11 +66,7 @@ export default class Checker
     const cond = new webdriver.Condition(locator + ' disappear from the screen.', () => {
       return this.driver.findElements(locator).then(elems => elems.length === 0)
     })
-    return this.driver.wait(cond, timeout).catch(err => {
-      if(err.name == 'TimeoutError'){
-        throw new errors.ElementExistsError(err.message)
-      }
-    })
+    return this.driver.wait(cond, timeout)
   }
 
   waitElementsIn(element, locator, count, timeout){
@@ -86,11 +82,7 @@ export default class Checker
       })
     })
 
-    return this.driver.wait(cond, timeout).catch(err => {
-      if(err.name == 'TimeoutError'){
-        throw new errors.NotSuchElementError(err.message)
-      }
-    })
+    return this.driver.wait(cond, timeout)
   }
 
   waitElements(locator, count, timeout){
@@ -106,11 +98,7 @@ export default class Checker
       })
     })
 
-    return this.driver.wait(cond, timeout).catch(err => {
-      if(err.name == 'TimeoutError'){
-        throw new errors.NotSuchElementError(err.message)
-      }
-    })
+    return this.driver.wait(cond, timeout)
   }
 
   waitElement(locator, timeout){
@@ -145,7 +133,7 @@ export default class Checker
       return this._detectFunction(checks, condition)(this, condition)
         .then(() => true)
         .catch(err => {
-          if(['NotMatchError', 'NotSuchElementError', 'ElementExistsError'].indexOf(err.name) >= 0){
+          if(['NotMatchError', 'NotSuchElementError', 'ExistsError'].indexOf(err.name) >= 0){
             return false
           }
 

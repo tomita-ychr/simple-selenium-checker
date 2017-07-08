@@ -776,7 +776,7 @@ var Checker = function () {
             message = _util2.default.format("%s: [%s], expected: `%s`, actual: `%s`", check.name, check.type, check.value || check.values, check.actual_values);
           }
 
-          throw new errors.NotMatchError(message);
+          throw new errors.NotMatchError(message, err);
         }
         throw err;
       });
@@ -792,11 +792,7 @@ var Checker = function () {
           return elems.length === 0;
         });
       });
-      return this.driver.wait(cond, timeout).catch(function (err) {
-        if (err.name == 'TimeoutError') {
-          throw new errors.ElementExistsError(err.message);
-        }
-      });
+      return this.driver.wait(cond, timeout);
     }
   }, {
     key: 'waitElementsIn',
@@ -813,11 +809,7 @@ var Checker = function () {
         });
       });
 
-      return this.driver.wait(cond, timeout).catch(function (err) {
-        if (err.name == 'TimeoutError') {
-          throw new errors.NotSuchElementError(err.message);
-        }
-      });
+      return this.driver.wait(cond, timeout);
     }
   }, {
     key: 'waitElements',
@@ -836,11 +828,7 @@ var Checker = function () {
         });
       });
 
-      return this.driver.wait(cond, timeout).catch(function (err) {
-        if (err.name == 'TimeoutError') {
-          throw new errors.NotSuchElementError(err.message);
-        }
-      });
+      return this.driver.wait(cond, timeout);
     }
   }, {
     key: 'waitElement',
@@ -880,7 +868,7 @@ var Checker = function () {
         return this._detectFunction(checks, condition)(this, condition).then(function () {
           return true;
         }).catch(function (err) {
-          if (['NotMatchError', 'NotSuchElementError', 'ElementExistsError'].indexOf(err.name) >= 0) {
+          if (['NotMatchError', 'NotSuchElementError', 'ExistsError'].indexOf(err.name) >= 0) {
             return false;
           }
 
@@ -1110,12 +1098,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var NotMatchError = exports.NotMatchError = function (_Error) {
   _inherits(NotMatchError, _Error);
 
-  function NotMatchError(message, fileName, lineNumber) {
+  function NotMatchError(message, error) {
     _classCallCheck(this, NotMatchError);
 
-    var _this = _possibleConstructorReturn(this, (NotMatchError.__proto__ || Object.getPrototypeOf(NotMatchError)).call(this, message, fileName, lineNumber));
+    var _this = _possibleConstructorReturn(this, (NotMatchError.__proto__ || Object.getPrototypeOf(NotMatchError)).call(this, message, error));
 
     _this.name = "NotMatchError";
+    if (error !== undefined) {
+      _this.stack = error.stack;
+    }
     return _this;
   }
 
@@ -1125,42 +1116,51 @@ var NotMatchError = exports.NotMatchError = function (_Error) {
 var NotSuchElementError = exports.NotSuchElementError = function (_Error2) {
   _inherits(NotSuchElementError, _Error2);
 
-  function NotSuchElementError(message, fileName, lineNumber) {
+  function NotSuchElementError(message, error) {
     _classCallCheck(this, NotSuchElementError);
 
-    var _this2 = _possibleConstructorReturn(this, (NotSuchElementError.__proto__ || Object.getPrototypeOf(NotSuchElementError)).call(this, message, fileName, lineNumber));
+    var _this2 = _possibleConstructorReturn(this, (NotSuchElementError.__proto__ || Object.getPrototypeOf(NotSuchElementError)).call(this, message, error));
 
     _this2.name = "NotSuchElementError";
+    if (error !== undefined) {
+      _this2.stack = error.stack;
+    }
     return _this2;
   }
 
   return NotSuchElementError;
 }(Error);
 
-var ElementExistsError = exports.ElementExistsError = function (_Error3) {
-  _inherits(ElementExistsError, _Error3);
+var ExistsError = exports.ExistsError = function (_Error3) {
+  _inherits(ExistsError, _Error3);
 
-  function ElementExistsError(message, fileName, lineNumber) {
-    _classCallCheck(this, ElementExistsError);
+  function ExistsError(message, error) {
+    _classCallCheck(this, ExistsError);
 
-    var _this3 = _possibleConstructorReturn(this, (ElementExistsError.__proto__ || Object.getPrototypeOf(ElementExistsError)).call(this, message, fileName, lineNumber));
+    var _this3 = _possibleConstructorReturn(this, (ExistsError.__proto__ || Object.getPrototypeOf(ExistsError)).call(this, message, error));
 
-    _this3.name = "ElementExistsError";
+    _this3.name = "ExistsError";
+    if (error !== undefined) {
+      _this3.stack = error.stack;
+    }
     return _this3;
   }
 
-  return ElementExistsError;
+  return ExistsError;
 }(Error);
 
 var JavascriptError = exports.JavascriptError = function (_Error4) {
   _inherits(JavascriptError, _Error4);
 
-  function JavascriptError(message, fileName, lineNumber) {
+  function JavascriptError(message, error) {
     _classCallCheck(this, JavascriptError);
 
-    var _this4 = _possibleConstructorReturn(this, (JavascriptError.__proto__ || Object.getPrototypeOf(JavascriptError)).call(this, message, fileName, lineNumber));
+    var _this4 = _possibleConstructorReturn(this, (JavascriptError.__proto__ || Object.getPrototypeOf(JavascriptError)).call(this, message, error));
 
     _this4.name = "JavascriptError";
+    if (error !== undefined) {
+      _this4.stack = error.stack;
+    }
     return _this4;
   }
 
@@ -1170,12 +1170,15 @@ var JavascriptError = exports.JavascriptError = function (_Error4) {
 var StatusCodeError = exports.StatusCodeError = function (_Error5) {
   _inherits(StatusCodeError, _Error5);
 
-  function StatusCodeError(message, fileName, lineNumber) {
+  function StatusCodeError(message, error) {
     _classCallCheck(this, StatusCodeError);
 
-    var _this5 = _possibleConstructorReturn(this, (StatusCodeError.__proto__ || Object.getPrototypeOf(StatusCodeError)).call(this, message, fileName, lineNumber));
+    var _this5 = _possibleConstructorReturn(this, (StatusCodeError.__proto__ || Object.getPrototypeOf(StatusCodeError)).call(this, message, error));
 
     _this5.name = "StatusCodeError";
+    if (error !== undefined) {
+      _this5.stack = error.stack;
+    }
     return _this5;
   }
 
@@ -1191,6 +1194,7 @@ var VerboseError = exports.VerboseError = function (_Error6) {
     var _this6 = _possibleConstructorReturn(this, (VerboseError.__proto__ || Object.getPrototypeOf(VerboseError)).call(this, message));
 
     _this6.name = error.name;
+    _this6.stack = error.stack;
     return _this6;
   }
 
@@ -1509,6 +1513,12 @@ var _util = __webpack_require__(1);
 
 var _util2 = _interopRequireDefault(_util);
 
+var _errors = __webpack_require__(3);
+
+var errors = _interopRequireWildcard(_errors);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var By = _seleniumWebdriver2.default.By;
@@ -1653,12 +1663,22 @@ function compareArray(array1, array2) {
 
 function exists(checker, check) {
   check = normalizeDirective(check, 'exists');
-  return checker.waitElements(check.exists, check.count, check.timeout);
+  return checker.waitElements(check.exists, check.count, check.timeout).catch(function (err) {
+    if (err.name == 'TimeoutError') {
+      throw new errors.NotSuchElementError(_util2.default.format("%s: %s", check.name, check.locator), err);
+    }
+    throw err;
+  });
 }
 
 function notExists(checker, check) {
   check = normalizeDirective(check, 'notExists');
-  return checker.waitDissapearElements(check.notExists, check.timeout);
+  return checker.waitDissapearElements(check.notExists, check.timeout).catch(function (err) {
+    if (err.name == 'TimeoutError') {
+      throw new errors.ExistsError(_util2.default.format("%s: %s", check.name, check.locator), err);
+    }
+    throw err;
+  });
 }
 
 function likes(checker, check) {

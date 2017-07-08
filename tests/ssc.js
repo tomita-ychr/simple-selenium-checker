@@ -870,7 +870,7 @@ test.describe('SSC', () => {
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
         assert(err !== undefined)
-        assert(err.name == "ElementExistsError")
+        assert(err.name == "ExistsError")
       })
     })
   })
