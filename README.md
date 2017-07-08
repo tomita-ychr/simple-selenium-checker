@@ -300,4 +300,5 @@ checker.debug = true
 1. Start selenium-standalone. `selenium-standalone start`
 1. Install gulp. `npm install gulp -g`
 1. Start gulp task. `gulp`
+1. Install mocha `npm install mocha -g`
 1. Run test. `npm test`
