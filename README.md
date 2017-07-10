@@ -63,7 +63,7 @@ Javascript error and response status code problems are checked automatically. Th
 exsits|notExists|equals|notEquals|likes|notLikes|selected|unselected|checked|unchecked
 ```
 
-exsits|notExists check only the existence of the element. `equals|notEquals` checks the inner text or value with exact match, `likes|notLikes` checks with partial match. `selected|unselected` is for select tag, `checked|unchecked` is for checkbox tag.
+`exsits|notExists` check only the existence of the element. `equals|notEquals` checks the inner text or value with exact match, `likes|notLikes` checks with partial match. `selected|unselected` is for select tag, `checked|unchecked` is for checkbox tag.
 
 #### $target
 
