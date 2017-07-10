@@ -55,7 +55,7 @@ Javascript error and response status code problems are checked automatically. Th
 {$name: locator|string $target [, value|values|attr_{attribute name}: string|string array $value] [, timeout: int $milliseconds]}
 ```
 
-All assertion directives wait for the element to be visible and wait until it is in the expected state. The wait time can change with a timeout. The default timeout is 1200 ms. You can change the default timeout globally with `Checker.DefaultTimeout` property.
+`assertions` directive checks if the page is displayed correctly. All `assertions` directives wait for the element to be visible and wait until it is in the expected state. The wait time can change with a timeout prpperty. The default timeout is 1200 ms. You can change the default timeout globally with `Checker.DefaultTimeout` property.
 
 #### $name
 
