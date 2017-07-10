@@ -93,7 +93,7 @@ const scenario = [
     {notExists: By.css("header .nav")}
 
     //Compare with the inner text of the element exactly.
-    {equals: by: By.css(".main .col-sm-6:nth-child(2) h3"), value: "Home 002"},
+    {equals: By.css(".main .col-sm-6:nth-child(2) h3"), value: "Home 002"},
     //When `timeout` is specified, it checks repeatedly for the specified milliseconds until the target element is visible.
     {notEquals: By.css(".main .col-sm-6:nth-child(2) h3"), , value: "Foo 002", timeout: 1000},
     
@@ -260,12 +260,12 @@ import {placeholder} from 'simple-selenium-checker'
 const scenario = [
   {url: placeholder('host_name').append('/form.html')}
   {assertions: [
-    {by: placeholder('assertions_on_form')}
+    {exists: placeholder('assertions_exists_foo')}
   ]}
 ]
 checker.placeholder = {
   'host_name': 'http://www.example.com',
-  'assertions_on_form': By.css('.foo'),
+  'assertions_exists_foo': By.css('.foo'),
 }
 checker.run(scenario, 'https://www.google.com')
 ```
@@ -276,14 +276,14 @@ This scenario is replaced as follows.
 [
   {url: 'https://http://127.0.0.1:8080/form.html'}
   {assertions: [
-    {by: By.css('.foo')}
+    {exists: By.css('.foo')}
   ]}
 ]
 ```
 
 ### debug
 
-When Checker fails the test, it displays all sources of HTML in the message. If you set to true the debug property, only the original message is displayed.
+When Checker.run() fails, it displays all sources of HTML in the message. If you set to true the debug property, only the original error message is displayed.
 
 ```js
 const checker = new Checker(driver)
