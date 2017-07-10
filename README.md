@@ -198,7 +198,7 @@ Use `select` `unselect` to select and release select tag values.
 
 #### alert
 
-You can handle alert and confirm with the alert action. alert`accept`. `accept` and `dismiss` can be specified for the value of the alert key.
+You can handle alert and confirm with the alert action. `accept` and `dismiss` can be specified for the value of the `alert`.
 
 ```js
   {actions: [
