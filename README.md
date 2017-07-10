@@ -47,7 +47,7 @@ checker.run(scenario)
 
 In the above scenario, first, it opens `https://http://127.0.0.1:8080/`, and checks if there is a `header` element on the page, and checks if the inner text of `h2` tag is `Home`. And then it clicks second navigation menu link, after the page loaded, checks if the inner text of `h2` tag is `Foo`.
 
-Javascript error and response Status code problems are checked automatically, and if there is a problem an error is thrown. These functions are realized by checking the browser console log.
+Javascript error and response status code problems are checked automatically. These functions are implemented by checking the browser console log.
 
 ### assertions directive
 
