@@ -229,7 +229,7 @@ You can handle iframes with `switchTo` action.
 
 ### execif
 
-The scenario can be nested. If you use the execif directive, you skip the after that.Every key of assertions is available for each element of execif. Together the key `bool` is available. this is useful in placeholder described below.
+The scenario can be nested. If you use the execif directive, you skip the after that. Every key of assertions is available for each directive of execif. Also, the key `bool` is available. this is useful in placeholder described below.
 
 ```js
 const scenario = [
