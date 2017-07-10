@@ -68,10 +68,10 @@ exsits|notExists|equals|notEquals|likes|notLikes|selected|unselected|checked|unc
 #### $target
 
 ```
-[By instance](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_By.html) or html|url
+string html|string url|object By
 ```
 
-Specify the check target. If `html` is specified, the entire response body is targeted. `url` is specified, the current page URL is targeted.
+Specify the check target. If `html` is specified, the entire response body is targeted. `url` is specified, the current page URL is targeted. Otherwise, you use [the selenium By](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_By.html) for target.
 
 #### $value
 
