@@ -166,7 +166,7 @@ This clears the input contents of `input[type=text]` or `textarea`. Also, use th
 
 #### check|uncheck
 
-`check` action check radio and checkbox. `uncheck` unchecks the checkbox. You can not uncheck the radio. Although it can be checked by `click`, it is convenient because it does not do anything if already checked values exist in `value|values`.
+`check` action check radio and checkbox. `uncheck` unchecks the checkbox. You can not uncheck the radio. Although it can be checked by `click`, it is convenient because it does not do anything when already checked values is specified.
 
 
 ```js
