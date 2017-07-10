@@ -66,14 +66,11 @@ function createPromise(checker, assertion){
   }
 }
 
-function normalizeDirective(assertion, name){
-  assertion = Object.assign({}, assertion)
+
+function normalizeDirective(orgAssertion, name){
+  const assertion = Object.assign({}, orgAssertion)
 
   assertion.name = name
-
-  if(assertion.hasOwnProperty('type')){
-    throw Error("`type` key is not supported " + JSON.stringify(assertion) + '.')
-  }
 
   if(typeof assertion[name] == 'string'){
     assertion.type = assertion[name]
@@ -91,6 +88,21 @@ function normalizeDirective(assertion, name){
     if(!assertion.hasOwnProperty('value') && !assertion.hasOwnProperty('values')){
       throw new Error("Require value or values key " + JSON.stringify(assertion) + '.')
     }
+  }
+
+  //The locator is required, except `url` and `html`.
+  if(['url', 'html'].indexOf(assertion.type) === -1 && !assertion.locator){
+    throw new Error("Missing locator " + JSON.stringify(orgAssertion)+ '.')
+  }
+
+  //`value` or `values` is required, except `exists` and `notExists`.
+  if(['exists', 'notExists'].indexOf(assertion.name) === -1 && !(assertion.hasOwnProperty('value') || assertion.hasOwnProperty('values'))){
+    throw new Error("Missing value or values " + JSON.stringify(orgAssertion)+ '.')
+  }
+
+  //`likes` and `notLikes` can't use `values`.
+  if(['likes', 'notLikes'].indexOf(assertion.name) >= 0 && assertion.hasOwnProperty('values')){
+    throw new Error("You can't use `values` for `likes` and `notLikes`, instead use `checked|unchecked`, `selected|unselected` " + JSON.stringify(orgAssertion)+ '.')
   }
 
   return assertion
@@ -129,9 +141,21 @@ export function likes(checker, assertion){
     () => createPromise(checker, assertion).then(data => {
       assertion.actual_values = data.values
       assertion.type = data.type
-      if(assertion.values !== undefined) throw new Error('`likes` can only value.')
       if(data.values.length > 1) throw new Error('Multiple values were detected `' + data.values + '`.')
       return data.values[0].indexOf(assertion.value) >= 0
+    })
+  )
+}
+
+export function notLikes(checker, assertion){
+  assertion = normalizeDirective(assertion, 'notLikes')
+    return checker.waitForValueCheck(
+    assertion,
+    () => createPromise(checker, assertion).then(data => {
+      assertion.type = data.type
+      assertion.actual_values = data.values
+      if(data.values.length > 1) throw new Error('Multiple values were detected `' + data.values + '`.')
+      return data.values[0].indexOf(assertion.value) === -1
     })
   )
 }
@@ -147,6 +171,22 @@ export function equals(checker, assertion){
         return compareArray(data.values, assertion.values)
       } else if(assertion.hasOwnProperty('value')) {
         return data.values[0] === assertion.value
+      }
+    })
+  )
+}
+
+export function notEquals(checker, assertion){
+  assertion = normalizeDirective(assertion, 'notEquals')
+  return checker.waitForValueCheck(
+    assertion,
+    () => createPromise(checker, assertion).then(data => {
+      assertion.actual_values = data.values
+      assertion.type = data.type
+      if(assertion.values){
+        return !compareArray(data.values, assertion.values)
+      } else if(assertion.value) {
+        return data.values[0] !== assertion.value
       }
     })
   )
@@ -224,36 +264,6 @@ export function unselected(checker, assertion){
       }
 
       return true
-    })
-  )
-}
-
-export function notEquals(checker, assertion){
-  assertion = normalizeDirective(assertion, 'notEquals')
-  return checker.waitForValueCheck(
-    assertion,
-    () => createPromise(checker, assertion).then(data => {
-      assertion.actual_values = data.values
-      assertion.type = data.type
-      if(assertion.values){
-        return !compareArray(data.values, assertion.values)
-      } else if(assertion.value) {
-        return data.values[0] !== assertion.value
-      }
-    })
-  )
-}
-
-export function notLikes(checker, assertion){
-  assertion = normalizeDirective(assertion, 'notLikes')
-    return checker.waitForValueCheck(
-    assertion,
-    () => createPromise(checker, assertion).then(data => {
-      assertion.type = data.type
-      assertion.actual_values = data.values
-      if(assertion.values !== undefined) throw new Error('`likes` can only value.')
-      if(data.values.length > 1) throw new Error('Multiple values were detected `' + data.values + '`.')
-      return data.values[0].indexOf(assertion.value) === -1
     })
   )
 }
