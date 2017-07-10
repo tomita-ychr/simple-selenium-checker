@@ -57,7 +57,7 @@ Javascript error and response status code problems are checked automatically. Th
 
 `assertions` directive checks if the page is displayed correctly. All functions of `assertions` directives wait for the element to be visible and wait until it is in the expected state. The wait time can change with a timeout prpperty. The default timeout is 1200 ms. You can change the default timeout globally with `Checker.DefaultTimeout` property.
 
-#### $name
+#### $function
 
 ```
 exsits|notExists|equals|notEquals|likes|notLikes|selected|unselected|checked|unchecked
@@ -73,11 +73,11 @@ string html|string url|object By
 
 Specify the check target. If `html` is specified, the entire response body is targeted. `url` is specified, the current page URL is targeted. Otherwise, you can use [the selenium By](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_By.html) for target.
 
-#### $value
+#### value|values|attr property
 
 Specify the expected value. When the target is form element (except textarea), compare with value, otherwise with inner text. checkbox and radio can handle multiple elements together.
 
-If you specify a value with the HTML attribute name as the key after the `attr_` prefix, it will be compared with the value of that attribute.
+You can use the attr property to check the value of the HTML attribute. The attr property is created by adding the attribute name after the `attr_` prefix.
 
 #### samples
 
@@ -132,11 +132,11 @@ const scenario = [
 
 ### actions directive
 
-`actions` directive deals with actions such as button clicks and form inputs. `actions` wait until the specified element becomes available, like `assertions`. It is also possible to specify a timeout for each directive and the `Checker.DefaultTimeout` property is applied.
+`actions` directive deals with actions such as button clicks and form inputs. `actions` wait until the specified element becomes available, like `assertions`. It is also possible to specify a timeout property for each action, and the `Checker.DefaultTimeout` property is applied.
 
 #### click
 
-Click on the specified element such as button or link.
+Click on the specified element such as button or link, etc.
 
 ```js
   {actions: [
@@ -146,7 +146,7 @@ Click on the specified element such as button or link.
 
 #### sendKey
 
-Enter a string in `input[type=text]` or `textarea`. Because it will be added, please use the `clear` action when you want to enter a new one.
+Enter a string in `input[type=text]` or `textarea`. Because it will be added, please use the `clear` action when you want to enter a new text.
 
 ```js
   {actions: [
@@ -156,7 +156,7 @@ Enter a string in `input[type=text]` or `textarea`. Because it will be added, pl
 
 #### clear
 
-This clears the input contents of `input[type=text]` or `textarea`. Also, use this to clear the checkbox or multiple selectable select tags.
+This action clears the contents of `input[type=text]` or `textarea`. Also, use this to clear the checkbox or multiple selectable select tags.
 
 ```js
   {actions: [
@@ -166,7 +166,7 @@ This clears the input contents of `input[type=text]` or `textarea`. Also, use th
 
 #### check|uncheck
 
-`check` action check radio and checkbox. `uncheck` unchecks the checkbox. You can not uncheck the radio. Although it can be checked by `click`, it is convenient because it does not do anything when already checked values is specified.
+`check` action check radio and checkbox. `uncheck` action unchecks the checkbox. You can not uncheck the radio. Although it can be checked by `click`, it is convenient because it does not do anything when already checked values is specified.
 
 
 ```js
