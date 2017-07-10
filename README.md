@@ -264,17 +264,17 @@ const scenario = [
   ]}
 ]
 checker.placeholder = {
-  'host_name': 'http://www.example.com',
+  'host_name': 'http://127.0.0.1:8080/',
   'assertions_exists_foo': By.css('.foo'),
 }
-checker.run(scenario, 'https://www.google.com')
+checker.run(scenario)
 ```
 
 This scenario is replaced as follows.
 
 ```js
 [
-  {url: 'https://http://127.0.0.1:8080/form.html'}
+  {url: 'http://127.0.0.1:8080/form.html'}
   {assertions: [
     {exists: By.css('.foo')}
   ]}
