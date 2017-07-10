@@ -290,9 +290,9 @@ const checker = new Checker(driver)
 checker.debug = true
 ```
 
-## How do I use this?
+## Test sample
 
-* [mocha test sample](./samples/mocha/test.js)
+* [mocha test sample](./samples/mocha/)
 
 ## Development
 
