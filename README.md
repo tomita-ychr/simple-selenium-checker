@@ -132,7 +132,7 @@ const scenario = [
 
 ### actions directive
 
-Like `actions` also `assertions`, wait until the specified element becomes available. It is also possible to specify a timeout for each directive and the `Checker.DefaultTimeout` property is applied.
+`actions` directive deals with actions such as button clicks and form inputs. `actions` wait until the specified element becomes available, like `assertions`. It is also possible to specify a timeout for each directive and the `Checker.DefaultTimeout` property is applied.
 
 #### click
 
