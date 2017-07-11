@@ -76,7 +76,14 @@ const checker = new Checker(driver)
 exsits|notExists|equals|notEquals|likes|notLikes|selected|unselected|checked|unchecked
 ```
 
-`exsits|notExists` check only the existence of the element. `equals|notEquals` checks the inner text or value with exact match, `likes|notLikes` checks with partial match. `selected|unselected` is for select tag, `checked|unchecked` is for checkbox tag.
+| action | description |
+|:--|:--|
+| exsits notExists | check only the existence of the element. |
+| equals notEquals | check the inner text or value with exact match |
+| likes notLikes | check with partial match. |
+| selected unselected | for select tag. |
+| checked unchecked | for checkbox tag. |
+
 
 #### $target
 
@@ -84,7 +91,14 @@ exsits|notExists|equals|notEquals|likes|notLikes|selected|unselected|checked|unc
 string html|string url|object By
 ```
 
-Specify the check target. If `html` is specified, the entire response body is targeted. `url` is specified, the current page URL is targeted. Otherwise, you can use [the selenium By](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_By.html) for target.
+Specify the check target.
+
+| target | description |
+|:--|:--|
+| html | the entire response body. |
+| url | the current page URL. |
+| By | the HTML element by [the selenium By](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_By.html) instance. |
+
 
 #### value|values|attr property
 
@@ -118,7 +132,7 @@ const scenario = [
     {likes: "html", value: "<title>Simple selenium checker - Home</title>"}
 
     //Compare with url.
-    {equals: "url", value: "<https://http://127.0.0.1:8080/"}
+    {equals: "url", value: "https://http://127.0.0.1:8080/"}
 
 
     //Html attribute
