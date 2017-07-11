@@ -256,7 +256,7 @@ You can handle iframes with `switchTo` action.
 
 ### execif
 
-The scenario can be nested. If you use the execif directive, you skip the after that. Every key of assertions is available for each directive of execif. Also, the key `bool` is available. this is useful in placeholder described below.
+The scenario can be nested. If you use the execif directive, you skip the after that. Every key of assertions is available for each function of execif. Also, the key `bool` is available. this is useful in placeholder described below.
 
 ```js
 const scenario = [
@@ -279,7 +279,7 @@ const scenario = [
 
 ### placeholder
 
-With `placeholder` you can replace the elements in the scenario.
+With `placeholder` you can replace the elements in the scenario. Use this when you want to change the behavior by switching the setting file.
 
 ```js
 import {placeholder} from 'simple-selenium-checker'
