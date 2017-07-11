@@ -55,6 +55,10 @@ In the above scenario the following will be done.
 
 Javascript error and response status code error are checked automatically. These are implemented by checking the browser console log.
 
+### url directive
+
+Opens the specified URL. 
+
 ### assertions directive
 
 ```
@@ -254,7 +258,7 @@ You can handle iframes with `switchTo` action.
   ]},
 ```
 
-### execif
+### execif directive
 
 The scenario can be nested. If you use the execif directive, you skip the after that. Every key of assertions is available for each function of execif. Also, the key `bool` is available. this is useful in placeholder described below.
 
