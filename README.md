@@ -61,7 +61,14 @@ Javascript error and response status code error are checked automatically. These
 {$assertion_name: locator|string $target [, value|values|attr_{attribute name}: string|string array $value] [, timeout: int $milliseconds]}
 ```
 
-`assertions` directive checks if the page is displayed correctly. All assertion of `assertions` directives waits for the element to be visible and wait until it is in the expected state. The wait time can change with a timeout property. The default timeout is 1200 ms. You can change the default timeout globally with `Checker.DefaultTimeout` property.
+`assertions` directive checks the page is displayed correctly. All assertion of `assertions` directive waits for the element to be visible and wait until it is in the expected state. The wait time can change with a timeout property. The default timeout is 1200 ms. You can change the default timeout globally with `Checker.DefaultTimeout` property.
+
+```js
+Checker.DefaultTimeout = 1;
+
+const checker = new Checker(driver)
+...
+```
 
 #### $assertion_name
 
