@@ -1282,4 +1282,17 @@ test.describe('SSC', () => {
       })
     })
   })
+
+  test.it('should ignore any empty scenario items.', () => {
+    const checker = new Checker(driver)
+    return Promise.resolve().then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/"},
+        {},
+        {},
+       ]).catch(err => err).then(err => {
+        assert(err === undefined)
+      })
+    })
+  })
 })

@@ -180,12 +180,12 @@ export default class Checker
       } else {
         //directive count check.
         const directives = Object.keys(item)
-        if(directives.length !== 1){
+        if(directives.length > 1){
           throw new Error('Only one directive can be placed in one scenario item.')
         }
 
         //check supported directives
-        if(['execif', 'url', 'actions', 'assertions'].indexOf(directives[0]) === -1){
+        if(directives.length === 1 && ['execif', 'url', 'actions', 'assertions'].indexOf(directives[0]) === -1){
           throw new Error("Illegal directive object. " + JSON.stringify(item))
         }
 
