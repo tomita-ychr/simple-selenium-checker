@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/simple-selenium-checker.svg)](https://badge.fury.io/js/simple-selenium-checker)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-It is a tool to make it easy to write tests for web applications without knowledge of Selenium and difficult Promise.
+This is a tool to make it easy to write tests for web applications without knowledge of Selenium and difficult Promise.
 
 ## Installation
 
@@ -15,7 +15,7 @@ Initialize Checker object with WebDriver as the argument.
 
 ```js
 import webdriver from 'selenium-webdriver'
-import {Checker, placeholder, attr} from 'simple-selenium-checker'
+import Checker from 'simple-selenium-checker'
 const By = webdriver.By;
 
 const driver = new webdriver.Builder()
@@ -45,35 +45,66 @@ const scenario = [
 checker.run(scenario)
 ```
 
-In the above scenario, first, it opens `https://http://127.0.0.1:8080/`, and checks if there is a `header` element on the page, and checks if the inner text of `h2` tag is `Home`. And then it clicks second navigation menu link, after the page loaded, checks if the inner text of `h2` tag is `Foo`.
+In the above scenario the following will be done.
 
-Javascript error and response Status code problems are checked automatically, and if there is a problem an error is thrown. These functions are realized by checking the browser console log.
+1. opens `https://http://127.0.0.1:8080/`.
+1. checks if there is a `header` element on the page.
+1. checks if the inner text of `h2` tag is `Home`.
+1. clicks second navigation menu link.
+1. checks if the inner text of `h2` tag is `Foo`,  after the page loaded.
+
+Javascript error and response status code error are checked automatically. These are implemented by checking the browser console log.
+
+### url directive
+
+Opens the specified URL. 
 
 ### assertions directive
 
 ```
-{$name: locator|string $target [, value|values: string|string array|object $value] [, timeout: int $milliseconds]}
+{$assertion_name: locator|string $target [, value|values: string|string array|object(retval of attr()) $value] [, timeout: int $milliseconds]}
 ```
 
-All assertion directives wait for the element to be visible and wait until it is in the expected state. The wait time can change with a timeout. The default timeout is 1200 ms. You can change the default timeout globally with `Checker.DefaultTimeout` property.
+`assertions` directive checks the page is displayed correctly. All assertion of `assertions` directive waits for the element to be visible and wait until it is in the expected state. The wait time can change with a timeout property. The default timeout is 1200 ms. You can change the default timeout globally with `Checker.DefaultTimeout` property.
 
-#### $name
+```js
+Checker.DefaultTimeout = 1;
+
+const checker = new Checker(driver)
+...
+```
+
+#### $assertion_name
 
 ```
 exsits|notExists|equals|notEquals|likes|notLikes|selected|unselected|checked|unchecked
 ```
 
-exsits|notExists check only the existence of the element. `equals|notEquals` checks the inner text or value with exact match, `likes|notLikes` checks with partial match. `selected|unselected` is for select tag, `checked|unchecked` is for checkbox tag.
+| action | description |
+|:--|:--|
+| exsits notExists | check only the existence of the element. |
+| equals notEquals | check the inner text or value with exact match |
+| likes notLikes | check with partial match. |
+| selected unselected | for select tag. |
+| checked unchecked | for checkbox tag. |
+
 
 #### $target
 
 ```
-[By instance](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_By.html) or html|url
+string html|string url|object By
 ```
 
-Specify the check target. If `html` is specified, the entire response body is targeted. `url` is specified, the current page URL is targeted.
+Specify the check target.
 
-#### $value
+| target | description |
+|:--|:--|
+| html | the entire response body. |
+| url | the current page URL. |
+| By | the HTML element by [the selenium By](http://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_By.html) instance. |
+
+
+#### value|values
 
 Specify the expected value. When the target is form element (except textarea), compare with value, otherwise with inner text. checkbox and radio can handle multiple elements together.
 
@@ -105,7 +136,7 @@ const scenario = [
     {likes: "html", value: "<title>Simple selenium checker - Home</title>"}
 
     //Compare with url.
-    {equals: "url", value: "<https://http://127.0.0.1:8080/"}
+    {equals: "url", value: "https://http://127.0.0.1:8080/"}
 
 
     //Html attribute
@@ -132,11 +163,11 @@ const scenario = [
 
 ### actions directive
 
-Like `actions` also `assertions`, wait until the specified element becomes available. It is also possible to specify a timeout for each directive and the `Checker.DefaultTimeout` property is applied.
+`actions` directive deals with actions such as button clicks and form inputs. `actions` wait until the specified element becomes available, like `assertions`. It is also possible to specify a timeout property for each action, and the `Checker.DefaultTimeout` property is applied.
 
 #### click
 
-Click on the specified element such as button or link.
+Click on the specified element such as button or link, etc.
 
 ```js
   {actions: [
@@ -146,7 +177,7 @@ Click on the specified element such as button or link.
 
 #### sendKey
 
-Enter a string in `input[type=text]` or `textarea`. Because it will be added, please use the `clear` action when you want to enter a new one.
+Enter a string in `input[type=text]` or `textarea`. Because it will be added, please use the `clear` action when you want to enter a new text.
 
 ```js
   {actions: [
@@ -156,7 +187,7 @@ Enter a string in `input[type=text]` or `textarea`. Because it will be added, pl
 
 #### clear
 
-This clears the input contents of `input[type=text]` or `textarea`. Also, use this to clear the checkbox or multiple selectable select tags.
+This action clears the contents of `input[type=text]` or `textarea`. Also, use this to clear the checkbox or multiple selectable select tags.
 
 ```js
   {actions: [
@@ -166,7 +197,7 @@ This clears the input contents of `input[type=text]` or `textarea`. Also, use th
 
 #### check|uncheck
 
-`check` action check radio and checkbox. `uncheck` unchecks the checkbox. You can not uncheck the radio. Although it can be checked by `click`, it is convenient because it does not do anything if already checked values exist in `value|values`.
+`check` action check radio and checkbox. `uncheck` action unchecks the checkbox. You can not uncheck the radio. Although it can be checked by `click`, it is convenient because it does not do anything when already checked values is specified.
 
 
 ```js
@@ -198,7 +229,7 @@ Use `select` `unselect` to select and release select tag values.
 
 #### alert
 
-You can handle alert and confirm with the alert action. alert`accept`. `accept` and `dismiss` can be specified for the value of the alert key.
+You can handle alert and confirm with the alert action. `accept` and `dismiss` can be specified for the value of the `alert`.
 
 ```js
   {actions: [
@@ -227,9 +258,9 @@ You can handle iframes with `switchTo` action.
   ]},
 ```
 
-### execif
+### execif directive
 
-The scenario can be nested. If you use the execif directive, you skip the after that. Every key of assertions is available for each directive of execif. Also, the key `bool` is available. this is useful in placeholder described below.
+The scenario can be nested. If you use the execif directive, you skip the after that. Every key of assertions is available for each function of execif. Also, the key `bool` is available. this is useful in placeholder described below.
 
 ```js
 const scenario = [
@@ -252,10 +283,10 @@ const scenario = [
 
 ### placeholder
 
-With `placeholder` you can replace the elements in the scenario.
+With `placeholder` you can replace the elements in the scenario. Use this when you want to change the behavior by switching the setting file.
 
 ```js
-import {Checker, placeholder, attr}  from 'simple-selenium-checker'
+import {placeholder} from 'simple-selenium-checker'
 
 const scenario = [
   {url: placeholder('host_name').append('/form.html')}
@@ -264,17 +295,17 @@ const scenario = [
   ]}
 ]
 checker.placeholder = {
-  'host_name': 'http://www.example.com',
+  'host_name': 'http://127.0.0.1:8080/',
   'assertions_exists_foo': By.css('.foo'),
 }
-checker.run(scenario, 'https://www.google.com')
+checker.run(scenario)
 ```
 
 This scenario is replaced as follows.
 
 ```js
 [
-  {url: 'https://http://127.0.0.1:8080/form.html'}
+  {url: 'http://127.0.0.1:8080/form.html'}
   {assertions: [
     {exists: By.css('.foo')}
   ]}
