@@ -16,13 +16,19 @@ export default class Checker
   }
 
   handleAlert(alertAction, timeout){
-    if(timeout === undefined) timeout = Checker.DefaultTimeout
-    return this.driver.wait(until.alertIsPresent(), timeout).then(() => {
-      const alert = this.driver.switchTo().alert()
+    return this.waitAlert(timeout).then(alert => {
       if(!alert[alertAction]){
         throw new Error("Missing " + alertAction + " action in alert.")
       }
+
       return alert[alertAction]()
+    })
+  }
+
+  waitAlert(timeout){
+    if(timeout === undefined) timeout = Checker.DefaultTimeout
+    return this.driver.wait(until.alertIsPresent(), timeout).then(() => {
+      return this.driver.switchTo().alert()
     })
   }
 
@@ -194,7 +200,10 @@ export default class Checker
         //execif
         if(item.execif){
           promise = promise.then(() => this._testExecif(item.execif))
-        }else if(item.url) {
+        } else if(item.url) {
+          //Until authenticateAs is officially supported, basic authentication is attempted based on the last displayed URL.
+          //see actions.authenticateAs()
+          this.lastUrl = item.url
           promise = promise.then(res => {
             if(res === false) return false
             return this.driver.get(item.url)
@@ -206,6 +215,8 @@ export default class Checker
               return this._detectFunction(actions, action)(this, action)
             })
           })
+
+          promise = promise.then(() => this.driver.getCurrentUrl().then(url => this.lastUrl = url))
         } else if(item.assertions) {
           item.assertions.forEach(check => {
             promise = promise.then(res => {

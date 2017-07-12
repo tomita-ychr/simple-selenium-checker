@@ -134,3 +134,20 @@ export function switchTo(checker, action){
   }
 
 }
+
+export function authenticateAs(checker, action){
+  //TODO change to driver.switchTo().alert().authenticateAs().
+  // return checker.waitAlert(action.timeout).then(alert => {
+  //   return alert.authenticateAs(action.authenticateAs, action.password)
+  // })
+  return Promise.resolve().then(() => {
+    const reg = /(https?):\/\/([^/]+)(\/?.*)/
+    const res = reg.exec(checker.lastUrl)
+    if(res === null){
+      throw new Error()
+    }
+    const authUrl = util.format("%s://%s:%s@%s%s", res[1], action.authenticateAs, action.password, res[2], res[3])
+    return checker.driver.get(authUrl)
+      .then(() => checker.driver.get(checker.lastUrl))
+  })
+}

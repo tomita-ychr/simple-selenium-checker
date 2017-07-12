@@ -851,15 +851,22 @@ var Checker = function () {
   _createClass(Checker, [{
     key: 'handleAlert',
     value: function handleAlert(alertAction, timeout) {
+      return this.waitAlert(timeout).then(function (alert) {
+        if (!alert[alertAction]) {
+          throw new Error("Missing " + alertAction + " action in alert.");
+        }
+
+        return alert[alertAction]();
+      });
+    }
+  }, {
+    key: 'waitAlert',
+    value: function waitAlert(timeout) {
       var _this = this;
 
       if (timeout === undefined) timeout = Checker.DefaultTimeout;
       return this.driver.wait(until.alertIsPresent(), timeout).then(function () {
-        var alert = _this.driver.switchTo().alert();
-        if (!alert[alertAction]) {
-          throw new Error("Missing " + alertAction + " action in alert.");
-        }
-        return alert[alertAction]();
+        return _this.driver.switchTo().alert();
       });
     }
   }, {
@@ -1065,6 +1072,9 @@ var Checker = function () {
               return _this7._testExecif(item.execif);
             });
           } else if (item.url) {
+            //Until authenticateAs is officially supported, basic authentication is attempted based on the last displayed URL.
+            //see actions.authenticateAs()
+            _this7.lastUrl = item.url;
             promise = promise.then(function (res) {
               if (res === false) return false;
               return _this7.driver.get(item.url);
@@ -1074,6 +1084,12 @@ var Checker = function () {
               promise = promise.then(function (res) {
                 if (res === false) return false;
                 return _this7._detectFunction(actions, action)(_this7, action);
+              });
+            });
+
+            promise = promise.then(function () {
+              return _this7.driver.getCurrentUrl().then(function (url) {
+                return _this7.lastUrl = url;
               });
             });
           } else if (item.assertions) {
@@ -1847,6 +1863,7 @@ exports.unselect = unselect;
 exports.clear = clear;
 exports.alert = alert;
 exports.switchTo = switchTo;
+exports.authenticateAs = authenticateAs;
 
 var _seleniumWebdriver = __webpack_require__(0);
 
@@ -2055,6 +2072,24 @@ function switchTo(checker, action) {
       return checker.driver.switchTo().frame(elem);
     });
   }
+}
+
+function authenticateAs(checker, action) {
+  //TODO change to driver.switchTo().alert().authenticateAs().
+  // return checker.waitAlert(action.timeout).then(alert => {
+  //   return alert.authenticateAs(action.authenticateAs, action.password)
+  // })
+  return Promise.resolve().then(function () {
+    var reg = /(https?):\/\/([^/]+)(\/?.*)/;
+    var res = reg.exec(checker.lastUrl);
+    if (res === null) {
+      throw new Error();
+    }
+    var authUrl = _util2.default.format("%s://%s:%s@%s%s", res[1], action.authenticateAs, action.password, res[2], res[3]);
+    return checker.driver.get(authUrl).then(function () {
+      return checker.driver.get(checker.lastUrl);
+    });
+  });
 }
 
 /***/ }),
