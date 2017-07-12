@@ -128,8 +128,8 @@ export default class Checker
   }
 
   _testItem(condition){
-    if(condition.bool !== undefined){
-      return Promise.resolve(condition.bool)
+    if(condition.hasOwnProperty('bool')){
+      return Promise.resolve(condition.bool !== false)
     } else {
       return this._detectFunction(assertions, condition)(this, condition)
         .then(() => true)

@@ -987,8 +987,8 @@ var Checker = function () {
   }, {
     key: '_testItem',
     value: function _testItem(condition) {
-      if (condition.bool !== undefined) {
-        return Promise.resolve(condition.bool);
+      if (condition.hasOwnProperty('bool')) {
+        return Promise.resolve(condition.bool !== false);
       } else {
         return this._detectFunction(assertions, condition)(this, condition).then(function () {
           return true;
