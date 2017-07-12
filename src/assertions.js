@@ -79,11 +79,14 @@ function normalizeDirective(orgAssertion, name){
   }
 
   //attr
-  const attr_keys = Object.keys(assertion).filter(key => key.indexOf('attr_') === 0)
-  if(attr_keys.length > 1) throw new Error("2 or more attr_ key found " + JSON.stringify(assertion) + '.')
-  if(attr_keys.length > 0){
-    assertion.type = {attr: attr_keys[0].substr('attr_'.length)}
-    assertion.value = assertion[attr_keys[0]]
+  if(
+    assertion.hasOwnProperty('value')
+    && typeof assertion.value != 'string' 
+    && assertion.value.hasOwnProperty('attr')
+  ){
+    const obj = assertion.value
+    assertion.type = {attr: obj.attr}
+    assertion.value = obj.value
   } else if(['exists', 'notExists'].indexOf(assertion.name) === -1){
     if(!assertion.hasOwnProperty('value') && !assertion.hasOwnProperty('values')){
       throw new Error("Require value or values key " + JSON.stringify(assertion) + '.')

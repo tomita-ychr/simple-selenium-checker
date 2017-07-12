@@ -4,6 +4,8 @@ import assert from 'power-assert'
 import pauser from 'selenium-pauser'
 import Checker from '../src/Checker'
 import placeholder from '../src/placeholder'
+import attr from '../src/attr'
+// import {Checker, placeholder, attr} from '../dist/'
 const By = webdriver.By;
 
 const isDebug = process.execArgv.indexOf('--debug') > -1 || process.execArgv.indexOf('--debug-brk') > -1
@@ -44,7 +46,7 @@ test.describe('SSC', () => {
         assertions: [
           {exists: By.css(".delay-content"), timeout: 8000},
           {equals: By.css(".main .col-sm-6:nth-child(2) h3"), value: "Home 002"},
-          {equals: By.css(".main .col-sm-6:nth-child(3) img"), attr_alt: "Home alt 003"},
+          {equals: By.css(".main .col-sm-6:nth-child(3) img"), value: attr("alt", "Home alt 003")},
           {likes: "html", value: "<title>Simple selenium checker - Home</title>"} 
         ]
       },{
@@ -55,7 +57,7 @@ test.describe('SSC', () => {
         assertions: [
           {exists: By.css(".delay-content"), timeout: 8000},
           {equals: By.css(".main .col-sm-6:nth-child(2) h3"), value: "Foo 002"},
-          {equals: By.css(".main .col-sm-6:nth-child(3) img"), attr_alt: "Foo alt 003"},
+          {equals: By.css(".main .col-sm-6:nth-child(3) img"), value: attr("alt", "Foo alt 003")},
           {likes: "html", value: "<title>Simple selenium checker - Foo"} ,
         ],
       }]
@@ -375,7 +377,7 @@ test.describe('SSC', () => {
           {exists: placeholder('assertions_by')},
           {equals: By.css(".main .col-sm-6:nth-child(1) h3"), value: placeholder('assertions_equals')},
           {likes: By.css(".main .col-sm-6:nth-child(2) h3"), value: placeholder('assertions_likes')},
-          {equals: By.css(".main .col-sm-6:nth-child(3) h3"), attr_value: placeholder('assertions_attr_value')}
+          {equals: By.css(".main .col-sm-6:nth-child(3) h3"), value: attr('value', placeholder('assertions_attr_value'))}
         ],
       },{
         url: placeholder('url').append('/form.html'),
@@ -387,7 +389,7 @@ test.describe('SSC', () => {
         ]
       },{
         assertions: [
-          {equals: By.css(".input"), attr_value: 'placeholdercheck'}
+          {equals: By.css(".input"), value: attr("value", "placeholdercheck")}
         ]
       }]
 
@@ -410,7 +412,7 @@ test.describe('SSC', () => {
       assert(resScenario[2].assertions[0].exists.toString() === By.css(".main .col-sm-6:nth-child(2) h3").toString())
       assert(resScenario[2].assertions[1].value === 'Foo 001')
       assert(resScenario[2].assertions[2].value === 'oo 00')
-      assert(resScenario[2].assertions[3].attr_value === null)
+      assert(resScenario[2].assertions[3].value.value === null)
       assert(resScenario[3].url === 'http://127.0.0.1:8080/form.html')
       assert(resScenario[4].actions[0].sendKeys.toString() === By.css(".input").toString())
 
@@ -742,10 +744,10 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {assertions: [
-          {equals: By.css(".nav > li:nth-child(2) > a"), attr_href: 'http://127.0.0.1:8080/foo.html'},
-          {equals: By.css("header"), attr_class: 'page-header'},
-          {equals: By.css(".nav"), attr_class: 'nav nav-pills'},
-          {equals: By.css(".nav"), attr_class: 'nav'},
+          {equals: By.css(".nav > li:nth-child(2) > a"), value: attr("href", "http://127.0.0.1:8080/foo.html")},
+          {equals: By.css("header"), value: attr("class", "page-header")},
+          {equals: By.css(".nav"), value: attr("class", "nav nav-pills")},
+          {equals: By.css(".nav"), value: attr("class", "nav")},
         ]},
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
@@ -757,10 +759,10 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {assertions: [
-          {likes: By.css(".nav > li:nth-child(2) > a"), attr_href: '/foo.html'},
-          {likes: By.css("header"), attr_class: 'ge-head'},
-          {likes: By.css(".nav"), attr_class: 'nav-pil'},
-          {likes: By.css(".nav"), attr_class: 'foooo'},
+          {likes: By.css(".nav > li:nth-child(2) > a"), value: attr("href", "/foo.html")},
+          {likes: By.css("header"), value: attr("class", "ge-head")},
+          {likes: By.css(".nav"), value: attr("class", "nav-pil")},
+          {likes: By.css(".nav"), value: attr("class", "foooo")},
         ]},
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
@@ -779,8 +781,8 @@ test.describe('SSC', () => {
         {assertions: [
           {notEquals: By.css(".nav > li:nth-child(1) > a"), value: 'Bar'},
           {notEquals: By.css(".nav > li:nth-child(2) > a"), value: 'Bar'},
-          {notEquals: By.css(".nav > li:nth-child(2) > a"), attr_href: 'http://127.0.0.1:8080/bar.html'},
-          {notEquals: By.css("header"), attr_class: 'page-footer'},
+          {notEquals: By.css(".nav > li:nth-child(2) > a"), value: attr("href", "http://127.0.0.1:8080/bar.html")},
+          {notEquals: By.css("header"), value: attr("class", "page-footer")},
         ]},
       ])
     }).then(() => {
@@ -799,7 +801,7 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {assertions: [
-          {notEquals: By.css(".nav > li:nth-child(2) > a"), attr_href: 'http://127.0.0.1:8080/foo.html'},
+          {notEquals: By.css(".nav > li:nth-child(2) > a"), value: attr("href", "http://127.0.0.1:8080/foo.html")},
         ]},
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
@@ -813,8 +815,8 @@ test.describe('SSC', () => {
         {assertions: [
           {notLikes: By.css(".nav > li:nth-child(1) > a"), value: 'Bar'},
           {notLikes: By.css(".nav > li:nth-child(2) > a"), value: 'Bar'},
-          {notLikes: By.css(".nav > li:nth-child(2) > a"), attr_href: 'http://127.0.0.1:8080/bar.html'},
-          {notLikes: By.css("header"), attr_class: 'page-footer'},
+          {notLikes: By.css(".nav > li:nth-child(2) > a"), value: attr("href", "http://127.0.0.1:8080/bar.html")},
+          {notLikes: By.css("header"), value: attr("class", "page-footer")},
           {notLikes: 'html', value: 'foobarfoobar'} 
         ]},
       ])
@@ -834,7 +836,7 @@ test.describe('SSC', () => {
       return checker.run([
         {url: "http://127.0.0.1:8080/"},
         {assertions: [
-          {notLikes: By.css("header"), attr_class: 'page-header'},
+          {notLikes: By.css("header"), value: attr("class", "page-header")},
         ]},
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err

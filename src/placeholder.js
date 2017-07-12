@@ -1,4 +1,4 @@
-class Placeholder
+export class Placeholder
 {
   constructor(key){
     this.key = key

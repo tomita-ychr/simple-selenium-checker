@@ -3,6 +3,7 @@ import util from 'util';
 import * as assertions from './assertions'
 import * as actions from './actions'
 import * as errors from './errors'
+import {Placeholder} from './placeholder'
 const until = webdriver.until;
 const By = webdriver.By;
 const Key = webdriver.Key;
@@ -268,12 +269,17 @@ export default class Checker
   }
 
   _applyPlaceholderToValue(value){
-    if(value.placeholderKey){
+    if(value instanceof Placeholder){
       if(this.placeholder.hasOwnProperty(value.placeholderKey)){
         return value.apply(this.placeholder[value.placeholderKey])
       } else {
         throw new Error('Missing ' + value.placeholderKey + ' key in placeholder.')
       }
+    } else if(typeof value != 'string') {//for attr
+      for(var key in value){
+        value[key] = this._applyPlaceholderToValue(value[key])
+      }
+      return value
     } else {
       return value
     }

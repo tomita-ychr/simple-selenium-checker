@@ -15,7 +15,7 @@ Initialize Checker object with WebDriver as the argument.
 
 ```js
 import webdriver from 'selenium-webdriver'
-import Checker from 'simple-selenium-checker'
+import {Checker, placeholder, attr} from 'simple-selenium-checker'
 const By = webdriver.By;
 
 const driver = new webdriver.Builder()
@@ -52,7 +52,7 @@ Javascript error and response Status code problems are checked automatically, an
 ### assertions directive
 
 ```
-{$name: locator|string $target [, value|values|attr_{attribute name}: string|string array $value] [, timeout: int $milliseconds]}
+{$name: locator|string $target [, value|values: string|string array|object $value] [, timeout: int $milliseconds]}
 ```
 
 All assertion directives wait for the element to be visible and wait until it is in the expected state. The wait time can change with a timeout. The default timeout is 1200 ms. You can change the default timeout globally with `Checker.DefaultTimeout` property.
@@ -77,7 +77,7 @@ Specify the check target. If `html` is specified, the entire response body is ta
 
 Specify the expected value. When the target is form element (except textarea), compare with value, otherwise with inner text. checkbox and radio can handle multiple elements together.
 
-If you specify a value with the HTML attribute name as the key after the `attr_` prefix, it will be compared with the value of that attribute.
+If you set the return value of the attr function, it will be compared with the value of that attribute.
 
 #### samples
 
@@ -109,7 +109,7 @@ const scenario = [
 
 
     //Html attribute
-    {equals: By.css('img#foobar'), attr_alt: "foobar"}
+    {equals: By.css('img#foobar'), value: attr("alt", "foobar")}
 
     //checkboxes
     //<input type="checkobx" name="tag" value="tag1" checked> tag1
@@ -255,7 +255,7 @@ const scenario = [
 With `placeholder` you can replace the elements in the scenario.
 
 ```js
-import {placeholder} from 'simple-selenium-checker'
+import {Checker, placeholder, attr}  from 'simple-selenium-checker'
 
 const scenario = [
   {url: placeholder('host_name').append('/form.html')}
