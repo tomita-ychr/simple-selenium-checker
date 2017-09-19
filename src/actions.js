@@ -151,3 +151,8 @@ export function authenticateAs(checker, action){
       .then(() => checker.driver.get(checker.lastUrl))
   })
 }
+
+export function scrollTo(checker, action){
+  const coord = action.scrollTo;
+  checker.driver.executeScript("window.scrollTo(0," + coord + ")");
+}
