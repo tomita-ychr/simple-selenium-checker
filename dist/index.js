@@ -2148,8 +2148,9 @@ function authenticateAs(checker, action) {
 }
 
 function scrollTo(checker, action) {
-  var coord = action.scrollTo;
-  checker.driver.executeScript("window.scrollTo(0," + coord + ")");
+  var xcoord = action.scrollTo.hasOwnProperty("x") ? action.scrollTo.x : 0;
+  var ycoord = action.scrollTo.hasOwnProperty("y") ? action.scrollTo.y : 0;
+  checker.driver.executeScript("window.scrollTo(" + xcoord + "," + ycoord + ")");
 }
 
 /***/ }),

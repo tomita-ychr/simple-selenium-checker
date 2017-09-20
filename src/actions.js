@@ -153,6 +153,7 @@ export function authenticateAs(checker, action){
 }
 
 export function scrollTo(checker, action){
-  const coord = action.scrollTo;
-  checker.driver.executeScript("window.scrollTo(0," + coord + ")");
+  const xcoord = action.scrollTo.hasOwnProperty("x") ? action.scrollTo.x : 0;
+  const ycoord = action.scrollTo.hasOwnProperty("y") ? action.scrollTo.y : 0;
+  checker.driver.executeScript("window.scrollTo(" + xcoord + "," + ycoord + ")");
 }
