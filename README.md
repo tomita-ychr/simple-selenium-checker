@@ -258,7 +258,7 @@ You can handle iframes with `switchTo` action.
   ]},
 ```
 
-### scrollTo
+#### scrollTo
 
 You can scroll the window by specifying coordinates.
 
