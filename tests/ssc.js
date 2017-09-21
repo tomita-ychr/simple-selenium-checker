@@ -1295,4 +1295,22 @@ test.describe('SSC', () => {
       })
     })
   })
+
+  test.it('should be able to check scroll.', () => {
+    const checker = new Checker(driver)
+    return Promise.resolve().then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/scroll.html"},
+        {actions: [
+          {scrollTo: {x:200, y:500}}
+        ]},
+        {assertions:[
+          {equals: By.css("#scroll-info-x"), value: "200"},
+          {equals: By.css("#scroll-info-y"), value: "500"},
+        ]},
+      ]).catch(err => err).then(err => {
+        throw err
+      })
+    })
+  })
 })

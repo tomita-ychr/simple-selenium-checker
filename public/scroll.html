@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scroll</title>
+  <script>
+    window.onscroll = function()
+    {
+      document.getElementById("scroll-info-x").innerText = window.pageXOffset;
+      document.getElementById("scroll-info-y").innerText = window.pageYOffset;
+    }
+  </script>
+</head>
+<body style="width:2000px;height:2000px">
+  <h1>Scroll Test Page</h1>
+  <p id="scroll-info-x">0</p>
+  <p id="scroll-info-y">0</p>
+</body>
+</html>
