@@ -10,10 +10,19 @@
       document.getElementById("scroll-info-y").innerText = window.pageYOffset;
     }
   </script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
 </head>
-<body style="width:2000px;height:2000px">
-  <h1>Scroll Test Page</h1>
-  <p id="scroll-info-x">0</p>
-  <p id="scroll-info-y">0</p>
+<body>
+  <div style="width:2000px;height:2000px">
+    <h1>Scroll Test Page</h1>
+    <p id="scroll-info-x">0</p>
+    <p id="scroll-info-y">0</p>
+  </div>
+  <div class="bottom">bottom</div>
 </body>
 </html>

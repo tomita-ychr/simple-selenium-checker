@@ -153,7 +153,12 @@ export function authenticateAs(checker, action){
 }
 
 export function scrollTo(checker, action){
-  const xcoord = action.scrollTo.hasOwnProperty("x") ? action.scrollTo.x : 0;
-  const ycoord = action.scrollTo.hasOwnProperty("y") ? action.scrollTo.y : 0;
-  checker.driver.executeScript("window.scrollTo(" + xcoord + "," + ycoord + ")");
+  if(action.scrollTo.hasOwnProperty("x") || action.scrollTo.hasOwnProperty("y")){
+    const xcoord = action.scrollTo.hasOwnProperty("x") ? action.scrollTo.x : 0;
+    const ycoord = action.scrollTo.hasOwnProperty("y") ? action.scrollTo.y : 0;
+    return checker.driver.executeScript("window.scrollTo(" + xcoord + "," + ycoord + ")");
+  } else {
+    return checker.waitElement(action.scrollTo, action.timeout)
+      .then(elem => checker.driver.executeScript("arguments[0].scrollIntoView()", elem))
+  }
 }

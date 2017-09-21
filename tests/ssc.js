@@ -1296,7 +1296,7 @@ test.describe('SSC', () => {
     })
   })
 
-  test.it('should be able to check scroll.', () => {
+  test.it('should be able to scroll.', () => {
     const checker = new Checker(driver)
     return Promise.resolve().then(() => {
       return checker.run([
@@ -1308,9 +1308,31 @@ test.describe('SSC', () => {
           {equals: By.css("#scroll-info-x"), value: "200"},
           {equals: By.css("#scroll-info-y"), value: "500"},
         ]},
-      ]).catch(err => err).then(err => {
-        throw err
-      })
+      ])
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/scroll.html"},
+        {actions: [
+          {scrollTo: {x:0, y:0}},
+          {scrollTo: {x:150}}
+        ]},
+        {assertions:[
+          {equals: By.css("#scroll-info-x"), value: "150"},
+          {equals: By.css("#scroll-info-y"), value: "0"},
+        ]},
+      ])
+    }).then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/scroll.html"},
+        {actions: [
+          {scrollTo: {x:0, y:0}},
+          {scrollTo: By.css(".bottom")}
+        ]},
+        {assertions:[
+          {equals: By.css("#scroll-info-x"), value: "0"},
+          {equals: By.css("#scroll-info-y"), value: "1364"},
+        ]},
+      ])
     })
   })
 })

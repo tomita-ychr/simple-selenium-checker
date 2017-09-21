@@ -258,6 +258,26 @@ You can handle iframes with `switchTo` action.
   ]},
 ```
 
+### scrollTo
+
+You can scroll the window by specifying coordinates.
+
+```js
+  {actions: [
+    {scrollTo: {x: 30, y: 300}},
+    {scrollTo: {x: 50}}, //The omitted axes will be 0.
+    {scrollTo: {y: 300}},
+  ]},
+```
+
+You can also scroll by specifying element.
+
+```js
+  {actions: [
+    {scrollTo: By.css(".botton")},
+  ]},
+```
+
 ### execif directive
 
 The scenario can be nested. If you use the execif directive, you skip the after that. Every key of assertions is available for each function of execif. Also, the key `bool` is available. this is useful in placeholder described below.
