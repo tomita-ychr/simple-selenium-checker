@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Transit Page</title>
+  <script>
+    var data = {};
+    document.addEventListener('DOMContentLoaded', function() {
+      var query = location.search.substring(1).split('&');
+      for(var i=0; query[i]; i++) {
+        var kv = query[i].split('=');
+        data[kv[0]]=kv[1];
+      }
+
+      if (data.p && (data.p % 10) == 0) {
+        var bottom = document.getElementById("bottom");
+        bottom.innerHTML = '<a id="search-target" href="">SearchTarget</a>';
+      }
+    });
+
+    function onNextClick() {
+      var page = 1;
+      if (data.p) {
+        page = parseInt(data.p, 10);
+      }
+
+      page += 1;
+      location.href = "?p="+page.toString(10);
+    }
+  </script>
+</head>
+<body>
+  <div id="wrapper">
+    <h1>Transit page test</h1>
+    <button id="next" type="button" onClick="onNextClick();">next</button>
+  </div>
+  <div id="bottom"></div>
+</body>
+</html>
