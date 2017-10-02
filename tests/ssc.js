@@ -1335,4 +1335,45 @@ test.describe('SSC', () => {
       ])
     })
   })
+
+  test.it('The foreach directive must loop until the target is the last', () => {
+    const checker = new Checker(driver)
+    return Promise.resolve().then(() => {
+      return checker.run([
+        {url: "http://127.0.0.1:8080/foreach.html"},
+        {foreach: By.css("#foreach-test li>a"), 
+          scenario:[
+            {execif: [ 
+              [{exists: By.css('#contents')}],
+              [{bool: true}], 
+            ]},
+            {assertions:[
+              {likes: By.css("#contents span"), value: "This page is foreach-detail"},
+            ]},
+            {actions:[
+              {click: By.css("#contents a")},
+            ]}
+          ]
+        },
+      ]).then(() => {
+        return checker.run([
+          {url: "http://127.0.0.1:8080/foreach.html"},
+          {foreach: By.css("#select-link option"), 
+            scenario:[
+              {execif: [ 
+                [{exists: By.css('#contents')}],
+                [{bool: true}], 
+              ]},
+              {assertions:[
+                {likes: By.css("#contents span"), value: "This page is foreach-detail"},
+              ]},
+              {actions:[
+                {click: By.css("#contents a")},
+              ]}
+            ]
+          },
+        ])
+      })
+    })
+  })
 })

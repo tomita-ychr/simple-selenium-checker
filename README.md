@@ -301,6 +301,31 @@ const scenario = [
 ]
 ```
 
+### foreach directive
+
+The scenario can be nested. If you use the foreach directive, loop until the target is the last.
+When using foreach directive you need to specify the target element. For each element, run a nested scenario.
+
+``` js
+const scenario = [
+  {url: "http://127.0.0.1:8080/foreach.html"},
+  {foreach: By.css("#foreach-test li>a"), 
+    scenario:[
+      {execif: [ 
+        [{exists: By.css('#contents')}],
+        [{bool: true}], 
+      ]},
+      {assertions:[
+        {likes: By.css("#contents span"), value: "This page is foreach-detail"},
+      ]},
+      {actions:[
+        {click: By.css("#contents a")},
+      ]}
+    ]
+  }
+]
+```
+
 ### placeholder
 
 With `placeholder` you can replace the elements in the scenario. Use this when you want to change the behavior by switching the setting file.
