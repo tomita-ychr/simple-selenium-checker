@@ -302,8 +302,7 @@ const scenario = [
 ```
 
 ### while directive
-If there is a "while" directive, nested "scenario" continues as long as the condition is satisfied.  
-The conditions that can be specified for the "while" directive are the same as those of the "execif" directive.
+If you specify conditions in the while directive, the specified scenario continues to run while the conditions are satisfied.
 
 ```js
 const scenario = [
