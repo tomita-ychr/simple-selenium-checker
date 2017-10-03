@@ -304,7 +304,7 @@ const scenario = [
 ### foreach directive
 
 The scenario can be nested. If you use the foreach directive, loop until the target is the last.
-When using foreach directive you need to specify the target element. For each element, run a nested scenario.
+If you specify "By" instance in the "foreach" directive, click the target element in turn and execute the specified scenario repeatedly.
 
 ``` js
 const scenario = [
