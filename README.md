@@ -309,20 +309,18 @@ If you specify "By" instance in the "foreach" directive, click the target elemen
 ``` js
 const scenario = [
   {url: "http://127.0.0.1:8080/foreach.html"},
-  {foreach: By.css("#foreach-test li>a"), 
-    scenario:[
-      {execif: [ 
-        [{exists: By.css('#contents')}],
-        [{bool: true}], 
-      ]},
-      {assertions:[
-        {likes: By.css("#contents span"), value: "This page is foreach-detail"},
-      ]},
-      {actions:[
-        {click: By.css("#contents a")},
-      ]}
-    ]
-  }
+  {foreach: By.css("#foreach-test li>a"), scenario:[
+    {execif: [ 
+      [{exists: By.css('#contents')}],
+      [{bool: true}], 
+    ]},
+    {assertions:[
+      {likes: By.css("#contents span"), value: "This page is foreach-detail"},
+    ]},
+    {actions:[
+      {click: By.css("#contents a")},
+    ]}
+  ]}
 ]
 ```
 
