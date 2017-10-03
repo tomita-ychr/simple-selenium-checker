@@ -326,6 +326,34 @@ const scenario = [
 ]
 ```
 
+### while directive
+If you specify conditions in the while directive, the specified scenario continues to run while the conditions are satisfied.  
+The conditions that can be specified for the "while" directive are the same as those of the "execif" directive.
+
+```js
+const scenario = [
+  //Opens the specified page.
+  {url: "https://http://127.0.0.1:8080/"},
+
+  //As long as the condition of 'while' is met, the 'scenario' will continue to run.
+  {
+    while:
+    [
+      [{notExists: By.css(".foo")}]
+    ],
+    scenario:
+    [
+      {actions: [
+        {click: By.css(".next") }
+      ]}
+    ]
+  },
+  {actions:[
+    {click: By.css(".foo")},
+  ]}
+]
+```
+
 ### placeholder
 
 With `placeholder` you can replace the elements in the scenario. Use this when you want to change the behavior by switching the setting file.

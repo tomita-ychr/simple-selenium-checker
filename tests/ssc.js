@@ -1376,4 +1376,24 @@ test.describe('SSC', () => {
       })
     })
   })
+
+  test.it('should when there is an while directive, operation continues as long as the condition is satisfied', () => {
+    const checker = new Checker(driver)
+    return Promise.resolve().then(() => {
+      return driver.get("http://127.0.0.1:8080/transit-page.html")
+    }).then(() => {
+      return checker.run([
+        {while: [
+          [{notExists: By.css("#search-target")}]
+        ], scenario: [
+          {actions: [
+            {click: By.css("#next") }
+          ]}
+        ]},
+        {assertions:[
+          {exists: By.css("#search-target")},
+        ]}
+      ])
+    })
+  })
 })
