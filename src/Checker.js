@@ -175,6 +175,19 @@ export default class Checker
     return promise
   }
 
+  _execForeach(elems, item){
+    let promise = Promise.resolve()
+    elems.forEach((value, index) => {
+      promise = promise
+        .then(() => this.driver.findElements(item.foreach))
+        .then(targets => targets[index])
+        .then(elem => elem.click())
+        .then(() => this.run(item.scenario))
+    })
+
+    return promise
+  }
+
   executeWhile(promise, item){
     return promise.then(res => {
       if(res === true){
@@ -191,7 +204,11 @@ export default class Checker
     }
 
     scenario.forEach(item => {
-      if(item.while) {
+      if(item.foreach){
+        promise = promise
+          .then(() => this.driver.findElements(item.foreach))
+          .then(elems => this._execForeach(elems, item))
+      } else if(item.while) {
         promise = promise.then(() => this.executeWhile(this._testExecif(item.while), item))
       } else if(item.scenario) {
         promise = this.run(item.scenario, promise)

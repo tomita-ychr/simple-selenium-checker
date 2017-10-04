@@ -301,6 +301,29 @@ const scenario = [
 ]
 ```
 
+### foreach directive
+
+The scenario can be nested. If you use the foreach directive, loop until the target is the last.
+If you specify "By" instance in the "foreach" directive, click the target element in turn and execute the specified scenario repeatedly.
+
+``` js
+const scenario = [
+  {url: "http://127.0.0.1:8080/foreach.html"},
+  {foreach: By.css("#foreach-test li>a"), scenario:[
+    {execif: [ 
+      [{exists: By.css('#contents')}],
+      [{bool: true}], 
+    ]},
+    {assertions:[
+      {likes: By.css("#contents span"), value: "This page is foreach-detail"},
+    ]},
+    {actions:[
+      {click: By.css("#contents a")},
+    ]}
+  ]}
+]
+```
+
 ### while directive
 If you specify conditions in the while directive, the specified scenario continues to run while the conditions are satisfied.  
 The conditions that can be specified for the "while" directive are the same as those of the "execif" directive.
