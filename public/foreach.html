@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple selenium checker - Foreach</title>
+  <script
+  src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+  integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
+  crossorigin="anonymous"></script>
+</head>
+<body>
+  <form action="foreach.html">
+    <div>
+      <select class="select-single form-control" id="select-link" onClick="location.href=value;">
+        <option value="foreach-detail1.html">option1</option>
+        <option value="foreach-detail2.html">option2</option>
+        <option value="foreach-detail3.html">option3</option>
+      </select>
+    </div>
+    <div id="foreach-test">
+      <ul>
+        <li><a href="foreach-detail1.html">test1</a></li>
+        <li><a href="foreach-detail2.html">test2</a></li>
+        <li><a href="foreach-detail3.html">test3</a></li>
+      </ul>
+    </div>
+  </form>
+</body>

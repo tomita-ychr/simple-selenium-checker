@@ -175,13 +175,42 @@ export default class Checker
     return promise
   }
 
+  _execForeach(elems, item){
+    let promise = Promise.resolve()
+    elems.forEach((value, index) => {
+      promise = promise
+        .then(() => this.driver.findElements(item.foreach))
+        .then(targets => targets[index])
+        .then(elem => elem.click())
+        .then(() => this.run(item.scenario))
+    })
+
+    return promise
+  }
+
+  executeWhile(promise, item){
+    return promise.then(res => {
+      if(res === true){
+        return this.run(item.scenario).then(() => this.executeWhile(this._testExecif(item.while), item))
+      } else {
+        return Promise.resolve()
+      }
+    })
+  }
+
   run(scenario, promise){
     if(!promise){
       promise = Promise.resolve()
     }
 
     scenario.forEach(item => {
-      if(item.scenario){
+      if(item.foreach){
+        promise = promise
+          .then(() => this.driver.findElements(item.foreach))
+          .then(elems => this._execForeach(elems, item))
+      } else if(item.while) {
+        promise = promise.then(() => this.executeWhile(this._testExecif(item.while), item))
+      } else if(item.scenario) {
         promise = this.run(item.scenario, promise)
       } else {
         //directive count check.
