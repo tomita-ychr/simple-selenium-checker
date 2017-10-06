@@ -267,6 +267,11 @@ export default class Checker
                     throw new errors.JavascriptError(log.message)
                   }
 
+                  //Mixed Content for SSL
+                  if(log.message.indexOf("Mixed Content") > -1){
+                    throw new errors.ExistsError(log.message)
+                  }
+
                   //response
                   if(log.message.indexOf(url + " - ") === 0){
                     const msg = log.message.split(url).join("")
