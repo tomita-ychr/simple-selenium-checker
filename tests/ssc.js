@@ -1392,4 +1392,40 @@ test.describe('SSC', () => {
       ])
     })
   })
+
+  test.it('Confirm existence of "Failed to load resource".', () => {
+    const checker = new Checker(driver)
+    return Promise.resolve().then(() => {
+      return driver.get("http://127.0.0.1:8080/failed-to-load-resource.html")
+    }).then(() => {
+      return checker.run([
+        {actions: [
+          {scrollTo: {x:1}}
+        ]},
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
+          assert(err != undefined)
+          assert(err.name == "ExistsError")
+          assert(err.message.indexOf("Failed to load resource") != -1)
+      })
+    })
+  })
+
+  test.it('Confirm existence of "Mixed Content".', () => {
+    const checker = new Checker(driver)
+    return Promise.resolve().then(() => {
+      return driver.get("https://127.0.0.1:8080/mixed-content.html")
+    }).then(() => {
+      return checker.run([
+        {actions: [
+          {scrollTo: {x:1}}
+        ]},
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
+          assert(err != undefined)
+          assert(err.name == "ExistsError")
+          assert(err.message.indexOf("Mixed Content") != -1)
+      })
+    })
+  })
 })
