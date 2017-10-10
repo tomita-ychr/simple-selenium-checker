@@ -375,6 +375,12 @@ export default class Checker
   _ignoreConsoleCheck(log){
     //Returning true with this method will skip console error checking.
     //If necessary, Please override this method at ssc.js.
+
+    //example: ignore favicon 404 error
+    if(log.message.indexOf("favicon.ico") != -1){
+      return true;
+    }
+
     return false;
   }
 }
