@@ -273,11 +273,6 @@ export default class Checker
                       throw new errors.ExistsError(log.message)
                     }
 
-                    //Failed to load resource
-                    if(log.message.indexOf("Failed to load resource") != -1){
-                      throw new errors.ExistsError(log.message)
-                    }
-
                     //response
                     if(log.message.indexOf(url + " - ") === 0){
                       const msg = log.message.split(url).join("")
@@ -286,6 +281,13 @@ export default class Checker
                           throw new errors.StatusCodeError(log.message)
                         }
                       }
+                    }
+
+                    //Failed to load resource or GET 404
+                    if(log.message.indexOf("Failed to load resource") != -1){
+                      throw new errors.ExistsError(log.message)
+                    } else if (log.message.indexOf("GET") != -1 && log.message.indexOf("Not Found") != -1) {
+                      throw new errors.ExistsError(log.message)
                     }
                   }
                 })
