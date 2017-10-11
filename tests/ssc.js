@@ -203,7 +203,7 @@ test.describe('SSC', () => {
   test.it('should fail when the server return a status code 400 to 599.', () => {
     return Promise.resolve().then(() => {
       const scenario = [{
-        url: "http://127.0.0.1:8080/not-exists.html",
+        url: "https://127.0.0.1:8080/not-exists.html",
       }]
 
       const checker = new Checker(driver)
