@@ -1404,9 +1404,9 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
-          assert(err != undefined)
-          assert(err.name == "ExistsError")
-          assert(err.message.indexOf("Failed to load resource") != -1)
+        assert(err != undefined)
+        assert(err.name == "ExistsError")
+        assert(err.message.indexOf("Failed to load resource") != -1)
       })
     })
   })
@@ -1422,9 +1422,9 @@ test.describe('SSC', () => {
         ]},
       ]).catch(err => err).then(err => {
         if(noCatchTest) throw err
-          assert(err != undefined)
-          assert(err.name == "ExistsError")
-          assert(err.message.indexOf("Mixed Content") != -1)
+        assert(err != undefined)
+        assert(err.name == "ExistsError")
+        assert(err.message.indexOf("Mixed Content") != -1)
       })
     })
   })
