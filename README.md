@@ -401,7 +401,7 @@ checker.debug = true
 1. Fork and clone this repository. `git clone git@github.com:SunriseDigital/simple-selenium-checker.git`
 1. Install dependencies. `npm install`
 1. Install http-server. `npm install http-server -g`
-1. Start http-server. `http-server`
+1. Start http-server. `http-server -S`
 1. Install selenium-standalone. `npm install selenium-standalone -g`
 1. Start selenium-standalone. `selenium-standalone start`
 1. Install gulp. `npm install gulp -g`
