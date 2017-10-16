@@ -1330,7 +1330,7 @@ test.describe('SSC', () => {
         ]},
         {assertions:[
           {equals: By.css("#scroll-info-x"), value: "0"},
-          {equals: By.css("#scroll-info-y"), value: "1364"},
+          {equals: By.css("#scroll-info-y"), value: "2000"},
         ]},
       ])
     })
