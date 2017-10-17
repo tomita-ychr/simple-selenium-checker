@@ -14,6 +14,7 @@ const noCatchTest = process.argv.indexOf('--no-catch') >= 0
 let driver;
 test.describe('SSC', () => {
   test.before(() => {
+    Checker.IgnoreConsoleCheck.push("favicon.ico")//default ignore item.
     Checker.Debug = isDebug
     Checker.DefaultTimeout = 1
     const chromeCapabilities = webdriver.Capabilities.chrome();
@@ -1425,6 +1426,23 @@ test.describe('SSC', () => {
         assert(err != undefined)
         assert(err.name == "ExistsError")
         assert(err.message.indexOf("Mixed Content") != -1)
+      })
+    })
+  })
+
+  test.it('Added to "IgnoreConsoleCheck" are ignored during console check.', () => {
+    var checker = new Checker(driver)
+    checker.ignoreConsoleCheck.push("Mixed Content")
+    return Promise.resolve().then(() => {
+      return driver.get("https://127.0.0.1:8080/mixed-content.html")
+    }).then(() => {
+      return checker.run([
+        {actions: [
+          {scrollTo: {x:1}}
+        ]},
+      ]).catch(err => err).then(err => {
+        if(noCatchTest) throw err
+        assert(err == undefined)
       })
     })
   })
