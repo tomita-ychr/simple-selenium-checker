@@ -13,7 +13,8 @@ export default class Checker
   constructor(driver){
     this.driver = driver
     this.debug = Checker.Debug
-    this.ignoreConsoleCheck = Checker.IgnoreConsoleCheck
+    this.ignoreConsoleCheck = []
+    Checker.IgnoreConsoleCheck.forEach(item => this.ignoreConsoleCheck.push(item));
   }
 
   handleAlert(alertAction, timeout){
@@ -264,7 +265,7 @@ export default class Checker
               this.driver.manage().logs().get('browser').then(logs => {
                 logs.forEach(log => {
                   //skip
-                  if(Checker.IgnoreConsoleCheck && Checker.IgnoreConsoleCheck.some(target => log.message.indexOf(target) != -1)){
+                  if(this.ignoreConsoleCheck && this.ignoreConsoleCheck.some(target => log.message.indexOf(target) != -1)){
                     return
                   }
 
