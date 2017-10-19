@@ -849,8 +849,8 @@ var Checker = function () {
     this.driver = driver;
     this.debug = Checker.Debug;
     this.ignoreConsoleCheck = [];
-    Checker.IgnoreConsoleCheck.forEach(function (item) {
-      return _this.ignoreConsoleCheck.push(item);
+    Checker.IgnoreConsoleCheck.forEach(function (func) {
+      return _this.addIgnoreConsoleCheck(func);
     });
   }
 
@@ -1160,8 +1160,8 @@ var Checker = function () {
                 _this10.driver.manage().logs().get('browser').then(function (logs) {
                   logs.forEach(function (log) {
                     //skip
-                    if (_this10.ignoreConsoleCheck && _this10.ignoreConsoleCheck.some(function (target) {
-                      return log.message.indexOf(target) != -1;
+                    if (_this10.ignoreConsoleCheck && _this10.ignoreConsoleCheck.some(function (func) {
+                      return func(log) == true;
                     })) {
                       return;
                     }
@@ -1281,6 +1281,11 @@ var Checker = function () {
 
       return newItem;
     }
+  }, {
+    key: 'addIgnoreConsoleCheck',
+    value: function addIgnoreConsoleCheck(func) {
+      this.ignoreConsoleCheck.push(func);
+    }
   }]);
 
   return Checker;
@@ -1290,6 +1295,9 @@ exports.default = Checker;
 
 
 Checker.IgnoreConsoleCheck = [];
+Checker.addIgnoreConsoleCheck = function (func) {
+  return Checker.IgnoreConsoleCheck.push(func);
+};
 
 Checker.JsErrorStrings = ["SyntaxError", "EvalError", "ReferenceError", "RangeError", "TypeError", "URIError"];
 
