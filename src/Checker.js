@@ -14,7 +14,7 @@ export default class Checker
     this.driver = driver
     this.debug = Checker.Debug
     this.ignoreConsoleCheck = []
-    Checker.IgnoreConsoleCheck.forEach(item => this.ignoreConsoleCheck.push(item));
+    Checker.IgnoreConsoleCheck.forEach(func => this.addIgnoreConsoleCheck(func));
   }
 
   handleAlert(alertAction, timeout){
@@ -265,7 +265,7 @@ export default class Checker
               this.driver.manage().logs().get('browser').then(logs => {
                 logs.forEach(log => {
                   //skip
-                  if(this.ignoreConsoleCheck && this.ignoreConsoleCheck.some(target => log.message.indexOf(target) != -1)){
+                  if(this.ignoreConsoleCheck && this.ignoreConsoleCheck.some(func => func(log) == true)){
                     return
                   }
 
@@ -378,9 +378,15 @@ export default class Checker
 
     return newItem
   }
+
+  addIgnoreConsoleCheck(func)
+  {
+    this.ignoreConsoleCheck.push(func)
+  }
 }
 
 Checker.IgnoreConsoleCheck = []
+Checker.addIgnoreConsoleCheck = (func) => Checker.IgnoreConsoleCheck.push(func);
 
 Checker.JsErrorStrings = [
   "SyntaxError",
