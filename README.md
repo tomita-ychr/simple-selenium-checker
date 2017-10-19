@@ -394,20 +394,19 @@ checker.debug = true
 
 ### ignoreConsoleCheck
 
-If use `ignoreConsoleCheck`, you can ignore the error you specified during test execution.
+If use `addIgnoreConsoleCheck`, you can ignore the console error specified during test execution.  
+The argument of `addIgnoreConsoleCheck` is a function to judge ignore target. Please return true if it is an ignore target.
 
 * It is always active during test run.
 ```js
 test.before(() => {
-  //'ignoreConsoleCheck' is Array. Multiple sets are possible.
-  Checker.IgnoreConsoleCheck.push("Default set item")//default ignore item.
+  Checker.addIgnoreConsoleCheck(log => log.message.indexOf("ignore target") != -1)//default ignore item.
 ```
 
 * It is active only in running scenario.
 ```js
 const checker = new Checker(driver)
-//'ignoreConsoleCheck' is Array. Multiple sets are possible.
-checker.ignoreConsoleCheck.push("Error1", "Error2")
+checker.addIgnoreConsoleCheck(log => log.message.indexOf("ignore target") != -1)
 ```
 
 ## Test sample
