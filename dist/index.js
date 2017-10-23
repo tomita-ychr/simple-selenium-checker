@@ -1161,7 +1161,7 @@ var Checker = function () {
                   logs.forEach(function (log) {
                     //skip
                     if (_this10.ignoreConsoleCheck && _this10.ignoreConsoleCheck.some(function (func) {
-                      return func(log) == true;
+                      return func(log) === true;
                     })) {
                       return;
                     }
