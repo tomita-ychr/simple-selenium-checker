@@ -265,7 +265,7 @@ export default class Checker
               this.driver.manage().logs().get('browser').then(logs => {
                 logs.forEach(log => {
                   //skip
-                  if(this.ignoreConsoleCheck && this.ignoreConsoleCheck.some(func => func(log) == true)){
+                  if(this.ignoreConsoleCheck && this.ignoreConsoleCheck.some(func => func(log) === true)){
                     return
                   }
 
