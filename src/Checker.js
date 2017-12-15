@@ -262,18 +262,32 @@ export default class Checker
             return new Promise(resolve => {
               this.driver.manage().logs().get('browser').then(logs => {
                 logs.forEach(log => {
-                  //javascript
-                  if(Checker.JsErrorStrings.some(err => log.message.indexOf(err) >= 0)){
-                    throw new errors.JavascriptError(log.message)
-                  }
+                  if(this._ignoreConsoleCheck && this._ignoreConsoleCheck(log) !== true){
+                    //javascript
+                    if(Checker.JsErrorStrings.some(err => log.message.indexOf(err) >= 0)){
+                      throw new errors.JavascriptError(log.message)
+                    }
 
-                  //response
-                  if(log.message.indexOf(url + " - ") === 0){
-                    const msg = log.message.split(url).join("")
-                    for(let i = 400;i <= 599; i++){
-                      if(msg.indexOf(" " + i + " ") >= 0){
-                        throw new errors.StatusCodeError(log.message)
+                    //Mixed Content for SSL
+                    if(log.message.indexOf("Mixed Content") != -1){
+                      throw new errors.ExistsError(log.message)
+                    }
+
+                    //response
+                    if(log.message.indexOf(url + " - ") === 0){
+                      const msg = log.message.split(url).join("")
+                      for(let i = 400;i <= 599; i++){
+                        if(msg.indexOf(" " + i + " ") >= 0){
+                          throw new errors.StatusCodeError(log.message)
+                        }
                       }
+                    }
+
+                    //Failed to load resource or GET 404
+                    if(log.message.indexOf("Failed to load resource") != -1){
+                      throw new errors.ExistsError(log.message)
+                    } else if (log.message.indexOf("GET") != -1 && log.message.indexOf("Not Found") != -1) {
+                      throw new errors.ExistsError(log.message)
                     }
                   }
                 })
@@ -358,6 +372,18 @@ export default class Checker
     }
 
     return newItem
+  }
+
+  _ignoreConsoleCheck(log){
+    //Returning true with this method will skip console error checking.
+    //If necessary, Please override this method at ssc.js.
+
+    //example: ignore favicon 404 error
+    if(log.message.indexOf("favicon.ico") != -1){
+      return true;
+    }
+
+    return false;
   }
 }
 
